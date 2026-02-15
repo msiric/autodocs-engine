@@ -1,0 +1,346 @@
+// src/types.ts — ALL shared types for the Codebase Intelligence Engine
+// Incorporates errata E-6 through E-13, E-39
+
+// ─── Top-level output ────────────────────────────────────────────────────────
+
+export interface StructuredAnalysis {
+  meta: AnalysisMeta;
+  packages: PackageAnalysis[];
+  crossPackage?: CrossPackageAnalysis;
+  warnings: Warning[];
+}
+
+export interface AnalysisMeta {
+  engineVersion: string;
+  analyzedAt: string;
+  rootDir: string;
+  config: PublicConfig; // E-6: Redacted config (no apiKey)
+  timingMs: number;
+}
+
+// E-6: PublicConfig omits apiKey from serialized output
+export type PublicConfig = Omit<ResolvedConfig, "llm"> & {
+  llm: Omit<ResolvedConfig["llm"], "apiKey">;
+};
+
+export interface ResolvedConfig {
+  packages: string[];
+  exclude: string[];
+  rootDir?: string;
+  output: {
+    format: OutputFormat;
+    dir: string;
+  };
+  llm: {
+    provider: "anthropic" | "openai" | "local";
+    model: string;
+    apiKey?: string;
+    baseUrl?: string;
+    maxOutputTokens: number; // E-7: default 4096
+  };
+  conventions: {
+    disable: string[];
+  };
+  maxPublicAPIEntries: number; // E-13: default 100
+  verbose: boolean;
+}
+
+export type OutputFormat = "json" | "agents.md" | "claude.md" | "cursorrules";
+
+// ─── Warnings (E-39: passed to all modules) ─────────────────────────────────
+
+export interface Warning {
+  level: "info" | "warn" | "error";
+  module: string;
+  message: string;
+  file?: string;
+}
+
+// ─── Per-package analysis ────────────────────────────────────────────────────
+
+export interface PackageAnalysis {
+  name: string;
+  version: string;
+  description: string;
+  relativePath: string;
+  files: FileInventory;
+  publicAPI: PublicAPIEntry[];
+  conventions: Convention[];
+  commands: CommandSet;
+  architecture: PackageArchitecture;
+  dependencies: DependencySummary;
+  role: PackageRole;
+  antiPatterns: AntiPattern[];
+  contributionPatterns: ContributionPattern[];
+}
+
+export interface PackageRole {
+  summary: string;
+  purpose: string;
+  whenToUse: string;
+  inferredFrom: string[];
+}
+
+export interface AntiPattern {
+  rule: string;
+  reason: string;
+  confidence: "high" | "medium";
+  derivedFrom: string;
+  impact?: RuleImpact; // Classified by what AI tools reliably follow
+}
+
+export interface ContributionPattern {
+  type: string;
+  directory: string;
+  filePattern: string;
+  testPattern?: string;
+  exampleFile: string;
+  steps: string[];
+}
+
+export interface FileInventory {
+  total: number;
+  byTier: {
+    tier1: { count: number; lines: number; files: string[] };
+    tier2: { count: number; lines: number; files: string[] };
+    tier3: { count: number; lines: number }; // No file list — noise
+  };
+  byExtension: Record<string, number>;
+}
+
+// E-11: importCount added
+export interface PublicAPIEntry {
+  name: string;
+  kind: SymbolKind;
+  sourceFile: string;
+  signature?: string;
+  isTypeOnly: boolean;
+  description?: string;
+  importCount?: number; // E-11: how many files import this symbol
+}
+
+export type SymbolKind =
+  | "function"
+  | "hook"
+  | "component"
+  | "type"
+  | "interface"
+  | "class"
+  | "enum"
+  | "const"
+  | "namespace" // E-24: for `export * as ns`
+  | "unknown";
+
+// E-12: Structured confidence
+export interface ConventionConfidence {
+  matched: number;
+  total: number;
+  percentage: number; // 0-100
+  description: string; // human-readable: "34 of 34 files (100%)"
+}
+
+export type RuleImpact = "high" | "medium" | "low";
+
+export interface Convention {
+  category: ConventionCategory;
+  name: string;
+  description: string;
+  confidence: ConventionConfidence; // E-12: structured, not string
+  examples: string[];
+  impact?: RuleImpact; // Classified by what AI tools reliably follow
+}
+
+export type ConventionCategory =
+  | "file-naming"
+  | "imports"
+  | "exports"
+  | "components"
+  | "hooks"
+  | "testing"
+  | "error-handling"
+  | "graphql"
+  | "telemetry"
+  | "state-management";
+
+// ─── Commands ────────────────────────────────────────────────────────────────
+
+export interface CommandSet {
+  packageManager: "npm" | "yarn" | "pnpm" | "bun" | "unknown";
+  build?: Command;
+  test?: Command;
+  lint?: Command;
+  start?: Command;
+  other: Command[];
+}
+
+export interface Command {
+  run: string;
+  source: string;
+  variants?: { name: string; run: string }[];
+}
+
+// ─── Package architecture ────────────────────────────────────────────────────
+
+export interface DirectoryInfo {
+  path: string;
+  purpose: string;
+  fileCount: number;
+  exports: string[];
+  pattern?: string;
+}
+
+export interface PackageArchitecture {
+  entryPoint: string;
+  directories: DirectoryInfo[];
+  // E-30: Updated union — removed org-specific types, added cli/server
+  packageType:
+    | "react-components"
+    | "hooks"
+    | "library"
+    | "cli"
+    | "server"
+    | "mixed"
+    | "unknown";
+  hasJSX: boolean;
+}
+
+// ─── Dependencies ────────────────────────────────────────────────────────────
+
+export interface DependencySummary {
+  internal: string[];
+  external: { name: string; importCount: number }[];
+  totalUniqueDependencies: number;
+}
+
+// ─── Cross-package analysis ──────────────────────────────────────────────────
+
+export interface CrossPackageAnalysis {
+  dependencyGraph: PackageDependency[];
+  sharedConventions: Convention[];
+  divergentConventions: {
+    convention: string;
+    packages: { name: string; value: string }[];
+  }[];
+  rootCommands?: CommandSet; // E-8: optional
+  sharedAntiPatterns: AntiPattern[];
+}
+
+export interface PackageDependency {
+  from: string;
+  to: string;
+  isDevOnly: boolean;
+}
+
+// ─── Internal types (not part of StructuredAnalysis output) ──────────────────
+
+export interface ParsedFile {
+  relativePath: string;
+  exports: ExportEntry[];
+  imports: ImportEntry[];
+  contentSignals: ContentSignals;
+  lineCount: number;
+  isTestFile: boolean;
+  isGeneratedFile: boolean;
+  hasJSX: boolean;
+  hasCJS: boolean; // E-18: CommonJS detection
+  hasSyntaxErrors: boolean; // E-19: syntax error detection
+}
+
+// E-10: localName for aliased exports
+export interface ExportEntry {
+  name: string;
+  localName?: string; // E-10: local name if different (e.g., `export { foo as bar }`)
+  kind: SymbolKind;
+  isReExport: boolean;
+  isTypeOnly: boolean;
+  reExportSource?: string;
+  signature?: string;
+  jsDocComment?: string;
+}
+
+export interface ImportEntry {
+  moduleSpecifier: string;
+  importedNames: string[];
+  isTypeOnly: boolean;
+  isDynamic: boolean;
+}
+
+// E-17: Hybrid AST/regex — AST-based signals and regex-based signals
+export interface ContentSignals {
+  // AST-based (E-17: computed via AST walking)
+  tryCatchCount: number;
+  useMemoCount: number;
+  useCallbackCount: number;
+  useEffectCount: number;
+  useStateCount: number;
+  useQueryCount: number;
+  useMutationCount: number;
+
+  // Regex-based (E-17: kept as regex — no clean AST equivalent)
+  jestMockCount: number;
+  hasDisplayName: boolean;
+  hasErrorBoundary: boolean;
+}
+
+// E-9: barrelFile added to SymbolGraph
+export interface SymbolGraph {
+  barrelFile?: string; // E-9: relative path to barrel, or undefined
+  barrelExports: ResolvedExport[];
+  allExports: Map<string, ExportEntry[]>;
+  importGraph: Map<string, ImportEntry[]>;
+  barrelSourceFiles: Set<string>;
+}
+
+export interface ResolvedExport extends ExportEntry {
+  definedIn: string;
+}
+
+export type TierInfo = { tier: 1 | 2 | 3; reason: string };
+
+export type ConventionDetector = (
+  files: ParsedFile[],
+  tiers: Map<string, TierInfo>,
+  warnings: Warning[],
+) => Convention[];
+
+// ─── Errors ──────────────────────────────────────────────────────────────────
+
+export class FileNotFoundError extends Error {
+  constructor(
+    public readonly filePath: string,
+    cause?: Error,
+  ) {
+    super(`File not found: ${filePath}`);
+    this.name = "FileNotFoundError";
+    if (cause) this.cause = cause;
+  }
+}
+
+export class LLMError extends Error {
+  constructor(
+    message: string,
+    public readonly statusCode?: number,
+  ) {
+    super(message);
+    this.name = "LLMError";
+  }
+}
+
+// ─── Constants ───────────────────────────────────────────────────────────────
+
+export const ENGINE_VERSION = "0.1.0";
+
+export const DEFAULT_EXCLUDE_DIRS = [
+  "node_modules",
+  "dist",
+  "lib",
+  "build",
+  "out",
+  "coverage",
+  "__mocks__",
+  ".git",
+  "generated-touchdown",
+] as const;
+
+export const SOURCE_EXTENSIONS = /\.(ts|tsx|js|jsx)$/;
+export const DTS_EXTENSION = /\.d\.(ts|tsx)$/;

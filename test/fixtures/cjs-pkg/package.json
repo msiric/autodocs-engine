@@ -1,0 +1,5 @@
+{
+  "name": "@test/cjs-pkg",
+  "version": "1.0.0",
+  "description": "CommonJS package for testing E-42"
+}

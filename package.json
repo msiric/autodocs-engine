@@ -1,0 +1,56 @@
+{
+  "name": "autodocs-engine",
+  "version": "0.1.0",
+  "description": "Codebase intelligence engine for generating AI context files",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "autodocs-engine": "dist/bin/autodocs-engine.js"
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.18.0"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msiric/autodocs-engine"
+  },
+  "keywords": [
+    "agents-md",
+    "claude-md",
+    "cursorrules",
+    "ai-context",
+    "codebase-intelligence",
+    "typescript",
+    "ast",
+    "conventions"
+  ],
+  "homepage": "https://github.com/msiric/autodocs-engine#readme",
+  "bugs": {
+    "url": "https://github.com/msiric/autodocs-engine/issues"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src/ test/",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "typescript": "^5.4.0",
+    "picomatch": "^4.0.0",
+    "mri": "^1.2.0"
+  },
+  "devDependencies": {
+    "vitest": "^2.0.0",
+    "@types/node": "^22.0.0",
+    "@types/picomatch": "^3.0.0"
+  }
+}

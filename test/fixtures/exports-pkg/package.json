@@ -1,0 +1,8 @@
+{
+  "name": "@test/exports-pkg",
+  "version": "1.0.0",
+  "description": "Package using exports field (E-41)",
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}
