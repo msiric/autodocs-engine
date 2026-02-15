@@ -1,0 +1,5 @@
+{
+  "name": "@test/no-barrel-pkg",
+  "version": "1.0.0",
+  "description": "Package with no index.ts barrel"
+}

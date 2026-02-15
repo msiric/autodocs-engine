@@ -1,0 +1,5 @@
+{
+  "name": "@test/circular-reexport-pkg",
+  "version": "1.0.0",
+  "description": "Package with circular re-exports for testing E-40"
+}

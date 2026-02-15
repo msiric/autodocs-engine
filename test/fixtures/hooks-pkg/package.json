@@ -1,0 +1,10 @@
+{
+  "name": "@test/hooks-pkg",
+  "version": "2.0.0",
+  "description": "A hooks package for testing",
+  "scripts": {
+    "test": "jest",
+    "build": "tsc",
+    "lint": "eslint src/"
+  }
+}
