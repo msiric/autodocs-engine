@@ -23,6 +23,7 @@ import { deriveAntiPatterns } from "./anti-pattern-detector.js";
 import { detectContributionPatterns } from "./contribution-patterns.js";
 import { classifyImpacts } from "./impact-classifier.js";
 import { analyzeConfig } from "./config-analyzer.js";
+import { fingerprintTopExports } from "./pattern-fingerprinter.js";
 import { analyzeDependencies } from "./dependency-analyzer.js";
 import { detectExistingDocs } from "./existing-docs.js";
 
@@ -140,21 +141,23 @@ function analyzePackage(
   vlog(verbose, `  Public API: ${publicAPI.length} exports`);
 
   // Steps 5-7: Run analysis modules (E-39: pass warnings)
+  // Improvement 1 & 2: Config and dependency analysis needed before convention extraction
+  // (moved up so detectors can use context)
+  const configAnalysis = analyzeConfig(pkgPath, config.rootDir, warnings);
+  vlog(verbose, `  Config: build=${configAnalysis.buildTool?.name ?? "none"}, linter=${configAnalysis.linter?.name ?? "none"}, formatter=${configAnalysis.formatter?.name ?? "none"}`);
+
+  const dependencyInsights = analyzeDependencies(pkgPath, config.rootDir, warnings);
+  vlog(verbose, `  Dependencies: ${dependencyInsights.frameworks.length} frameworks, runtime=${dependencyInsights.runtime.map((r) => r.name).join("+") || "node"}`);
+
+  // W2-3: Pass dependency and config context to convention detectors
   const conventions = extractConventions(
     parsed,
     tiers,
     config.conventions.disable,
     warnings,
+    { dependencies: dependencyInsights, config: configAnalysis },
   );
   vlog(verbose, `  Conventions: ${conventions.length} detected`);
-
-  // Improvement 1: Config file analysis
-  const configAnalysis = analyzeConfig(pkgPath, config.rootDir, warnings);
-  vlog(verbose, `  Config: build=${configAnalysis.buildTool?.name ?? "none"}, linter=${configAnalysis.linter?.name ?? "none"}, formatter=${configAnalysis.formatter?.name ?? "none"}`);
-
-  // Improvement 2: Dependency insights
-  const dependencyInsights = analyzeDependencies(pkgPath, config.rootDir, warnings);
-  vlog(verbose, `  Dependencies: ${dependencyInsights.frameworks.length} frameworks, runtime=${dependencyInsights.runtime.map((r) => r.name).join("+") || "node"}`);
 
   // Improvement 4: Existing docs detection
   const existingDocs = detectExistingDocs(pkgPath, warnings);
@@ -224,6 +227,12 @@ function analyzePackage(
     vlog(verbose, `  Call graph: ${symbolGraph.callGraph.length} edges`);
   }
 
+  // W2-2: Pattern fingerprinting for top exports
+  const patternFingerprints = fingerprintTopExports(publicAPI, pkgPath, 5, warnings);
+  if (patternFingerprints.length > 0) {
+    vlog(verbose, `  Pattern fingerprints: ${patternFingerprints.length} exports analyzed`);
+  }
+
   const pkgMs = Math.round(performance.now() - pkgStart);
   vlog(verbose, `  Analysis time: ${pkgMs}ms`);
 
@@ -237,6 +246,7 @@ function analyzePackage(
     dependencyInsights,
     existingDocs,
     callGraph: symbolGraph.callGraph.length > 0 ? symbolGraph.callGraph : undefined,
+    patternFingerprints: patternFingerprints.length > 0 ? patternFingerprints : undefined,
   };
 }
 

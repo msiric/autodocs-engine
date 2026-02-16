@@ -5,6 +5,7 @@
 
 import type { StructuredAnalysis, ResolvedConfig, PackageAnalysis } from "./types.js";
 import { LLMError } from "./types.js";
+import { validateOutput } from "./output-validator.js";
 import {
   agentsMdSingleTemplate,
   agentsMdMultiTemplate,
@@ -47,20 +48,9 @@ export async function formatWithLLM(
     throw new LLMError("No API key provided. Set ANTHROPIC_API_KEY or use --format json.");
   }
 
-  // E-36: Retry semantics — retry once after 2 seconds
-  try {
-    return await callLLM(systemPrompt, userPrompt, config.llm);
-  } catch (err) {
-    // Wait 2 seconds and retry once
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    try {
-      return await callLLM(systemPrompt, userPrompt, config.llm);
-    } catch (retryErr) {
-      throw new LLMError(
-        `LLM API failed after retry: ${retryErr instanceof Error ? retryErr.message : String(retryErr)}`,
-      );
-    }
-  }
+  // W2-1: Generate, validate, optionally retry once with corrections
+  const output = await callLLMWithRetry(systemPrompt, userPrompt, config.llm);
+  return validateAndCorrect(output, analysis, "root", template.systemPrompt, config.llm);
 }
 
 /**
@@ -89,14 +79,18 @@ export async function formatHierarchical(
   const filenameHint = `\n\nPackage detail files will be at:\n${packageFilenames.map((p) => `- packages/${p.filename}`).join("\n")}`;
 
   const rootPrompt = `${rootTemplate.formatInstructions}${filenameHint}\n\n---\n\n${rootSerialized}`;
-  const rootContent = await callLLMWithRetry(rootTemplate.systemPrompt, rootPrompt, config.llm);
+  const rawRoot = await callLLMWithRetry(rootTemplate.systemPrompt, rootPrompt, config.llm);
+  // W2-1: Validate root output
+  const rootContent = await validateAndCorrect(rawRoot, analysis, "root", rootTemplate.systemPrompt, config.llm);
 
   // Generate per-package detail files (can be parallelized)
   const packagePromises = analysis.packages.map(async (pkg) => {
     const pkgSerialized = serializePackageToMarkdown(pkg);
     const pkgTemplate = agentsMdPackageDetailTemplate;
     const pkgPrompt = `${pkgTemplate.formatInstructions}\n\n---\n\n${pkgSerialized}`;
-    const content = await callLLMWithRetry(pkgTemplate.systemPrompt, pkgPrompt, config.llm);
+    const rawContent = await callLLMWithRetry(pkgTemplate.systemPrompt, pkgPrompt, config.llm);
+    // W2-1: Validate per-package output
+    const content = await validateAndCorrect(rawContent, pkg, "package-detail", pkgTemplate.systemPrompt, config.llm);
     return {
       filename: toPackageFilename(pkg.name),
       content,
@@ -181,6 +175,56 @@ async function callLLM(
       throw new LLMError("LLM API request timed out after 120s");
     }
     throw err;
+  }
+}
+
+// ─── W2-1: Validation + Correction ──────────────────────────────────────────
+
+/**
+ * Validate LLM output against analysis. If errors found, retry once with corrections.
+ * Maximum 1 retry (2x cost per file cap).
+ */
+async function validateAndCorrect(
+  output: string,
+  analysis: StructuredAnalysis | PackageAnalysis,
+  format: "root" | "package-detail",
+  systemPrompt: string,
+  llmConfig: ResolvedConfig["llm"],
+): Promise<string> {
+  const validation = validateOutput(output, analysis, format);
+
+  if (validation.isValid || !validation.correctionPrompt) {
+    // Log warnings to stderr
+    for (const issue of validation.issues) {
+      if (issue.severity === "warning") {
+        process.stderr.write(`[WARN] output-validator: ${issue.message}\n`);
+      }
+    }
+    return output;
+  }
+
+  // Log issues before retry
+  for (const issue of validation.issues) {
+    process.stderr.write(`[${issue.severity.toUpperCase()}] output-validator: ${issue.message}\n`);
+  }
+  process.stderr.write(`[INFO] output-validator: Retrying with ${validation.issues.filter((i) => i.severity === "error").length} correction(s)...\n`);
+
+  // One targeted retry
+  try {
+    const corrected = await callLLMWithRetry(systemPrompt, validation.correctionPrompt, llmConfig);
+
+    // Validate again but don't retry further
+    const revalidation = validateOutput(corrected, analysis, format);
+    if (!revalidation.isValid) {
+      for (const issue of revalidation.issues) {
+        process.stderr.write(`[WARN] output-validator (post-retry): ${issue.message}\n`);
+      }
+    }
+    return corrected;
+  } catch {
+    // If retry fails, return original output
+    process.stderr.write(`[WARN] output-validator: Correction retry failed, using original output\n`);
+    return output;
   }
 }
 
@@ -391,6 +435,22 @@ function serializePackage(pkg: PackageAnalysis, lines: string[]): void {
     }
     if (pkg.callGraph.length > 30) {
       lines.push(`  ... and ${pkg.callGraph.length - 30} more edges`);
+    }
+    lines.push("");
+  }
+
+  // W2-2: Pattern fingerprints
+  if (pkg.patternFingerprints && pkg.patternFingerprints.length > 0) {
+    lines.push("## Pattern Fingerprints");
+    lines.push("Detailed patterns for the most-imported exports:");
+    for (const fp of pkg.patternFingerprints) {
+      lines.push(`- **${fp.exportName}** (${fp.sourceFile}): ${fp.summary}`);
+      lines.push(`  - Parameters: ${fp.parameterShape}`);
+      lines.push(`  - Returns: ${fp.returnShape}`);
+      if (fp.internalCalls.length > 0) {
+        lines.push(`  - Calls: ${fp.internalCalls.join(", ")}`);
+      }
+      lines.push(`  - Error handling: ${fp.errorPattern} | Async: ${fp.asyncPattern} | Complexity: ${fp.complexity}`);
     }
     lines.push("");
   }
