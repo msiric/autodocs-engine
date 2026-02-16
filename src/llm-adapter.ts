@@ -382,6 +382,19 @@ function serializePackage(pkg: PackageAnalysis, lines: string[]): void {
   }
   lines.push("");
 
+  // Improvement 3: Call graph
+  if (pkg.callGraph && pkg.callGraph.length > 0) {
+    lines.push("## Call Graph");
+    lines.push("Key function relationships (caller → callee):");
+    for (const edge of pkg.callGraph.slice(0, 30)) {
+      lines.push(`- ${edge.from} → ${edge.to} (${edge.fromFile} → ${edge.toFile})`);
+    }
+    if (pkg.callGraph.length > 30) {
+      lines.push(`  ... and ${pkg.callGraph.length - 30} more edges`);
+    }
+    lines.push("");
+  }
+
   // Anti-patterns
   if (pkg.antiPatterns && pkg.antiPatterns.length > 0) {
     lines.push("## Anti-Patterns (DO NOT)");
@@ -404,6 +417,61 @@ function serializePackage(pkg: PackageAnalysis, lines: string[]): void {
       }
     }
     lines.push("");
+  }
+
+  // Improvement 1: Config analysis
+  if (pkg.configAnalysis) {
+    const ca = pkg.configAnalysis;
+    const parts: string[] = [];
+    if (ca.buildTool && ca.buildTool.name !== "none") parts.push(`Build tool: ${ca.buildTool.name} (${ca.buildTool.configFile})`);
+    if (ca.linter && ca.linter.name !== "none") parts.push(`Linter: ${ca.linter.name} (${ca.linter.configFile})`);
+    if (ca.formatter && ca.formatter.name !== "none") parts.push(`Formatter: ${ca.formatter.name} (${ca.formatter.configFile})`);
+    if (ca.taskRunner && ca.taskRunner.name !== "none") parts.push(`Task runner: ${ca.taskRunner.name} (${ca.taskRunner.configFile}), targets: ${ca.taskRunner.targets.join(", ")}`);
+    if (ca.typescript) {
+      parts.push(`TypeScript: strict=${ca.typescript.strict}, target=${ca.typescript.target}, module=${ca.typescript.module}`);
+      if (ca.typescript.paths) parts.push(`Path aliases: ${Object.keys(ca.typescript.paths).join(", ")}`);
+    }
+    if (ca.envVars && ca.envVars.length > 0) parts.push(`Required env vars: ${ca.envVars.join(", ")}`);
+    if (parts.length > 0) {
+      lines.push("## Config");
+      for (const p of parts) lines.push(`- ${p}`);
+      lines.push("");
+    }
+  }
+
+  // Improvement 2: Dependency insights
+  if (pkg.dependencyInsights) {
+    const di = pkg.dependencyInsights;
+    const hasSomething = di.runtime.length > 0 || di.frameworks.length > 0 || di.testFramework || di.bundler;
+    if (hasSomething) {
+      lines.push("## Tech Stack");
+      if (di.runtime.length > 0) {
+        lines.push(`Runtime: ${di.runtime.map((r) => `${r.name} ${r.version}`).join(", ")}`);
+      }
+      for (const fw of di.frameworks) {
+        const guidance = fw.guidance ? ` — ${fw.guidance}` : "";
+        lines.push(`- ${fw.name}: ${fw.version}${guidance}`);
+      }
+      if (di.testFramework) lines.push(`- Test framework: ${di.testFramework.name} ${di.testFramework.version}`);
+      if (di.bundler) lines.push(`- Bundler: ${di.bundler.name} ${di.bundler.version}`);
+      lines.push("");
+    }
+  }
+
+  // Improvement 4: Existing documentation
+  if (pkg.existingDocs) {
+    const ed = pkg.existingDocs;
+    const existing: string[] = [];
+    if (ed.hasReadme) existing.push("README.md");
+    if (ed.hasAgentsMd) existing.push("AGENTS.md");
+    if (ed.hasClaudeMd) existing.push("CLAUDE.md");
+    if (ed.hasCursorrules) existing.push(".cursorrules");
+    if (ed.hasContributing) existing.push("CONTRIBUTING.md");
+    if (existing.length > 0) {
+      lines.push("## Existing Documentation");
+      lines.push(`This package already has: ${existing.join(", ")}. Do not duplicate their content.`);
+      lines.push("");
+    }
   }
 
   lines.push("## Dependencies");

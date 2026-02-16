@@ -1,0 +1,9 @@
+{
+  "name": "turbo-monorepo",
+  "private": true,
+  "workspaces": ["packages/*"],
+  "packageManager": "bun@1.1.0",
+  "devDependencies": {
+    "turbo": "^2.0.0"
+  }
+}

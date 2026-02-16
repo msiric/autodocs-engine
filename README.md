@@ -45,9 +45,10 @@ Unlike tools that dump raw code into an LLM prompt, autodocs-engine uses a 6-ste
 1. **Analyze** — Parses your codebase with the TypeScript Compiler API (AST parsing, not type checking — fast even on large repos)
 2. **Classify** — Categorizes every file as Public API, Internal, or Generated noise
 3. **Detect** — Finds conventions with confidence metrics (e.g., "97% kebab-case filenames", "100% co-located tests")
-4. **Extract** — Pulls exact commands from package.json, lockfiles, and config files
-5. **Infer** — Determines package roles from export patterns and dependency graphs
-6. **Generate** — Produces a lean AGENTS.md that respects the ~100-rule instruction budget
+4. **Extract** — Pulls exact commands from package.json, lockfiles, and config files. Detects turbo.json, biome.json, tsconfig settings, and more
+5. **Infer** — Determines package roles from export patterns, dependency graphs, and exact framework versions (e.g., "React 19 — use() hook available")
+6. **Graph** — Builds a lightweight call graph tracking which exported functions call which, enabling change-impact descriptions
+7. **Generate** — Produces a lean AGENTS.md that respects the ~100-rule instruction budget
 
 The LLM receives a 2–4K token structured summary — not 100K tokens of raw source code. Result: 92% fewer tokens, correct commands, 2x more conventions detected than hand-written files.
 
@@ -85,7 +86,7 @@ The root file stays lean (~70 lines). Package-specific detail lives in each pack
 | [changesets](https://github.com/changesets/changesets) | 9K | 36 | 7.5/10 | 69ms |
 | [shadcn/ui](https://github.com/shadcn-ui/ui) | 85K | 250 | 7.5/10 | 194ms |
 
-Scores measure command accuracy, convention coverage, architecture clarity, and actionability. Times are for the analysis step only (no LLM call).
+Scores measure command accuracy, convention coverage, architecture clarity, and actionability (7.7/10 average across open-source benchmarks). Times are for the analysis step only (no LLM call).
 
 ## Configuration
 
@@ -116,6 +117,7 @@ Options:
   --hierarchical       Root + per-package output (default for multi-package)
   --flat               Single file even for multi-package
   --verbose, -v        Timing and budget validation details
+  --merge              Preserve human-written sections when regenerating
   --dry-run            Print analysis to stdout (no LLM, no file writes)
   --quiet, -q          Suppress warnings
 ```

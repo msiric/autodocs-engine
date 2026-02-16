@@ -11,6 +11,7 @@ import type {
   ImportEntry,
   SymbolGraph,
   ResolvedExport,
+  CallGraphEdge,
   Warning,
 } from "./types.js";
 
@@ -53,6 +54,7 @@ export function buildSymbolGraph(
         allExports,
         importGraph,
         barrelSourceFiles: binSourceFiles,
+        callGraph: buildCallGraph(parsedFiles, absPackageDir, warnings),
       };
     }
 
@@ -67,6 +69,7 @@ export function buildSymbolGraph(
       allExports,
       importGraph,
       barrelSourceFiles: new Set(),
+      callGraph: buildCallGraph(parsedFiles, absPackageDir, warnings),
     };
   }
 
@@ -83,6 +86,7 @@ export function buildSymbolGraph(
       allExports,
       importGraph,
       barrelSourceFiles: new Set(),
+      callGraph: buildCallGraph(parsedFiles, absPackageDir, warnings),
     };
   }
 
@@ -153,6 +157,7 @@ export function buildSymbolGraph(
         allExports,
         importGraph,
         barrelSourceFiles,
+        callGraph: buildCallGraph(parsedFiles, absPackageDir, warnings),
       };
     }
 
@@ -168,6 +173,7 @@ export function buildSymbolGraph(
         allExports,
         importGraph,
         barrelSourceFiles,
+        callGraph: buildCallGraph(parsedFiles, absPackageDir, warnings),
       };
     }
   }
@@ -178,6 +184,7 @@ export function buildSymbolGraph(
     allExports,
     importGraph,
     barrelSourceFiles,
+    callGraph: buildCallGraph(parsedFiles, absPackageDir, warnings),
   };
 }
 
@@ -733,4 +740,55 @@ function resolveBinToSource(
   }
 
   return undefined;
+}
+
+// ─── Call Graph Builder (Improvement 3) ─────────────────────────────────────
+
+/**
+ * Build a cross-file call graph from per-file call references.
+ * Resolves internal module specifiers to actual file paths within the package.
+ */
+function buildCallGraph(
+  parsedFiles: ParsedFile[],
+  packageDir: string,
+  _warnings: Warning[],
+): CallGraphEdge[] {
+  const edges: CallGraphEdge[] = [];
+  const seen = new Set<string>();
+
+  // Build a map: exported name → file path (for resolving call targets)
+  const exportNameToFile = new Map<string, string>();
+  for (const pf of parsedFiles) {
+    for (const exp of pf.exports) {
+      if (!exp.isTypeOnly && exp.name !== "*" && exp.name !== "default") {
+        // First definition wins (closest to barrel)
+        if (!exportNameToFile.has(exp.name)) {
+          exportNameToFile.set(exp.name, pf.relativePath);
+        }
+      }
+    }
+  }
+
+  for (const pf of parsedFiles) {
+    for (const ref of pf.callReferences) {
+      if (!ref.isInternal) continue; // Only track internal calls
+
+      // Resolve the callee to a file
+      const toFile = exportNameToFile.get(ref.calleeName);
+      if (!toFile || toFile === pf.relativePath) continue; // Skip self-references
+
+      const key = `${ref.callerName}:${pf.relativePath}->${ref.calleeName}:${toFile}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+
+      edges.push({
+        from: ref.callerName,
+        to: ref.calleeName,
+        fromFile: pf.relativePath,
+        toFile,
+      });
+    }
+  }
+
+  return edges;
 }

@@ -36,7 +36,14 @@ export type {
   OutputFormat,
   SymbolKind,
   RuleImpact,
+  ConfigAnalysis,
+  DependencyInsights,
+  ExistingDocs,
+  CallReference,
+  CallGraphEdge,
 } from "./types.js";
+
+export { wrapWithDelimiters, mergeWithExisting, readExistingAgentsMd } from "./existing-docs.js";
 
 export { ENGINE_VERSION } from "./types.js";
 
