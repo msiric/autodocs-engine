@@ -12,7 +12,9 @@ WAVE 1 DATA INSTRUCTIONS:
 - If the analysis includes a "Call Graph" section, use it to describe how key functions relate to each other in the Architecture section — this is architectural knowledge AI can't get from reading individual files. Focus on the 3-5 most-connected functions as entry points.
 - If the analysis includes a "Config" section showing a build tool (Turbo, Nx), use its commands (e.g., "turbo run build") instead of package manager commands for tasks the build tool orchestrates. Mention the build tool in the tech stack line.
 - If the analysis includes a "Config" section showing a linter/formatter (Biome, ESLint, Prettier), mention which tool is used so AI doesn't generate config for the wrong one.
-- If the analysis includes "Existing Documentation", note which docs exist so AI doesn't duplicate their content.`;
+- If the analysis includes "Existing Documentation", note which docs exist so AI doesn't duplicate their content.
+- If the analysis includes "Pattern Fingerprints", use them to provide SPECIFIC architecture descriptions instead of generic ones. Describe exports by their actual parameter shapes, return types, internal calls, and error handling patterns. E.g., instead of "tree-based routing" say "5 router implementations sharing Router interface. SmartRouter (default) combines RegExp + Trie. Each implements find(method, path) → Result."
+- CRITICAL: Only mention technologies that appear in the analysis data. If the dependencies list @tanstack/react-query, say "TanStack Query" not "GraphQL". If the dependencies list oRPC, say "oRPC" not "GraphQL". Never infer a technology that isn't explicitly in the analysis.`;
 
 // ─── Single-package template (for analyzing 1 package) ─────────────────────
 
@@ -52,6 +54,7 @@ REQUIRED STRUCTURE:
 {Describe what the package DOES, not where files live. 4-6 bullet points describing capabilities.}
 {Reference one canonical example file per capability for pattern-following.}
 {If Call Graph data is present, describe the top-level orchestration: which functions call which others. E.g., "processData orchestrates: validateInput → formatOutput → writeResult". Focus on the 3-5 most-connected entry points.}
+{If Pattern Fingerprints are present, use their specific parameter shapes, return types, and internal calls to describe architecture concretely. E.g., "SmartRouter: accepts config { routers: Router[] }, calls linearRouter.match() and trieRouter.match(), returns Result. See src/smart-router.ts"}
 
 Example:
 - **Tab CRUD**: Create, read, update channel page tabs via custom hooks (see \`use-create-channel-page-tab.tsx\`)

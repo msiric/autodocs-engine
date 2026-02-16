@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 // CLI entry point for autodocs-engine
 
-import { writeFileSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { resolve, dirname, join } from "node:path";
 import { analyze, format, formatAsHierarchy, validateBudget, formatBudgetReport, ENGINE_VERSION, wrapWithDelimiters, mergeWithExisting, readExistingAgentsMd } from "../index.js";
 import { parseCliArgs, resolveConfig } from "../config.js";
-import type { OutputFormat } from "../types.js";
+import { diffAnalyses } from "../diff-analyzer.js";
+import type { OutputFormat, StructuredAnalysis } from "../types.js";
 
 const OUTPUT_FILENAMES: Record<string, string> = {
   json: "autodocs-analysis.json",
@@ -31,6 +32,7 @@ Options:
   --hierarchical       Produce root AGENTS.md + per-package detail files (default for multi-package)
   --flat               Force single-file output even for multi-package
   --merge              Preserve human-written sections in existing AGENTS.md (uses delimiters)
+  --diff <path>        Compare against previous analysis JSON and output a diff report
   --quiet, -q          Suppress warnings
   --verbose, -v        Print detailed timing and budget validation
   --dry-run            Print structured analysis to stdout (no LLM call, no file write)
@@ -79,6 +81,29 @@ async function main() {
   if (args.dryRun) {
     process.stdout.write(JSON.stringify(analysis, mapReplacer, 2) + "\n");
     process.exit(0);
+  }
+
+  // W2-4: Diff mode — compare against previous analysis
+  if (args.diff) {
+    const diffPath = resolve(args.diff);
+    if (!existsSync(diffPath)) {
+      process.stderr.write(`[error] Previous analysis file not found: ${diffPath}\n`);
+      process.exit(1);
+    }
+    try {
+      const previousJson = readFileSync(diffPath, "utf-8");
+      const previous = JSON.parse(previousJson) as StructuredAnalysis;
+      const diff = diffAnalyses(analysis, previous);
+      process.stdout.write(JSON.stringify(diff, null, 2) + "\n");
+      if (!args.quiet) {
+        process.stderr.write(`[INFO] ${diff.summary}\n`);
+      }
+      process.exit(diff.needsUpdate ? 1 : 0);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      process.stderr.write(`[error] Failed to read/parse previous analysis: ${msg}\n`);
+      process.exit(1);
+    }
   }
 
   // Format and write output

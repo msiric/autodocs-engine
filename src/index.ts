@@ -41,9 +41,17 @@ export type {
   ExistingDocs,
   CallReference,
   CallGraphEdge,
+  PatternFingerprint,
+  ValidationResult,
+  ValidationIssue,
+  AnalysisDiff,
+  DetectorContext,
 } from "./types.js";
 
 export { wrapWithDelimiters, mergeWithExisting, readExistingAgentsMd } from "./existing-docs.js";
+export { validateOutput } from "./output-validator.js";
+export { fingerprintTopExports } from "./pattern-fingerprinter.js";
+export { diffAnalyses } from "./diff-analyzer.js";
 
 export { ENGINE_VERSION } from "./types.js";
 

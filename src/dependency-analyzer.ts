@@ -192,7 +192,8 @@ function getFrameworkGuidance(name: string, version: string): FrameworkGuidanceE
       return { guidance: undefined };
 
     case "next":
-      if (major >= 15) return { guidance: "Next.js 15 — App Router is default, Turbopack available, Server Actions stable" };
+      if (major >= 16) return { guidance: `Next.js ${major} — App Router default, Turbopack stable, Server Actions stable, React Server Components` };
+      if (major === 15) return { guidance: "Next.js 15 — App Router is default, Turbopack available, Server Actions stable" };
       if (major === 14) return { guidance: "Next.js 14 — App Router stable, Server Actions stable, Turbopack alpha" };
       if (major === 13) return { guidance: "Next.js 13 — App Router introduced (may use Pages Router), Server Components experimental" };
       return { guidance: undefined };

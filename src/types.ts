@@ -76,6 +76,7 @@ export interface PackageAnalysis {
   dependencyInsights?: DependencyInsights;
   existingDocs?: ExistingDocs;
   callGraph?: CallGraphEdge[];
+  patternFingerprints?: PatternFingerprint[];
 }
 
 // ─── Config Analysis (Improvement 1) ────────────────────────────────────────
@@ -372,10 +373,16 @@ export interface ResolvedExport extends ExportEntry {
 
 export type TierInfo = { tier: 1 | 2 | 3; reason: string };
 
+export interface DetectorContext {
+  dependencies?: DependencyInsights;
+  config?: ConfigAnalysis;
+}
+
 export type ConventionDetector = (
   files: ParsedFile[],
   tiers: Map<string, TierInfo>,
   warnings: Warning[],
+  context?: DetectorContext,
 ) => Convention[];
 
 // ─── Errors ──────────────────────────────────────────────────────────────────
@@ -399,6 +406,53 @@ export class LLMError extends Error {
     super(message);
     this.name = "LLMError";
   }
+}
+
+// ─── W2-1: Output Validation ─────────────────────────────────────────────────
+
+export interface ValidationResult {
+  isValid: boolean;
+  issues: ValidationIssue[];
+  correctionPrompt?: string;
+}
+
+export interface ValidationIssue {
+  severity: "error" | "warning";
+  type: "hallucinated_technology" | "version_mismatch" | "unknown_symbol" | "budget_exceeded" | "command_mismatch";
+  message: string;
+  line?: number;
+  suggestion?: string;
+}
+
+// ─── W2-2: Pattern Fingerprinting ────────────────────────────────────────────
+
+export interface PatternFingerprint {
+  exportName: string;
+  sourceFile: string;
+  parameterShape: string;
+  returnShape: string;
+  internalCalls: string[];
+  errorPattern: string;
+  asyncPattern: string;
+  complexity: "simple" | "moderate" | "complex";
+  summary: string;
+}
+
+// ─── W2-4: Diff Analysis ────────────────────────────────────────────────────
+
+export interface AnalysisDiff {
+  newExports: string[];
+  removedExports: string[];
+  changedConventions: string[];
+  newConventions: string[];
+  commandsChanged: boolean;
+  dependencyChanges: {
+    added: string[];
+    removed: string[];
+    majorVersionChanged: string[];
+  };
+  summary: string;
+  needsUpdate: boolean;
 }
 
 // ─── Constants ───────────────────────────────────────────────────────────────
