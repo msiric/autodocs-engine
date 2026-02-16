@@ -1,7 +1,20 @@
 node_modules/
 dist/
-*.env
+
+# Secrets
+.env
 .env.*
+*.env
+experiments/**/.env
+
+# Experiment outputs
+experiments/**/results.json
+experiments/04-ab-comparison/version-a-output.md
+experiments/04-ab-comparison/version-b-output.md
+experiments/04-ab-comparison/version-b-input.md
+
+# Build artifacts
 *.tgz
-coverage/
-.DS_Store
+
+# Debug logs
+*.log

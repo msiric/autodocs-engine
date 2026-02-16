@@ -10,7 +10,9 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "typeRoots": ["./node_modules/@types"],
+    "types": ["node", "picomatch"]
   },
   "include": ["src/**/*"],
   "exclude": ["dist", "node_modules", "test", "experiments"]

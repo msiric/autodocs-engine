@@ -10,6 +10,7 @@ import type {
   ExportEntry,
   ImportEntry,
   ContentSignals,
+  CallReference,
   SymbolKind,
   Warning,
 } from "./types.js";
@@ -114,6 +115,9 @@ export function parseFile(
     mergeCJSPatterns(sourceFile, exports, imports, content);
   }
 
+  // Improvement 3: Extract call references (which imported symbols are called from exported functions)
+  const callReferences = extractCallReferences(sourceFile, exports, imports);
+
   return {
     relativePath: relPath,
     exports,
@@ -125,6 +129,7 @@ export function parseFile(
     hasJSX,
     hasCJS,
     hasSyntaxErrors,
+    callReferences,
   };
 }
 
@@ -214,7 +219,8 @@ function extractExports(sourceFile: ts.SourceFile, hasReactImport: boolean = fal
     }
 
     // Statements with export modifier
-    const modifiers = ts.canHaveModifiers(stmt) ? ts.getModifiers(stmt) : undefined;
+    if (!ts.canHaveModifiers(stmt)) continue;
+    const modifiers = ts.getModifiers(stmt);
     const hasExport = modifiers?.some(
       (m) => m.kind === ts.SyntaxKind.ExportKeyword,
     );
@@ -649,4 +655,123 @@ function mergeCJSPatterns(
     ts.forEachChild(node, walkRequires);
   }
   walkRequires(sourceFile);
+}
+
+// ─── Call Reference Extraction (Improvement 3) ──────────────────────────────
+
+/**
+ * Extract call references: which imported symbols are called within exported function bodies.
+ * Only tracks direct calls (identifier matches imported name).
+ */
+function extractCallReferences(
+  sourceFile: ts.SourceFile,
+  exports: ExportEntry[],
+  imports: ImportEntry[],
+): CallReference[] {
+  // Build a map of imported names → module specifier
+  const importedNameToModule = new Map<string, string>();
+  for (const imp of imports) {
+    for (const name of imp.importedNames) {
+      // Skip namespace imports like "* as foo"
+      if (name.startsWith("*")) continue;
+      importedNameToModule.set(name, imp.moduleSpecifier);
+    }
+  }
+
+  if (importedNameToModule.size === 0) return [];
+
+  // Build a set of exported function names
+  const exportedNames = new Set(
+    exports
+      .filter((e) => !e.isTypeOnly && e.name !== "*" && e.name !== "default")
+      .map((e) => e.name),
+  );
+
+  if (exportedNames.size === 0) return [];
+
+  const callRefs: CallReference[] = [];
+
+  // Walk top-level statements looking for exported function/variable declarations
+  for (const stmt of sourceFile.statements) {
+    if (!ts.canHaveModifiers(stmt)) continue;
+    const modifiers = ts.getModifiers(stmt);
+    const hasExport = modifiers?.some(
+      (m) => m.kind === ts.SyntaxKind.ExportKeyword,
+    );
+    if (!hasExport) continue;
+
+    if (ts.isFunctionDeclaration(stmt) && stmt.name && exportedNames.has(stmt.name.text)) {
+      const callerName = stmt.name.text;
+      if (stmt.body) {
+        findCallsInBody(stmt.body, callerName, importedNameToModule, callRefs);
+      }
+    } else if (ts.isVariableStatement(stmt)) {
+      for (const decl of stmt.declarationList.declarations) {
+        if (!ts.isIdentifier(decl.name) || !exportedNames.has(decl.name.text)) continue;
+        const callerName = decl.name.text;
+
+        if (decl.initializer) {
+          // Arrow function or function expression
+          let funcBody: ts.Node | undefined;
+          if (ts.isArrowFunction(decl.initializer)) {
+            funcBody = decl.initializer.body;
+          } else if (ts.isFunctionExpression(decl.initializer)) {
+            funcBody = decl.initializer.body;
+          } else if (ts.isCallExpression(decl.initializer)) {
+            // e.g., React.memo(() => { ... })
+            const arg = decl.initializer.arguments[0];
+            if (arg && (ts.isArrowFunction(arg) || ts.isFunctionExpression(arg))) {
+              funcBody = arg.body;
+            }
+          }
+          if (funcBody) {
+            findCallsInBody(funcBody, callerName, importedNameToModule, callRefs);
+          }
+        }
+      }
+    }
+  }
+
+  return callRefs;
+}
+
+/**
+ * Walk a function body to find call expressions that match imported symbols.
+ */
+function findCallsInBody(
+  body: ts.Node,
+  callerName: string,
+  importedNameToModule: Map<string, string>,
+  callRefs: CallReference[],
+): void {
+  const seen = new Set<string>(); // avoid duplicates per caller
+
+  function walk(node: ts.Node): void {
+    if (ts.isCallExpression(node)) {
+      let calleeName: string | undefined;
+
+      if (ts.isIdentifier(node.expression)) {
+        calleeName = node.expression.text;
+      }
+      // Don't follow property access (foo.bar()) — only direct calls
+
+      if (calleeName && importedNameToModule.has(calleeName)) {
+        const key = `${callerName}->${calleeName}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          const moduleSpec = importedNameToModule.get(calleeName)!;
+          callRefs.push({
+            callerName,
+            calleeName,
+            calleeModule: moduleSpec,
+            isInternal: moduleSpec.startsWith("."),
+          });
+        }
+      }
+    }
+
+    ts.forEachChild(node, walk);
+  }
+
+  walk(body);
 }

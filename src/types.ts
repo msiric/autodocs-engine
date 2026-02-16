@@ -72,6 +72,79 @@ export interface PackageAnalysis {
   role: PackageRole;
   antiPatterns: AntiPattern[];
   contributionPatterns: ContributionPattern[];
+  configAnalysis?: ConfigAnalysis;
+  dependencyInsights?: DependencyInsights;
+  existingDocs?: ExistingDocs;
+  callGraph?: CallGraphEdge[];
+}
+
+// ─── Config Analysis (Improvement 1) ────────────────────────────────────────
+
+export interface ConfigAnalysis {
+  typescript?: {
+    strict: boolean;
+    target: string;
+    module: string;
+    moduleResolution: string;
+    paths?: Record<string, string[]>;
+    jsx?: string;
+  };
+  buildTool?: {
+    name: "turbo" | "nx" | "lerna" | "none";
+    taskNames: string[];
+    configFile: string;
+  };
+  linter?: {
+    name: "eslint" | "biome" | "none";
+    configFile: string;
+  };
+  formatter?: {
+    name: "prettier" | "biome" | "none";
+    configFile: string;
+  };
+  taskRunner?: {
+    name: "just" | "make" | "none";
+    targets: string[];
+    configFile: string;
+  };
+  envVars?: string[];
+}
+
+// ─── Dependency Insights (Improvement 2) ─────────────────────────────────────
+
+export interface DependencyInsights {
+  runtime: { name: string; version: string }[];
+  frameworks: { name: string; version: string; guidance?: string }[];
+  testFramework?: { name: string; version: string };
+  bundler?: { name: string; version: string };
+}
+
+// ─── Existing Docs (Improvement 4) ──────────────────────────────────────────
+
+export interface ExistingDocs {
+  hasReadme: boolean;
+  hasAgentsMd: boolean;
+  hasClaudeMd: boolean;
+  hasCursorrules: boolean;
+  hasContributing: boolean;
+  agentsMdPath?: string;
+  claudeMdPath?: string;
+}
+
+// ─── Call Graph (Improvement 3) ──────────────────────────────────────────────
+
+export interface CallReference {
+  callerName: string;
+  calleeName: string;
+  calleeModule: string;
+  isInternal: boolean;
+}
+
+export interface CallGraphEdge {
+  from: string;
+  to: string;
+  fromFile: string;
+  toFile: string;
 }
 
 export interface PackageRole {
@@ -244,6 +317,7 @@ export interface ParsedFile {
   hasJSX: boolean;
   hasCJS: boolean; // E-18: CommonJS detection
   hasSyntaxErrors: boolean; // E-19: syntax error detection
+  callReferences: CallReference[]; // Improvement 3: call graph tracking
 }
 
 // E-10: localName for aliased exports
@@ -289,6 +363,7 @@ export interface SymbolGraph {
   allExports: Map<string, ExportEntry[]>;
   importGraph: Map<string, ImportEntry[]>;
   barrelSourceFiles: Set<string>;
+  callGraph: CallGraphEdge[]; // Improvement 3: cross-file call relationships
 }
 
 export interface ResolvedExport extends ExportEntry {

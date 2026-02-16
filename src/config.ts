@@ -17,6 +17,7 @@ export interface ParsedArgs {
   help: boolean;
   hierarchical?: boolean;
   flat?: boolean;
+  merge?: boolean;
 }
 
 const DEFAULTS: ResolvedConfig = {
@@ -183,7 +184,7 @@ export async function parseCliArgs(
   const mri = (await import("mri")).default;
   const args = mri(argv, {
     alias: { f: "format", o: "output", c: "config", q: "quiet", v: "verbose" },
-    boolean: ["dry-run", "quiet", "verbose", "help", "hierarchical", "flat"],
+    boolean: ["dry-run", "quiet", "verbose", "help", "hierarchical", "flat", "merge"],
     string: ["format", "output", "config", "root"],
   });
 
@@ -199,5 +200,6 @@ export async function parseCliArgs(
     help: args.help ?? false,
     hierarchical: args.hierarchical ?? undefined,
     flat: args.flat ?? undefined,
+    merge: args.merge ?? undefined,
   };
 }

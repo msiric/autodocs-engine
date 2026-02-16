@@ -1,6 +1,18 @@
 // Templates for AGENTS.md output — research-backed lean format
 // Root template targets ~70 lines. Package detail templates carry the specifics.
 // Based on user research: AI follows commands/workflows reliably, ignores style rules.
+// Updated: Wave 1 — templates now instruct the LLM to use config analysis,
+// dependency versions, call graph, and existing docs data.
+
+// ─── Shared system prompt addendum for Wave 1 data ──────────────────────────
+
+const WAVE1_SYSTEM_ADDENDUM = `
+WAVE 1 DATA INSTRUCTIONS:
+- If the analysis includes a "Tech Stack" section, include exact framework versions in your output. AI agents produce fewer errors when they know the exact version (e.g., "React 18" vs "React 19" determines which APIs are available). Include version-specific guidance if provided.
+- If the analysis includes a "Call Graph" section, use it to describe how key functions relate to each other in the Architecture section — this is architectural knowledge AI can't get from reading individual files. Focus on the 3-5 most-connected functions as entry points.
+- If the analysis includes a "Config" section showing a build tool (Turbo, Nx), use its commands (e.g., "turbo run build") instead of package manager commands for tasks the build tool orchestrates. Mention the build tool in the tech stack line.
+- If the analysis includes a "Config" section showing a linter/formatter (Biome, ESLint, Prettier), mention which tool is used so AI doesn't generate config for the wrong one.
+- If the analysis includes "Existing Documentation", note which docs exist so AI doesn't duplicate their content.`;
 
 // ─── Single-package template (for analyzing 1 package) ─────────────────────
 
@@ -15,7 +27,8 @@ CRITICAL RULES:
 - Include only high and medium impact rules. Low-impact rules waste instruction budget.
 - Commands must be exact and directly executable.
 - Workflow rules must be conditional: "After X → run Y".
-- Include a Team Knowledge placeholder section at the end.`,
+- Include a Team Knowledge placeholder section at the end.
+${WAVE1_SYSTEM_ADDENDUM}`,
 
   formatInstructions: `Generate a LEAN AGENTS.md from the structured analysis below. Output ONLY markdown, no code fences or explanations.
 
@@ -25,12 +38,20 @@ REQUIRED STRUCTURE:
 
 {role.summary — one sentence describing what this package does and its tech stack}
 
+## Tech Stack
+{From Tech Stack/Config sections: one compact line listing runtime, key frameworks with EXACT versions, build tool, linter, formatter.}
+{E.g.: "Bun 1.3.8 | React 19.2.4 | TypeScript 5.9 (strict) | Biome (lint + format) | Turbo (build orchestration)"}
+{If version-specific guidance exists (e.g., "React 19 — use() hook available"), include it as a sub-bullet.}
+{If no Tech Stack data exists, omit this section entirely.}
+
 ## Commands
 {Exact commands with variants. Table format preferred. Include test, build, lint, start.}
+{If a build tool like Turbo/Nx is detected, those commands take priority over package manager commands.}
 
 ## Architecture
 {Describe what the package DOES, not where files live. 4-6 bullet points describing capabilities.}
 {Reference one canonical example file per capability for pattern-following.}
+{If Call Graph data is present, describe the top-level orchestration: which functions call which others. E.g., "processData orchestrates: validateInput → formatOutput → writeResult". Focus on the 3-5 most-connected entry points.}
 
 Example:
 - **Tab CRUD**: Create, read, update channel page tabs via custom hooks (see \`use-create-channel-page-tab.tsx\`)
@@ -39,6 +60,9 @@ Example:
 ## Workflow Rules
 {ONLY "After X → run Y" or "When X → do Y" rules. These are what AI tools actually follow.}
 {Include rules from testing, graphql, telemetry conventions.}
+{If Config shows Biome: "Linting and formatting use Biome — do NOT configure ESLint or Prettier."}
+{If Config shows a build tool: "Use \`turbo run <task>\` for build/test/lint, not \`<pm> run <script>\`."}
+{If Existing Documentation shows a README: "A README.md exists — refer to it for setup instructions, don't duplicate."}
 
 ## How to Add New Code
 {From contribution patterns. For each: where to create, what pattern to follow, which example.}
@@ -75,7 +99,8 @@ CRITICAL RULES:
 - Point to per-package files for details: "See packages/{name}.md for conventions and API."
 - OMIT: export lists, style conventions, directory file counts, full API surface.
 - Include only high and medium impact information.
-- Include a Team Knowledge placeholder section.`,
+- Include a Team Knowledge placeholder section.
+${WAVE1_SYSTEM_ADDENDUM}`,
 
   formatInstructions: `Generate a LEAN ROOT AGENTS.md (~70 lines) from the multi-package analysis below. Output ONLY markdown.
 
@@ -85,9 +110,16 @@ REQUIRED STRUCTURE:
 
 {One sentence: what this feature area does. Include tech stack declaration.}
 
+## Tech Stack
+{Aggregate from all packages: one compact line with runtime, key frameworks (EXACT versions), build tool, linter, formatter.}
+{E.g.: "Bun 1.3.8 | React 19.2.4 | Next.js 16.1.6 | TypeScript 5.9 (strict) | Biome (lint + format) | Turbo (build orchestration)"}
+{If version-specific guidance exists, include as sub-bullet. E.g.: "- React 19: use() hook and Server Components available"}
+{If no Tech Stack data exists across any package, omit this section.}
+
 ## Commands
 {From rootCommands or most common package commands. Show ONCE. Table format.}
 {Include test, build, lint and any workflow commands.}
+{If a build tool (Turbo/Nx) is detected, those are the primary commands.}
 
 ## Package Guide
 
@@ -98,10 +130,14 @@ REQUIRED STRUCTURE:
 ## Architecture
 {Describe the feature's capabilities as 4-6 bullets. Not file paths — capabilities.}
 {Show package dependency flow in one line if clear (e.g., "entry → hooks → events").}
+{If Call Graph data exists, describe the top cross-package call flows. E.g.: "Data flow: useChannelPageTabData → GraphQL subscription → event handlers"}
 
 ## Workflow Rules
 {Conditional rules: "After X → run Y". From conventions with high impact.}
 {E.g., "After modifying .graphql files → run \`yarn generate:interfaces\`"}
+{If Config shows Biome: "Linting and formatting use Biome, not ESLint/Prettier."}
+{If Config shows a build tool: "Run tasks via \`turbo run <task>\`, not \`<pm> run <script>\`."}
+{If Existing Documentation shows a README: "README.md exists — refer to it for setup."}
 
 ## Domain Terminology
 {Terms AI wouldn't know from code alone. 3-5 entries max.}
@@ -130,7 +166,8 @@ CRITICAL RULES:
 - Focus on package-specific details: role, public API, how to add code, package-specific rules.
 - Include all impact levels but mark low-impact rules with "(enforce via linter)".
 - Be prescriptive and example-driven.
-- Include signatures for hooks and functions.`,
+- Include signatures for hooks and functions.
+${WAVE1_SYSTEM_ADDENDUM}`,
 
   formatInstructions: `Generate a package detail file from the analysis below. Output ONLY markdown.
 
@@ -141,6 +178,19 @@ REQUIRED STRUCTURE:
 {role.summary}. {role.purpose}.
 
 **When to touch this package:** {role.whenToUse}
+
+## Tech Stack
+{If this package has notable version differences from the monorepo or specific framework dependencies, list them here.}
+{E.g.: "React 19.2.4 (Server Components enabled) | TypeScript 5.9 strict mode"}
+{If nothing notable beyond what the root AGENTS.md covers, omit this section.}
+
+## Key Relationships
+{If Call Graph data exists, describe which exports this package calls and which are most connected.}
+{E.g.: "useCreateChannelPageTab → calls createPlatformTab mutation, logs via useChannelPagesFluidLogging"}
+{E.g.: "useUpdateChannelPageTabAndFile orchestrates: useRenameChannelPageFile, useUpdateChannelPageTabTitle"}
+{Focus on the 3-5 most-connected functions — these are the entry points developers interact with.}
+{This helps AI understand what code is affected when making changes.}
+{If no Call Graph data, omit this section.}
 
 ## Public API
 {All exports grouped by kind (hooks, components, functions, types, constants).}
@@ -186,7 +236,8 @@ From the structured analysis, synthesize a guide that answers:
 
 Be prescriptive, not descriptive. Write rules, not observations. Every line must be actionable.
 
-Target length: 120-200 lines for 5-8 packages. Include a Team Knowledge placeholder section.`,
+Target length: 120-200 lines for 5-8 packages. Include a Team Knowledge placeholder section.
+${WAVE1_SYSTEM_ADDENDUM}`,
 
   formatInstructions: `Generate a multi-package AGENTS.md from the following structured analysis. Output ONLY the markdown content, no code fences or explanations.
 
@@ -195,6 +246,12 @@ REQUIRED STRUCTURE (follow this exactly):
 # {Feature Name} (derive from package name patterns)
 
 {One paragraph: what this feature area does, how many packages, and their high-level roles}
+
+## Tech Stack
+{Aggregate from all packages: runtime, key frameworks with EXACT versions, build tool, linter, formatter.}
+{One compact line. E.g.: "Bun 1.3.8 | React 19.2.4 | TypeScript 5.9 (strict) | Biome | Turbo"}
+{If version-specific guidance exists, include as sub-bullet.}
+{If no Tech Stack data, omit this section.}
 
 ## Package Map
 
@@ -216,6 +273,7 @@ This section answers: "I need to add X — which package?" Map common tasks to p
 
 {From rootCommands or the most common package-level commands. Show ONCE, not per-package.}
 {Include variants like :watch, :coverage if present}
+{If a build tool (Turbo/Nx) is detected, those are the primary commands.}
 
 ## How to Add New Code
 {From contribution patterns. Group by package. For each pattern show: directory, file pattern, example file, steps.}
@@ -240,8 +298,9 @@ This section answers: "I need to add X — which package?" Map common tasks to p
 
 ## Architecture
 
-{For each package: compact summary with entry point, directories, and what each directory contains}
-{Use the directory-export mapping to show organizational intent, not just file counts}
+{For each package: compact summary with entry point and capabilities}
+{If Call Graph data exists, describe the key function relationships: which functions orchestrate which others.}
+{E.g.: "useUpdateChannelPageTabAndFile orchestrates useRenameChannelPageFile + useUpdateChannelPageTabTitle"}
 
 ## Team Knowledge
 _This section is for human-maintained context that cannot be inferred from source code. Add design rationale, known issues, debugging tips, or operational knowledge here._`,

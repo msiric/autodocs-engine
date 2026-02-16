@@ -3,7 +3,7 @@
 
 import { writeFileSync, mkdirSync } from "node:fs";
 import { resolve, dirname, join } from "node:path";
-import { analyze, format, formatAsHierarchy, validateBudget, formatBudgetReport, ENGINE_VERSION } from "../index.js";
+import { analyze, format, formatAsHierarchy, validateBudget, formatBudgetReport, ENGINE_VERSION, wrapWithDelimiters, mergeWithExisting, readExistingAgentsMd } from "../index.js";
 import { parseCliArgs, resolveConfig } from "../config.js";
 import type { OutputFormat } from "../types.js";
 
@@ -30,6 +30,7 @@ Options:
   --root               Monorepo root directory (for root-level command extraction)
   --hierarchical       Produce root AGENTS.md + per-package detail files (default for multi-package)
   --flat               Force single-file output even for multi-package
+  --merge              Preserve human-written sections in existing AGENTS.md (uses delimiters)
   --quiet, -q          Suppress warnings
   --verbose, -v        Print detailed timing and budget validation
   --dry-run            Print structured analysis to stdout (no LLM call, no file write)
@@ -137,9 +138,24 @@ async function writeFlatOutput(
     process.stderr.write(formatBudgetReport(report) + "\n");
   }
 
+  let finalContent = content;
+
+  // Improvement 4: Merge mode support
+  if (args.merge && config.output.format === "agents.md") {
+    const pkgDir = config.packages[0] ?? ".";
+    const existing = readExistingAgentsMd(pkgDir);
+    if (existing) {
+      finalContent = mergeWithExisting(existing, content);
+      if (!args.quiet) process.stderr.write(`[INFO] Merged with existing AGENTS.md (human content preserved)\n`);
+    } else {
+      // First generation — wrap in delimiters
+      finalContent = wrapWithDelimiters(content);
+    }
+  }
+
   const filename = OUTPUT_FILENAMES[config.output.format];
   const outputPath = resolve(config.output.dir, filename);
-  writeFileSafe(outputPath, content);
+  writeFileSafe(outputPath, finalContent);
   if (!args.quiet)
     process.stderr.write(`Written to ${outputPath}\n`);
 }

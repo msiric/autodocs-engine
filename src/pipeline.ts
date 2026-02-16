@@ -22,6 +22,9 @@ import { inferRole } from "./role-inferrer.js";
 import { deriveAntiPatterns } from "./anti-pattern-detector.js";
 import { detectContributionPatterns } from "./contribution-patterns.js";
 import { classifyImpacts } from "./impact-classifier.js";
+import { analyzeConfig } from "./config-analyzer.js";
+import { analyzeDependencies } from "./dependency-analyzer.js";
+import { detectExistingDocs } from "./existing-docs.js";
 
 /** Verbose logger — writes to stderr only when verbose is enabled. */
 function vlog(verbose: boolean, msg: string): void {
@@ -145,7 +148,27 @@ function analyzePackage(
   );
   vlog(verbose, `  Conventions: ${conventions.length} detected`);
 
+  // Improvement 1: Config file analysis
+  const configAnalysis = analyzeConfig(pkgPath, config.rootDir, warnings);
+  vlog(verbose, `  Config: build=${configAnalysis.buildTool?.name ?? "none"}, linter=${configAnalysis.linter?.name ?? "none"}, formatter=${configAnalysis.formatter?.name ?? "none"}`);
+
+  // Improvement 2: Dependency insights
+  const dependencyInsights = analyzeDependencies(pkgPath, config.rootDir, warnings);
+  vlog(verbose, `  Dependencies: ${dependencyInsights.frameworks.length} frameworks, runtime=${dependencyInsights.runtime.map((r) => r.name).join("+") || "node"}`);
+
+  // Improvement 4: Existing docs detection
+  const existingDocs = detectExistingDocs(pkgPath, warnings);
+  if (existingDocs.hasAgentsMd || existingDocs.hasClaudeMd) {
+    vlog(verbose, `  Existing docs: ${existingDocs.hasAgentsMd ? "AGENTS.md" : ""}${existingDocs.hasClaudeMd ? " CLAUDE.md" : ""}`);
+  }
+
   const commands = extractCommands(pkgPath, config.rootDir, warnings);
+
+  // Improvement 1 integration: Override commands with build tool info (turbo, nx)
+  if (configAnalysis.buildTool && configAnalysis.buildTool.name !== "none") {
+    adjustCommandsForBuildTool(commands, configAnalysis.buildTool, warnings);
+  }
+
   const cmdList = [
     commands.build && "build",
     commands.test && "test",
@@ -196,6 +219,11 @@ function analyzePackage(
   const classified = classifyImpacts(conventions, antiPatterns);
   vlog(verbose, `  Impact: ${classified.conventions.filter((c) => c.impact === "high").length} high, ${classified.conventions.filter((c) => c.impact === "medium").length} medium, ${classified.conventions.filter((c) => c.impact === "low").length} low`);
 
+  // Improvement 3: Call graph logging
+  if (symbolGraph.callGraph.length > 0) {
+    vlog(verbose, `  Call graph: ${symbolGraph.callGraph.length} edges`);
+  }
+
   const pkgMs = Math.round(performance.now() - pkgStart);
   vlog(verbose, `  Analysis time: ${pkgMs}ms`);
 
@@ -205,5 +233,54 @@ function analyzePackage(
     role,
     antiPatterns: classified.antiPatterns,
     contributionPatterns,
+    configAnalysis,
+    dependencyInsights,
+    existingDocs,
+    callGraph: symbolGraph.callGraph.length > 0 ? symbolGraph.callGraph : undefined,
   };
+}
+
+/**
+ * Improvement 1: Adjust commands based on detected build tool (turbo, nx).
+ * If turbo.json defines tasks like "build", "test", "lint", "dev",
+ * use "turbo run <task>" instead of "<pm> run <script>".
+ */
+function adjustCommandsForBuildTool(
+  commands: import("./types.js").CommandSet,
+  buildTool: NonNullable<import("./types.js").ConfigAnalysis["buildTool"]>,
+  _warnings: import("./types.js").Warning[],
+): void {
+  if (buildTool.name !== "turbo" && buildTool.name !== "nx") return;
+
+  const prefix = buildTool.name === "turbo" ? "turbo run" : "nx run";
+  const taskSet = new Set(buildTool.taskNames);
+
+  const mapping: Record<string, keyof Pick<import("./types.js").CommandSet, "build" | "test" | "lint" | "start">> = {
+    build: "build",
+    test: "test",
+    lint: "lint",
+    dev: "start",
+    start: "start",
+  };
+
+  for (const [taskName, cmdField] of Object.entries(mapping)) {
+    if (!taskSet.has(taskName)) continue;
+    const existing = commands[cmdField];
+    if (existing) {
+      // Keep the existing as a variant, use turbo as primary
+      const turboCmd = `${prefix} ${taskName}`;
+      if (existing.run !== turboCmd) {
+        if (!existing.variants) existing.variants = [];
+        existing.variants.push({ name: "package-level", run: existing.run });
+        existing.run = turboCmd;
+        existing.source = `${buildTool.configFile} tasks.${taskName}`;
+      }
+    } else {
+      // Create new command from turbo task
+      (commands as any)[cmdField] = {
+        run: `${prefix} ${taskName}`,
+        source: `${buildTool.configFile} tasks.${taskName}`,
+      };
+    }
+  }
 }
