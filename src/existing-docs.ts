@@ -67,6 +67,61 @@ export function detectExistingDocs(
   return result;
 }
 
+// ─── Part A2: README Context Extraction ─────────────────────────────────────
+
+/**
+ * Read the first paragraph of README.md for domain context.
+ * Returns the first non-empty paragraph (up to 500 chars) after the title.
+ * Searches packageDir first, then rootDir if provided.
+ */
+export function extractReadmeContext(
+  packageDir: string,
+  rootDir?: string,
+): string | undefined {
+  const dirs = rootDir ? [packageDir, rootDir] : [packageDir];
+
+  for (const dir of dirs) {
+    for (const name of ["README.md", "readme.md", "Readme.md", "README.MD"]) {
+      const path = join(dir, name);
+      if (existsSync(path)) {
+        try {
+          const content = readFileSync(path, "utf-8");
+          const paragraph = extractFirstParagraph(content);
+          if (paragraph) return paragraph;
+        } catch { continue; }
+      }
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Extract the first meaningful paragraph from markdown content.
+ * Skips titles (#), badges ([![), HTML tags, and empty lines.
+ */
+function extractFirstParagraph(markdown: string): string | undefined {
+  const lines = markdown.split("\n");
+  let inParagraph = false;
+  const paragraphLines: string[] = [];
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    // Skip title lines, badges, HTML image/div tags, and empty lines before first paragraph
+    if (trimmed.startsWith("#")) continue;
+    if (trimmed.startsWith("[!") || trimmed.startsWith("[![")) continue;
+    if (trimmed.startsWith("<img") || trimmed.startsWith("<div") || trimmed.startsWith("<p>") || trimmed.startsWith("<br")) continue;
+    if (trimmed.startsWith("![")) continue; // inline images
+    if (trimmed === "" && !inParagraph) continue;
+    if (trimmed === "" && inParagraph) break; // end of first paragraph
+
+    inParagraph = true;
+    paragraphLines.push(trimmed);
+  }
+
+  const result = paragraphLines.join(" ").slice(0, 500);
+  return result || undefined;
+}
+
 // ─── Part B: Merge Mode ─────────────────────────────────────────────────────
 
 const AUTODOCS_START = "<!-- autodocs:start -->";
