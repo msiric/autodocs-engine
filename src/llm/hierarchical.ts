@@ -9,7 +9,14 @@ import {
 } from "../templates/agents-md.js";
 import { callLLMWithRetry } from "./client.js";
 import { serializeToMarkdown, serializePackageToMarkdown } from "./serializer.js";
-import { validateAndCorrect } from "./adapter.js";
+import { validateAndCorrect, synthesizeArchitecture, synthesizeDomainTerms } from "./adapter.js";
+import {
+  generateDeterministicAgentsMd,
+  generatePackageDeterministicAgentsMd,
+  assembleFinalOutput,
+  formatArchitectureFallback,
+} from "../deterministic-formatter.js";
+import { extractReadmeContext } from "../existing-docs.js";
 
 export interface HierarchicalOutput {
   root: string;
@@ -70,6 +77,64 @@ Generate the package detail file now. Use ONLY data from the <analysis> section.
     const rawContent = await callLLMWithRetry(pkgTemplate.systemPrompt, pkgPrompt, config.llm);
     // W2-1: Validate per-package output
     const content = await validateAndCorrect(rawContent, pkg, "package-detail", pkgTemplate.systemPrompt, config.llm);
+    return {
+      filename: toPackageFilename(pkg.name),
+      content,
+    };
+  });
+
+  const packages = await Promise.all(packagePromises);
+
+  return { root: rootContent, packages };
+}
+
+/**
+ * Format hierarchical output using deterministic code for sections + micro-LLM for synthesis.
+ * Generates root AGENTS.md + per-package detail files without full LLM calls.
+ */
+export async function formatHierarchicalDeterministic(
+  analysis: StructuredAnalysis,
+  config: Pick<ResolvedConfig, "output" | "llm">,
+): Promise<HierarchicalOutput> {
+  // Root AGENTS.md — deterministic sections
+  const rootDeterministic = generateDeterministicAgentsMd(analysis);
+
+  // README context for domain terminology
+  const readmeContext = extractReadmeContext(
+    analysis.packages[0]?.relativePath ?? ".",
+    analysis.meta.rootDir,
+  );
+
+  // Micro-LLM calls for root architecture + domain (if API key available)
+  let rootArchitecture: string;
+  let rootDomain: string;
+
+  if (config.llm.apiKey) {
+    const [archResult, domainResult] = await Promise.all([
+      synthesizeArchitecture(analysis.packages[0], config.llm),
+      synthesizeDomainTerms(readmeContext, config.llm),
+    ]);
+    rootArchitecture = archResult;
+    rootDomain = domainResult;
+  } else {
+    rootArchitecture = formatArchitectureFallback(analysis.packages[0]);
+    rootDomain = "";
+  }
+
+  const rootContent = assembleFinalOutput(rootDeterministic, rootArchitecture, rootDomain);
+
+  // Per-package detail files — deterministic + micro-LLM architecture per package
+  const packagePromises = analysis.packages.map(async (pkg) => {
+    const pkgDeterministic = generatePackageDeterministicAgentsMd(pkg);
+
+    let pkgArchitecture: string;
+    if (config.llm.apiKey) {
+      pkgArchitecture = await synthesizeArchitecture(pkg, config.llm);
+    } else {
+      pkgArchitecture = formatArchitectureFallback(pkg);
+    }
+
+    const content = assembleFinalOutput(pkgDeterministic, pkgArchitecture, "");
     return {
       filename: toPackageFilename(pkg.name),
       content,

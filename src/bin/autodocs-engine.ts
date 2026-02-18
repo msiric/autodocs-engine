@@ -3,7 +3,7 @@
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { resolve, dirname, join } from "node:path";
-import { analyze, format, formatAsHierarchy, validateBudget, formatBudgetReport, ENGINE_VERSION, wrapWithDelimiters, mergeWithExisting, readExistingAgentsMd } from "../index.js";
+import { analyze, format, formatDeterministic, formatAsHierarchy, formatHierarchicalDeterministic, validateBudget, formatBudgetReport, ENGINE_VERSION, wrapWithDelimiters, mergeWithExisting, readExistingAgentsMd } from "../index.js";
 import { parseCliArgs, resolveConfig } from "../config.js";
 import { diffAnalyses } from "../diff-analyzer.js";
 import type { OutputFormat, StructuredAnalysis } from "../types.js";
@@ -32,6 +32,9 @@ Options:
   --hierarchical       Produce root AGENTS.md + per-package detail files (default for multi-package)
   --flat               Force single-file output even for multi-package
   --merge              Preserve human-written sections in existing AGENTS.md (uses delimiters)
+  --llm-synthesis      LLM synthesis mode: deterministic (default) or full
+                       deterministic: 13 sections in code, 2 via micro-LLM (accurate)
+                       full: entire output via LLM (legacy, may hallucinate)
   --diff <path>        Compare against previous analysis JSON and output a diff report
   --quiet, -q          Suppress warnings
   --verbose, -v        Print detailed timing and budget validation
@@ -147,10 +150,17 @@ async function writeFlatOutput(
   config: import("../types.js").ResolvedConfig,
   args: import("../config.js").ParsedArgs,
 ): Promise<void> {
+  // Determine synthesis mode: default is "deterministic" for agents.md
+  const synthesisMode = args.llmSynthesis ?? (config.output.format === "agents.md" ? "deterministic" : "full");
+
   if (args.verbose)
-    process.stderr.write(`[INFO] Calling LLM (${config.llm.model})...\n`);
+    process.stderr.write(`[INFO] Calling LLM (${config.llm.model}, ${synthesisMode} mode)...\n`);
   const llmStart = performance.now();
-  const content = await format(analysis, config);
+
+  const content = synthesisMode === "deterministic" && config.output.format === "agents.md"
+    ? await formatDeterministic(analysis, config, config.rootDir)
+    : await format(analysis, config);
+
   if (args.verbose) {
     const llmMs = Math.round(performance.now() - llmStart);
     const lineCount = content.split("\n").length;
@@ -193,13 +203,17 @@ async function writeHierarchicalOutput(
   config: import("../types.js").ResolvedConfig,
   args: import("../config.js").ParsedArgs,
 ): Promise<void> {
+  const synthesisMode = args.llmSynthesis ?? "deterministic";
+
   if (args.verbose)
-    process.stderr.write(`[INFO] Hierarchical mode: generating root + ${analysis.packages.length} package files...\n`);
+    process.stderr.write(`[INFO] Hierarchical mode (${synthesisMode}): generating root + ${analysis.packages.length} package files...\n`);
   if (args.verbose)
     process.stderr.write(`[INFO] Calling LLM (${config.llm.model})...\n`);
 
   const llmStart = performance.now();
-  const result = await formatAsHierarchy(analysis, config);
+  const result = synthesisMode === "deterministic"
+    ? await formatHierarchicalDeterministic(analysis, config)
+    : await formatAsHierarchy(analysis, config);
   if (args.verbose) {
     const llmMs = Math.round(performance.now() - llmStart);
     process.stderr.write(`[INFO]   LLM calls completed in ${(llmMs / 1000).toFixed(1)}s\n`);

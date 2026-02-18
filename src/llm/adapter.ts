@@ -7,6 +7,12 @@ import { validateOutput } from "../output-validator.js";
 import { callLLMWithRetry } from "./client.js";
 import { serializeToMarkdown } from "./serializer.js";
 import { getTemplate } from "./template-selector.js";
+import {
+  generateDeterministicAgentsMd,
+  assembleFinalOutput,
+  formatArchitectureFallback,
+} from "../deterministic-formatter.js";
+import { extractReadmeContext } from "../existing-docs.js";
 
 // Note: formatHierarchical and HierarchicalOutput are re-exported from the
 // barrel (src/llm-adapter.ts) via hierarchical.ts, not through this module,
@@ -102,5 +108,129 @@ export async function validateAndCorrect(
     // If retry fails, return original output
     process.stderr.write(`[WARN] output-validator: Correction retry failed, using original output\n`);
     return output;
+  }
+}
+
+// ---- Deterministic Formatting (70% code, 30% micro-LLM) ----
+
+/**
+ * Format a StructuredAnalysis using deterministic code for 13 sections
+ * and micro-LLM calls for architecture + domain terminology.
+ * This is the default mode for agents.md output.
+ */
+export async function formatDeterministic(
+  analysis: StructuredAnalysis,
+  config: Pick<ResolvedConfig, "output" | "llm">,
+  rootDir?: string,
+): Promise<string> {
+  if (config.output.format === "json") {
+    return JSON.stringify(analysis, mapReplacer, 2);
+  }
+
+  // Step 1: Deterministic sections (no LLM)
+  const deterministic = generateDeterministicAgentsMd(analysis);
+
+  // Step 2: README context for domain terminology
+  const pkgDir = analysis.packages[0]?.relativePath ?? ".";
+  const readmeContext = extractReadmeContext(pkgDir, rootDir);
+
+  // Step 3: Micro-LLM calls for synthesis (small, constrained)
+  let architectureSection: string;
+  let domainSection: string;
+
+  if (config.llm.apiKey) {
+    // Parallel micro-LLM calls
+    const [archResult, domainResult] = await Promise.all([
+      synthesizeArchitecture(analysis.packages[0], config.llm),
+      synthesizeDomainTerms(readmeContext, config.llm),
+    ]);
+    architectureSection = archResult;
+    domainSection = domainResult;
+  } else {
+    // No API key: use deterministic fallback
+    architectureSection = formatArchitectureFallback(analysis.packages[0]);
+    domainSection = "";
+  }
+
+  // Step 4: Assemble final output
+  return assembleFinalOutput(deterministic, architectureSection, domainSection);
+}
+
+/**
+ * Generate ONLY the architecture section via a constrained micro-LLM call.
+ * Input is limited to directory names, export names, and call graph edges.
+ * The LLM cannot hallucinate technologies because it doesn't see them.
+ */
+export async function synthesizeArchitecture(
+  pkg: PackageAnalysis,
+  llmConfig: ResolvedConfig["llm"],
+): Promise<string> {
+  // Build constrained input — ONLY architecture data
+  const input: string[] = [];
+  input.push(`Package: ${pkg.name}`);
+  input.push(`Type: ${pkg.architecture.packageType}`);
+  input.push(`Entry: ${pkg.architecture.entryPoint}`);
+  input.push("");
+  input.push("Directories and their exports:");
+  for (const dir of pkg.architecture.directories) {
+    if (dir.exports?.length) {
+      input.push(`  ${dir.purpose}: ${dir.exports.join(", ")}`);
+    } else {
+      input.push(`  ${dir.purpose}: ${dir.fileCount} files`);
+    }
+  }
+  if (pkg.callGraph?.length) {
+    input.push("");
+    input.push("Key call relationships:");
+    for (const edge of pkg.callGraph.slice(0, 10)) {
+      input.push(`  ${edge.from} \u2192 ${edge.to}`);
+    }
+  }
+
+  const systemPrompt = `You are writing 4-6 bullet points describing a TypeScript package's architecture.
+Use ONLY the directory names, export names, and call relationships provided below.
+Describe CAPABILITIES (what the code does), not file locations.
+Do NOT mention any technology, framework, or library by name — only describe what the exports DO.
+Output ONLY the bullet points, no headers or explanations.`;
+
+  const userPrompt = input.join("\n");
+
+  if (!llmConfig.apiKey) return formatArchitectureFallback(pkg);
+
+  try {
+    const result = await callLLMWithRetry(systemPrompt, userPrompt, {
+      ...llmConfig,
+      maxOutputTokens: 500,
+    });
+    return `## Architecture\n\n${result.trim()}`;
+  } catch {
+    return formatArchitectureFallback(pkg);
+  }
+}
+
+/**
+ * Generate domain terminology from README context.
+ * Input is ONLY the README first paragraph — can't hallucinate technology stack.
+ */
+export async function synthesizeDomainTerms(
+  readmeContext: string | undefined,
+  llmConfig: ResolvedConfig["llm"],
+): Promise<string> {
+  if (!readmeContext || !llmConfig.apiKey) return "";
+
+  const systemPrompt = `Extract 3-5 domain-specific terms from the project description below.
+For each term, provide a one-line definition.
+These are terms that an AI coding tool wouldn't know from reading source code alone.
+Output as a markdown list. If no domain-specific terms are found, output nothing.`;
+
+  try {
+    const result = await callLLMWithRetry(systemPrompt, readmeContext, {
+      ...llmConfig,
+      maxOutputTokens: 300,
+    });
+    const trimmed = result.trim();
+    return trimmed ? `## Domain Terminology\n\n${trimmed}` : "";
+  } catch {
+    return "";
   }
 }

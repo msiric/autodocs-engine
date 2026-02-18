@@ -5,6 +5,8 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve, join } from "node:path";
 import type { ResolvedConfig, OutputFormat, Warning } from "./types.js";
 
+export type LLMSynthesisMode = "deterministic" | "full";
+
 export interface ParsedArgs {
   packages: string[];
   format?: string;
@@ -19,6 +21,7 @@ export interface ParsedArgs {
   flat?: boolean;
   merge?: boolean;
   diff?: string;
+  llmSynthesis?: LLMSynthesisMode;
 }
 
 const DEFAULTS: ResolvedConfig = {
@@ -186,7 +189,7 @@ export async function parseCliArgs(
   const args = mri(argv, {
     alias: { f: "format", o: "output", c: "config", q: "quiet", v: "verbose" },
     boolean: ["dry-run", "quiet", "verbose", "help", "hierarchical", "flat", "merge"],
-    string: ["format", "output", "config", "root", "diff"],
+    string: ["format", "output", "config", "root", "diff", "llm-synthesis"],
   });
 
   return {
@@ -203,5 +206,6 @@ export async function parseCliArgs(
     flat: args.flat ?? undefined,
     merge: args.merge ?? undefined,
     diff: args.diff ?? undefined,
+    llmSynthesis: (args["llm-synthesis"] as LLMSynthesisMode) ?? undefined,
   };
 }
