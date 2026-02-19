@@ -529,8 +529,10 @@ function formatTeamKnowledge(analysis: StructuredAnalysis): string {
     // Directories with multiple files suggest extensible patterns
     for (const dir of pkg.architecture.directories) {
       if (dir.fileCount >= 5 && questions.length < MAX_TEAM_KNOWLEDGE_QUESTIONS) {
+        // Clean up the purpose label (strip "Feature: " prefix from fallback labels)
+        const label = dir.purpose.replace(/^Feature:\s*/i, "").toLowerCase();
         questions.push(
-          `${dir.path}/ has ${dir.fileCount} ${dir.purpose.toLowerCase()} files. What's the process for adding a new one?`,
+          `\`${dir.path}/\` has ${dir.fileCount} ${label} files. What's the process for adding a new one?`,
         );
         break; // One directory question is enough
       }

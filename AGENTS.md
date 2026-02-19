@@ -122,7 +122,7 @@ Run `npm run test` to verify changes
 ## Team Knowledge
 
 <!-- autodocs-engine detected these patterns but needs your input to provide complete guidance:
-  - src/detectors/ has 8 feature: detectors files. What's the process for adding a new one?
+  - `src/detectors/` has 8 detectors files. What's the process for adding a new one?
   - The codebase has 47 cross-file call relationships. Are there changes that require updating multiple files together?
   - Are there CLI-specific behaviors, flags, or output formats that AI tools should know about?
   - What's the contribution workflow? (branch naming, commit conventions, PR process, review requirements)
