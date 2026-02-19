@@ -32,8 +32,7 @@ export interface DeterministicOutput {
   domainTerminology: string;
 }
 
-const TEAM_KNOWLEDGE_PLACEHOLDER = `## Team Knowledge
-_Add project-specific context here — deployment quirks, review conventions, and decisions AI tools wouldn't know from code alone._`;
+const MAX_TEAM_KNOWLEDGE_QUESTIONS = 7;
 
 // ─── Main Entry ──────────────────────────────────────────────────────────────
 
@@ -59,7 +58,7 @@ export function generateDeterministicAgentsMd(
     supportedFrameworks: formatSupportedFrameworks(analysis),
     dependencyGraph: formatDependencyGraph(analysis),
     mermaidDiagram: formatMermaidDiagram(analysis),
-    teamKnowledge: TEAM_KNOWLEDGE_PLACEHOLDER,
+    teamKnowledge: formatTeamKnowledge(analysis),
     architecture: "",
     domainTerminology: "",
   };
@@ -516,6 +515,101 @@ function formatMermaidDiagram(analysis: StructuredAnalysis): string {
   const diagram = analysis.crossPackage?.mermaidDiagram;
   if (!diagram) return "";
   return `## Dependency Diagram\n\n${diagram}`;
+}
+
+/**
+ * Generate a Team Knowledge section with contextual questions derived from the analysis.
+ * The engine asks specific questions it knows are important but can't answer from code alone.
+ */
+function formatTeamKnowledge(analysis: StructuredAnalysis): string {
+  const questions: string[] = [];
+  const isMultiPackage = analysis.packages.length > 1;
+
+  for (const pkg of analysis.packages) {
+    // Directories with multiple files suggest extensible patterns
+    for (const dir of pkg.architecture.directories) {
+      if (dir.fileCount >= 5 && questions.length < MAX_TEAM_KNOWLEDGE_QUESTIONS) {
+        questions.push(
+          `${dir.path}/ has ${dir.fileCount} ${dir.purpose.toLowerCase()} files. What's the process for adding a new one?`,
+        );
+        break; // One directory question is enough
+      }
+    }
+
+    // Call graph complexity suggests coupling concerns
+    if (pkg.callGraph && pkg.callGraph.length > 10) {
+      questions.push(
+        `The codebase has ${pkg.callGraph.length} cross-file call relationships. Are there changes that require updating multiple files together?`,
+      );
+    }
+
+    // CLI tools have usage conventions
+    if (pkg.architecture.packageType === "cli") {
+      questions.push(
+        "Are there CLI-specific behaviors, flags, or output formats that AI tools should know about?",
+      );
+    }
+
+    // No CONTRIBUTING.md
+    if (pkg.existingDocs && !pkg.existingDocs.hasContributing) {
+      questions.push(
+        "What's the contribution workflow? (branch naming, commit conventions, PR process, review requirements)",
+      );
+    }
+
+    // Environment variables detected
+    if (pkg.configAnalysis?.envVars && pkg.configAnalysis.envVars.length > 0) {
+      questions.push(
+        `${pkg.configAnalysis.envVars.length} environment variables detected. Which are required for local development vs. production?`,
+      );
+    }
+  }
+
+  // Multi-package questions
+  if (isMultiPackage) {
+    questions.push(
+      "What's the dependency relationship between packages? Which should be built first?",
+    );
+  }
+
+  // Multiple commands suggest ordering concerns
+  const pkg = analysis.packages[0];
+  if (pkg) {
+    const cmdCount = [pkg.commands.build, pkg.commands.test, pkg.commands.lint, pkg.commands.start]
+      .filter(Boolean).length;
+    if (cmdCount >= 3) {
+      questions.push(
+        "Are there ordering requirements between commands? (e.g., build before test, lint before commit)",
+      );
+    }
+  }
+
+  // Test framework detected — ask about testing philosophy
+  const hasTestConvention = analysis.packages.some((p) =>
+    p.conventions.some((c) => c.category === "testing"),
+  );
+  if (hasTestConvention) {
+    questions.push(
+      "What's the testing philosophy? (unit vs integration, what needs tests, coverage expectations)",
+    );
+  }
+
+  // Cap at max
+  const selected = questions.slice(0, MAX_TEAM_KNOWLEDGE_QUESTIONS);
+
+  if (selected.length === 0) {
+    return `## Team Knowledge\n_Add project-specific context here — deployment quirks, review conventions, and decisions AI tools wouldn't know from code alone._`;
+  }
+
+  const lines = ["## Team Knowledge", ""];
+  lines.push("<!-- autodocs-engine detected these patterns but needs your input to provide complete guidance:");
+  for (const q of selected) {
+    lines.push(`  - ${q}`);
+  }
+  lines.push("-->");
+  lines.push("");
+  lines.push("_Fill in the questions above (remove the comment markers) with project-specific context that AI tools can't infer from code._");
+  return lines.join("\n");
 }
 
 // ─── Deterministic Architecture Fallback ─────────────────────────────────────
