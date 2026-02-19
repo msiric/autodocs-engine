@@ -60,10 +60,11 @@ function tryGitLsFiles(
     for (const line of output.split("\n")) {
       const trimmed = line.trim();
       if (!trimmed) continue;
-      const absPath = resolve(packageDir, trimmed);
-      if (SOURCE_EXTENSIONS.test(trimmed) && !DTS_EXTENSION.test(trimmed)) {
-        files.push(absPath);
-      }
+      if (!SOURCE_EXTENSIONS.test(trimmed) || DTS_EXTENSION.test(trimmed)) continue;
+      // Apply the same directory exclusions as the filesystem walk
+      const parts = trimmed.split("/");
+      if (parts.some((p) => (DEFAULT_EXCLUDE_DIRS as readonly string[]).includes(p))) continue;
+      files.push(resolve(packageDir, trimmed));
     }
     return files;
   } catch {

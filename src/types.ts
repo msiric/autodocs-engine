@@ -507,6 +507,11 @@ export const DEFAULT_EXCLUDE_DIRS = [
   "__mocks__",
   ".git",
   "generated-touchdown",
+  "fixtures",
+  "__fixtures__",
+  "e2e",
+  "examples",
+  "playground",
 ] as const;
 
 export const SOURCE_EXTENSIONS = /\.(ts|tsx|js|jsx)$/;
