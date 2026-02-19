@@ -190,6 +190,27 @@ import type {
 } from 'autodocs-engine';
 ```
 
+## GitHub Action
+
+Add to your workflow to get AGENTS.md analysis on every PR:
+
+```yaml
+# .github/workflows/autodocs.yml
+name: AGENTS.md Analysis
+on: [pull_request]
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: msiric/autodocs-engine@v1
+        with:
+          anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }}  # optional
+```
+
+Posts a PR comment with detected commands, conventions, workflow rules, and public API summary. Updates the same comment on subsequent pushes (no spam).
+
 ## Backed by Research
 
 This tool's design is informed by real-world research on AI context files:
