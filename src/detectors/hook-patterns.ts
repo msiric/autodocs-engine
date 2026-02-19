@@ -2,9 +2,17 @@ import { basename } from "node:path";
 import type { Convention, ConventionDetector, ParsedFile } from "../types.js";
 import { sourceParsedFiles, buildConfidence } from "../convention-extractor.js";
 
+const REACT_MODULES = new Set(["react", "react-dom", "preact", "preact/hooks", "preact/compat"]);
+
 export const hookPatternDetector: ConventionDetector = (files, tiers, _warnings) => {
   const conventions: Convention[] = [];
   const sourceFiles = sourceParsedFiles(files, tiers);
+
+  // Only report hook conventions if the package actually uses React/Preact
+  const hasReactImport = sourceFiles.some((f) =>
+    f.imports.some((imp) => !imp.isTypeOnly && REACT_MODULES.has(imp.moduleSpecifier)),
+  );
+  if (!hasReactImport) return conventions;
 
   const hookFiles: ParsedFile[] = [];
   const hookNames: string[] = [];
@@ -91,13 +99,16 @@ export const hookPatternDetector: ConventionDetector = (files, tiers, _warnings)
 
   if (hookUsage.length > 0) {
     const total = hookUsage.reduce((s, h) => s + h.count, 0);
-    conventions.push({
-      category: "hooks",
-      name: "React hook usage distribution",
-      description: `React hooks used across source files`,
-      confidence: buildConfidence(total, total),
-      examples: hookUsage.map((h) => `${h.name}: ${h.count}`),
-    });
+    // Only report hook usage distribution if there's meaningful usage (≥3 total calls)
+    if (total >= 3) {
+      conventions.push({
+        category: "hooks",
+        name: "React hook usage distribution",
+        description: `React hooks used across source files`,
+        confidence: buildConfidence(total, total),
+        examples: hookUsage.map((h) => `${h.name}: ${h.count}`),
+      });
+    }
   }
 
   return conventions;
