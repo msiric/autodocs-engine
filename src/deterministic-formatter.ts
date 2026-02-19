@@ -5,7 +5,6 @@ import type {
   StructuredAnalysis,
   PackageAnalysis,
   Convention,
-  AntiPattern,
 } from "./types.js";
 import { ENGINE_VERSION } from "./types.js";
 import { sanitize, stripConventionStats } from "./llm/serializer.js";
@@ -108,7 +107,7 @@ function formatTitle(analysis: StructuredAnalysis): string {
     return `# ${analysis.packages[0].name}`;
   }
   // Multi-package: use root dir name or first package scope
-  const rootName = analysis.meta.rootDir.split("/").pop() ?? "Monorepo";
+  const rootName = analysis.meta.rootDir.split("/").filter(Boolean).pop() ?? "Monorepo";
   return `# ${rootName}`;
 }
 
@@ -277,15 +276,6 @@ function formatWorkflowRules(analysis: StructuredAnalysis): string {
     lines.push("");
     lines.push(`**${rule.trigger}**`);
     lines.push(`${rule.action}`);
-  }
-
-  // Also include high-impact conventions as workflow rules
-  const highImpactConventions = collectHighImpactConventions(analysis);
-  if (highImpactConventions.length > 0) {
-    lines.push("");
-    for (const conv of highImpactConventions) {
-      lines.push(`- ${stripConventionStats(conv.description)}`);
-    }
   }
 
   return lines.join("\n");
@@ -590,19 +580,3 @@ export function generatePackageDeterministicAgentsMd(
   };
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-/**
- * Collect high-impact conventions across all packages (for workflow rules section).
- */
-function collectHighImpactConventions(analysis: StructuredAnalysis): Convention[] {
-  const result: Convention[] = [];
-  for (const pkg of analysis.packages) {
-    for (const conv of pkg.conventions) {
-      if (conv.impact === "high" && conv.confidence.percentage >= 80) {
-        result.push(conv);
-      }
-    }
-  }
-  return result;
-}
