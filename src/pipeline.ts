@@ -63,10 +63,13 @@ export async function runPipeline(
   }
 
   // Cross-package analysis (if >1 package)
-  let crossPackage;
+  let crossPackage: import("./types.js").CrossPackageAnalysis | undefined;
+  let workspaceCommands: import("./types.js").WorkspaceCommand[] = [];
+  let rootCommands: import("./types.js").CommandSet | undefined;
+
   if (packageAnalyses.length > 1) {
     vlog(verbose, `Running cross-package analysis for ${packageAnalyses.length} packages...`);
-    const rootCommands = config.rootDir
+    rootCommands = config.rootDir
       ? extractCommands(config.rootDir, undefined, warnings)
       : undefined;
     crossPackage = analyzeCrossPackage(packageAnalyses, rootCommands);
@@ -85,38 +88,47 @@ export async function runPipeline(
       }
     }
 
-    // W3-1: Workspace-wide command scanning
+    // W3-1: Workspace-wide command scanning (multi-package only)
     if (config.rootDir) {
       const analyzedPkgNames = new Set(packageAnalyses.map((p) => p.name));
-      const workspaceCommands = scanWorkspaceCommands(config.rootDir, warnings, analyzedPkgNames);
+      workspaceCommands = scanWorkspaceCommands(config.rootDir, warnings, analyzedPkgNames);
       if (workspaceCommands.length > 0) {
         vlog(verbose, `  Workspace commands: ${workspaceCommands.length} operational commands found`);
         if (crossPackage) {
           crossPackage.workspaceCommands = workspaceCommands;
         }
       }
+    }
+  }
 
-      // W3-2: Workflow rule generation
-      const firstConfig = packageAnalyses.find((p) => p.configAnalysis)?.configAnalysis;
-      const workflowRules = generateWorkflowRules({
-        workspaceCommands,
-        rootCommands,
-        packageCommands: packageAnalyses.map((p) => ({
-          packageName: p.name,
-          commands: p.commands,
-        })),
-        configAnalysis: firstConfig,
-        allDependencyInsights: packageAnalyses
-          .map((p) => p.dependencyInsights)
-          .filter((d): d is import("./types.js").DependencyInsights => d != null),
-        allConventions: packageAnalyses.flatMap((p) => p.conventions),
-      });
-      if (workflowRules.length > 0) {
-        vlog(verbose, `  Workflow rules: ${workflowRules.length} technology-specific rules generated`);
-        if (crossPackage) {
-          crossPackage.workflowRules = workflowRules;
-        }
-      }
+  // Workflow rule generation — runs for ALL analyses (single and multi-package)
+  const firstConfig = packageAnalyses.find((p) => p.configAnalysis)?.configAnalysis;
+  const workflowRules = generateWorkflowRules({
+    workspaceCommands,
+    rootCommands,
+    packageCommands: packageAnalyses.map((p) => ({
+      packageName: p.name,
+      commands: p.commands,
+    })),
+    configAnalysis: firstConfig,
+    allDependencyInsights: packageAnalyses
+      .map((p) => p.dependencyInsights)
+      .filter((d): d is import("./types.js").DependencyInsights => d != null),
+    allConventions: packageAnalyses.flatMap((p) => p.conventions),
+  });
+  if (workflowRules.length > 0) {
+    vlog(verbose, `Workflow rules: ${workflowRules.length} technology-specific rules generated`);
+    // For single-package, create a minimal crossPackage to hold the rules
+    if (!crossPackage) {
+      crossPackage = {
+        dependencyGraph: [],
+        sharedConventions: [],
+        divergentConventions: [],
+        sharedAntiPatterns: [],
+        workflowRules,
+      };
+    } else {
+      crossPackage.workflowRules = workflowRules;
     }
   }
 
