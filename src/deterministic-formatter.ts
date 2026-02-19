@@ -9,6 +9,7 @@ import type {
 import { ENGINE_VERSION } from "./types.js";
 import { sanitize, stripConventionStats } from "./llm/serializer.js";
 import { PACKAGE_TO_FAMILY } from "./meta-tool-detector.js";
+import { computeImpactRadius, impactLabel, complexityLabel } from "./impact-radius.js";
 
 // ─── Output Type ─────────────────────────────────────────────────────────────
 
@@ -23,6 +24,7 @@ export interface DeterministicOutput {
   publicAPI: string;
   dependencies: string;
   conventions: string;
+  changeImpact: string;        // from call graph analysis
   supportedFrameworks: string; // meta-tools only
   dependencyGraph: string;    // multi-package only
   mermaidDiagram: string;     // multi-package only
@@ -55,6 +57,7 @@ export function generateDeterministicAgentsMd(
     publicAPI: formatPublicAPI(analysis),
     dependencies: formatDependencies(analysis),
     conventions: formatConventions(analysis),
+    changeImpact: formatChangeImpact(analysis),
     supportedFrameworks: formatSupportedFrameworks(analysis),
     dependencyGraph: formatDependencyGraph(analysis),
     mermaidDiagram: formatMermaidDiagram(analysis),
@@ -92,6 +95,7 @@ export function assembleFinalOutput(
   if (deterministic.dependencyGraph) sections.push("", deterministic.dependencyGraph);
   if (deterministic.mermaidDiagram) sections.push("", deterministic.mermaidDiagram);
   if (deterministic.conventions) sections.push("", deterministic.conventions);
+  if (deterministic.changeImpact) sections.push("", deterministic.changeImpact);
   if (deterministic.supportedFrameworks) sections.push("", deterministic.supportedFrameworks);
 
   sections.push("", deterministic.teamKnowledge);
@@ -478,6 +482,44 @@ function formatConventions(analysis: StructuredAnalysis): string {
   return lines.join("\n");
 }
 
+function formatChangeImpact(analysis: StructuredAnalysis): string {
+  // Aggregate call graph edges across all packages
+  const allEdges = analysis.packages.flatMap((p) => p.callGraph ?? []);
+  const { highImpact, complex } = computeImpactRadius(allEdges);
+
+  if (highImpact.length === 0 && complex.length === 0) return "";
+
+  const lines = ["## Change Impact"];
+
+  if (highImpact.length > 0) {
+    lines.push("");
+    lines.push("High-impact functions — changes to these affect many callers:");
+    lines.push("");
+    lines.push("| Function | File | Callers | Impact |");
+    lines.push("|----------|------|--------:|--------|");
+    for (const entry of highImpact) {
+      lines.push(
+        `| \`${entry.functionName}\` | \`${entry.file}\` | ${entry.transitiveCallers} | ${impactLabel(entry.transitiveCallers)} |`,
+      );
+    }
+  }
+
+  if (complex.length > 0) {
+    lines.push("");
+    lines.push("Complex functions — these call many other functions:");
+    lines.push("");
+    lines.push("| Function | File | Calls | Complexity |");
+    lines.push("|----------|------|------:|------------|");
+    for (const entry of complex) {
+      lines.push(
+        `| \`${entry.functionName}\` | \`${entry.file}\` | ${entry.directCalls} | ${complexityLabel(entry.directCalls)} |`,
+      );
+    }
+  }
+
+  return lines.join("\n");
+}
+
 function formatSupportedFrameworks(analysis: StructuredAnalysis): string {
   // Only rendered for meta-tool packages
   const pkg = analysis.packages[0];
@@ -667,6 +709,7 @@ export function generatePackageDeterministicAgentsMd(
     publicAPI: formatPublicAPI(singleAnalysis),
     dependencies: formatDependencies(singleAnalysis),
     conventions: formatConventions(singleAnalysis),
+    changeImpact: formatChangeImpact(singleAnalysis),
     supportedFrameworks: formatSupportedFrameworks(singleAnalysis),
     dependencyGraph: "",  // Root-level only
     mermaidDiagram: "",   // Root-level only

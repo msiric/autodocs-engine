@@ -86,6 +86,7 @@ Run `npm run test` to verify changes
 - `DirectoryInfo` (3 imports)
 - `AntiPattern` (3 imports)
 - `ConfigAnalysis` (3 imports)
+- `CallGraphEdge` (3 imports)
 - `ConventionConfidence` (2 imports)
 - `PackageArchitecture` (2 imports)
 - `CrossPackageAnalysis` (2 imports)
@@ -93,7 +94,6 @@ Run `npm run test` to verify changes
 - `Command` (1 imports)
 - `FileInventory` (1 imports)
 - `DependencySummary` (1 imports)
-- `PackageRole` (1 imports)
 - _...and 10 more interfaces_
 
 ### Consts
@@ -104,7 +104,7 @@ Run `npm run test` to verify changes
 
 **External:**
 - `node:path` (34 imports)
-- `vitest` (23 imports)
+- `vitest` (24 imports)
 - `node:fs` (20 imports)
 - `typescript` (2 imports)
 - `node:child_process` (1 imports)
@@ -114,10 +114,30 @@ Run `npm run test` to verify changes
 ## Conventions
 
 - **DO**: Source files use kebab-case naming convention (e.g., `analysis-builder.ts`)
-- **DO**: Tests use Vitest (e.g., `22 test files`)
-- **DO**: Tests use Vitest 2.0.0 (e.g., `22 test files detected`)
+- **DO**: Tests use Vitest (e.g., `23 test files`)
+- **DO**: Tests use Vitest 2.0.0 (e.g., `23 test files detected`)
 
-- **DON'T**: Do NOT use camelCase or PascalCase for filenames — 48 of 49 (98%) use kebab-case — the codebase exclusively uses kebab-case filenames
+- **DON'T**: Do NOT use camelCase or PascalCase for filenames — 49 of 50 (98%) use kebab-case — the codebase exclusively uses kebab-case filenames
+
+## Change Impact
+
+High-impact functions — changes to these affect many callers:
+
+| Function | File | Callers | Impact |
+|----------|------|--------:|--------|
+| `callLLMWithRetry` | `src/llm/client.ts` | 9 | Moderate — multiple callers |
+| `buildConfidence` | `src/convention-extractor.ts` | 8 | Moderate — multiple callers |
+| `formatArchitectureFallback` | `src/deterministic-formatter.ts` | 4 | Low |
+| `serializeToMarkdown` | `src/llm/serializer.ts` | 4 | Low |
+| `generateDeterministicAgentsMd` | `src/deterministic-formatter.ts` | 3 | Low |
+
+Complex functions — these call many other functions:
+
+| Function | File | Calls | Complexity |
+|----------|------|------:|------------|
+| `formatHierarchicalDeterministic` | `src/index.ts` | 7 | Moderate complexity |
+| `runPipeline` | `src/pipeline.ts` | 6 | Moderate complexity |
+| `formatDeterministic` | `src/index.ts` | 4 | Simple |
 
 ## Team Knowledge
 
