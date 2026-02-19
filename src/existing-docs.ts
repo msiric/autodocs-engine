@@ -97,22 +97,39 @@ export function extractReadmeContext(
 
 /**
  * Extract the first meaningful paragraph from markdown content.
- * Skips titles (#), badges ([![), HTML tags, and empty lines.
+ * Skips titles (#), badges ([![), ALL HTML tags/blocks, and empty lines.
+ * A "meaningful paragraph" is a line of plain text (not markup) that
+ * contains at least 20 characters of actual content.
  */
 function extractFirstParagraph(markdown: string): string | undefined {
   const lines = markdown.split("\n");
+  let inHtmlBlock = false;
   let inParagraph = false;
   const paragraphLines: string[] = [];
 
   for (const line of lines) {
     const trimmed = line.trim();
-    // Skip title lines, badges, HTML image/div tags, and empty lines before first paragraph
+
+    // Track HTML block boundaries (e.g., <div>...</div>, <h1>...</h1>)
+    if (!inHtmlBlock && /^<[a-zA-Z]/.test(trimmed) && !trimmed.includes("</")) {
+      inHtmlBlock = true;
+      continue;
+    }
+    if (inHtmlBlock) {
+      if (/<\/[a-zA-Z]+>/.test(trimmed)) inHtmlBlock = false;
+      continue;
+    }
+
+    // Skip single-line HTML tags, markdown headings, badges, images
+    if (/^<[a-zA-Z/]/.test(trimmed)) continue;
     if (trimmed.startsWith("#")) continue;
-    if (trimmed.startsWith("[!") || trimmed.startsWith("[![")) continue;
-    if (trimmed.startsWith("<img") || trimmed.startsWith("<div") || trimmed.startsWith("<p>") || trimmed.startsWith("<br")) continue;
-    if (trimmed.startsWith("![")) continue; // inline images
+    if (/^\[?!\[/.test(trimmed)) continue;
+    if (/^\[!\[/.test(trimmed)) continue;
     if (trimmed === "" && !inParagraph) continue;
-    if (trimmed === "" && inParagraph) break; // end of first paragraph
+    if (trimmed === "" && inParagraph) break;
+
+    // Must look like actual prose (not just a URL, badge text, or short label)
+    if (!inParagraph && trimmed.length < 20) continue;
 
     inParagraph = true;
     paragraphLines.push(trimmed);

@@ -195,7 +195,7 @@ export async function synthesizeDomainTerms(
   readmeContext: string | undefined,
   llmConfig: ResolvedConfig["llm"],
 ): Promise<string> {
-  if (!readmeContext || !llmConfig.apiKey) return "";
+  if (!readmeContext || readmeContext.length < 50 || !llmConfig.apiKey) return "";
 
   const systemPrompt = `Extract 3-5 domain-specific terms from the project description below.
 For each term, provide a one-line definition.
