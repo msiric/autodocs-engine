@@ -120,4 +120,14 @@ Run `npm run test` to verify changes
 - **DON'T**: Do NOT use camelCase or PascalCase for filenames — 48 of 49 (98%) use kebab-case — the codebase exclusively uses kebab-case filenames
 
 ## Team Knowledge
-_Add project-specific context here — deployment quirks, review conventions, and decisions AI tools wouldn't know from code alone._
+
+<!-- autodocs-engine detected these patterns but needs your input to provide complete guidance:
+  - src/detectors/ has 8 feature: detectors files. What's the process for adding a new one?
+  - The codebase has 47 cross-file call relationships. Are there changes that require updating multiple files together?
+  - Are there CLI-specific behaviors, flags, or output formats that AI tools should know about?
+  - What's the contribution workflow? (branch naming, commit conventions, PR process, review requirements)
+  - Are there ordering requirements between commands? (e.g., build before test, lint before commit)
+  - What's the testing philosophy? (unit vs integration, what needs tests, coverage expectations)
+-->
+
+_Fill in the questions above (remove the comment markers) with project-specific context that AI tools can't infer from code._
