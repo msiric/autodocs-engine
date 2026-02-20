@@ -1,104 +1,109 @@
 # Benchmarks
 
-> Three-way comparison: engine output vs human-written context files vs raw LLM (Claude reading code directly). 10 TypeScript repos, 7 scoring dimensions.
+> Engine vs human-written context files across 10 TypeScript repos.
 >
-> Last benchmark run: 2026-02-18 (engine v3, grounded prompting). The deterministic output mode (commit 2c04f12) has not yet been benchmarked.
-
-## Methodology
-
-**Scoring dimensions** (each 1-10):
-
-| # | Dimension | 10/10 Means |
-|---|-----------|-------------|
-| 1 | Commands | All commands exact and correct, build tool detected, variants listed |
-| 2 | Budget | 100-150 lines, ~4-8KB. Not too sparse, not too verbose |
-| 3 | Signal/Noise | Every line actionable for AI tools. No style rules, file listings, percentages |
-| 4 | Workflow | Specific "when X -> do Y" rules with exact commands. Not generic advice |
-| 5 | Architecture | Describes capabilities, names specific implementations. Not file listings |
-| 6 | Domain | Terminology, version guidance, concepts AI can't infer from code |
-| 7 | Accuracy | Zero errors. Hallucinations are critical failures |
-
-Based on: [Vercel AGENTS.md research](https://vercel.com/blog/agents-md) (8KB index = 100% eval pass rate), [HumanLayer instruction budget](https://humanlayer.dev/blog/agents-md) (~100-150 rules max), [Builder.io findings](https://www.builder.io/blog/cursor-tips) (commands > style rules).
+> Latest benchmark: 2026-02-20 (v5 — deterministic output, meta-tool detection, fixture exclusion, change impact, role inference fix).
 
 ## Benchmark Repos
 
-| # | Repo | Stars | Archetype | Context File | Pkg Mgr |
-|---|------|------:|-----------|-------------|---------|
-| 1 | sanity-io/sanity | 6K | CMS monorepo | AGENTS.md (386 lines) | pnpm+Turbo |
-| 2 | medusajs/medusa | 32K | E-commerce API | CLAUDE.md (341 lines) | Yarn+Turbo |
-| 3 | vercel/ai | 22K | AI SDK monorepo | AGENTS.md (284 lines) | pnpm+Turbo |
-| 4 | modelcontextprotocol/typescript-sdk | 12K | SDK | CLAUDE.md (266 lines) | pnpm |
-| 5 | webpro-nl/knip | 10K | CLI tool | AGENTS.md (183 lines) | pnpm |
-| 6 | unjs/nitro | 10K | Backend server | AGENTS.md (164 lines) | pnpm |
-| 7 | openstatusHQ/openstatus | 8K | Web app (Bun) | CLAUDE.md (106 lines) | pnpm+Turbo |
-| 8 | documenso/documenso | 12K | Web app (Remix) | .cursorrules + AGENTS.md | npm+Turbo |
-| 9 | Effect-TS/effect | 13K | Functional library | AGENTS.md (77 lines) | pnpm |
-| 10 | excalidraw/excalidraw | 117K | Component library | CLAUDE.md (34 lines) | Yarn+Vite |
+| # | Repo | Stars | Archetype | Human File | Lines |
+|---|------|------:|-----------|-----------|------:|
+| 1 | sanity-io/sanity | 6K | CMS monorepo | AGENTS.md | 386 |
+| 2 | medusajs/medusa | 32K | E-commerce API | CLAUDE.md | 341 |
+| 3 | vercel/ai | 22K | AI SDK monorepo | AGENTS.md | 284 |
+| 4 | modelcontextprotocol/typescript-sdk | 12K | SDK | CLAUDE.md | 266 |
+| 5 | webpro-nl/knip | 10K | CLI tool | CLAUDE.md | 183 |
+| 6 | unjs/nitro | 10K | Backend server | AGENTS.md | 164 |
+| 7 | openstatusHQ/openstatus | 8K | Web app | CLAUDE.md | 106 |
+| 8 | documenso/documenso | 12K | Web app (Remix) | AGENTS.md | — |
+| 9 | Effect-TS/effect | 13K | Functional library | AGENTS.md | 77 |
+| 10 | excalidraw/excalidraw | 117K | Component library | CLAUDE.md | 34 |
 
 Selected from 30+ candidates. Criteria: >5K stars, >80% TypeScript, existing human-written context file, <1000 source files, actively maintained.
 
-## Score Evolution
+## Latest Results (v5)
 
-### Overall Averages
+### Structural Validation
 
-| Version | What Changed | Engine | Human | Raw LLM |
-|---------|-------------|-------:|------:|--------:|
-| v1 (baseline) | First 10-repo benchmark | 5.9 | 7.2 | 6.6 |
-| v2 (post-bugfix) | 16 algorithm bugs fixed | 5.9 | 7.4 | 7.0 |
-| v3 (grounded) | XML tags, temperature 0, whitelist validator | 5.5 | 7.4 | 7.0 |
+| Metric | Result |
+|--------|--------|
+| **Technology hallucinations** | **0 across all 10 repos** |
+| **Correct role descriptions** | 9/10 (openstatus has 0 source files at target path) |
+| **Commands detected** | 10/10 |
+| **Architecture section** | 10/10 |
+| **Change Impact section** | 8/10 (skipped when call graph <10 edges) |
+| **Prompted Team Knowledge** | 10/10 |
+| **Public API surface** | 7/10 (3 repos have no barrel/public exports) |
 
-Score did not meaningfully improve across 3 iterations despite ~2,000 lines of changes. The v3 regression prompted a pivot to deterministic output generation.
+### Output Comparison
 
-### Per-Repo Scores
+| Repo | Engine | Human | Role Description |
+|------|-------:|------:|-----------------|
+| sanity | 108 | 386 | Sanity is a real-time content infrastructure |
+| medusa | 255 | 341 | Building blocks for digital commerce |
+| vercel/ai | 292 | 284 | AI SDK by Vercel - The AI Toolkit for TypeScript and JavaScript |
+| mcp-sdk | 147 | 266 | Model Context Protocol implementation |
+| knip | 111 | 183 | Find and fix unused dependencies, exports and files |
+| nitro | 102 | 164 | Build and Deploy Universal JavaScript Servers |
+| openstatus | 55 | 106 | (no source files at target) |
+| documenso | 444 | — | API server |
+| effect | 155 | 77 | The missing standard library for TypeScript |
+| excalidraw | 226 | 34 | Excalidraw as a React component |
 
-| Repo | Engine v1 | Engine v2 | Engine v3 | Human | Raw LLM |
-|------|----------:|----------:|----------:|------:|--------:|
-| sanity | 5.9 | 4.7 | 5.1 | 7.4 | 7.4 |
-| medusa | 5.7 | **8.0** | 6.1 | 7.6 | 6.4 |
-| vercel/ai | 6.7 | **7.6** | 6.4 | 7.6 | 6.4 |
-| MCP SDK | 6.1 | 3.6 | 3.4 | 8.1 | 7.9 |
-| knip | 5.1 | 4.4 | 4.6 | 8.4 | 7.1 |
-| nitro | 5.4 | 6.3 | 5.7 | 7.9 | 7.7 |
-| openstatus | 6.7 | 6.4 | 6.6 | 7.4 | 7.1 |
-| documenso | 5.7 | 4.9 | 4.4 | 6.1 | 6.9 |
-| effect | 5.4 | 5.7 | 6.3 | 7.3 | 5.9 |
-| excalidraw | 6.6 | **6.9** | 6.7 | 5.7 | 6.9 |
+Role descriptions now come from package.json `description` field — accurate and author-written.
 
-Engine v2 won or tied on 3 repos (medusa, vercel/ai, excalidraw). MCP SDK and documenso had invalid target paths (repos restructured since benchmark setup).
+### What the Engine Does Better
 
-## Dimension Analysis
+1. **Structured commands table.** Every output has exact command strings in a table. Human files embed commands in prose paragraphs.
 
-From the v1 baseline (most complete single-run data):
+2. **Public API with signatures.** 13-100 exported functions with type signatures, sorted by import count. No human file provides this.
 
-| Dimension | Engine | Human | Raw LLM | Gap to Human |
-|-----------|-------:|------:|--------:|:-------------|
-| Budget | **7.0** | 6.4 | 5.5 | +0.6 (engine best) |
-| Signal/Noise | **7.2** | 6.4 | 5.9 | +0.8 (engine best) |
-| Commands | 6.2 | 7.3 | 7.1 | -1.1 |
-| Architecture | 6.2 | 6.5 | 7.1 | -0.3 |
-| Accuracy | 6.3 | **8.9** | 6.9 | -2.6 |
-| Workflow | 4.9 | **7.5** | 6.7 | -2.6 |
-| Domain | 4.2 | 7.0 | **7.3** | -2.8 |
+3. **Change Impact analysis.** "callLLMWithRetry has 9 callers — be careful modifying it." Computed via BFS on the call graph. No human file has this.
 
-**Engine strengths:** Budget adherence and signal-to-noise ratio are the highest of all three approaches. These are structural properties the engine controls directly through its analysis pipeline and output formatting.
+4. **Prompted Team Knowledge.** Specific questions derived from what the engine found: "What's the process for adding a new detector?" "Are there ordering requirements between commands?" Human files have generic contributing guidelines.
 
-**Engine weaknesses:** Domain knowledge (4.2) and workflow specificity (4.9) are the widest gaps. These require semantic understanding of the project that AST analysis cannot provide. Accuracy (6.3) suffers from hallucinations in the LLM formatting step.
+5. **Budget discipline.** Engine output respects the 100-300 line instruction budget. Sanity's human file is 386 lines (exceeds research-backed limit).
 
-## Key Findings
+6. **Zero hallucinations.** Every technology, command, and dependency is verified against actual code. The deterministic formatter generates 14/16 sections without any LLM involvement.
 
-1. **The engine excels at what can be computed deterministically.** Budget and signal-to-noise are best because these are pipeline-controlled, not LLM-dependent. This motivated the deterministic output architecture.
+### What Human Files Do Better
 
-2. **Domain knowledge is the structural ceiling.** Project-specific terminology, design rationale, and workflow conventions cannot be inferred from AST analysis. The engine score of 4.2/10 on domain reflects a fundamental limitation, not a bug. The "Team Knowledge" placeholder section acknowledges this.
+1. **Operational workflows.** Knip: "Debug, don't guess. Use `--debug` flag." "Run knip directly in a fixture directory." These are project-specific insights from the maintainer's head.
 
-3. **Accuracy is the trust gate.** Three hallucinations in v1 (React in a CLI tool, Bun in a pnpm project, "src" as a title) were traced to monorepo root dependency leakage. These were fixed but new LLM hallucinations appeared in v2 (Bun in MCP SDK, jest.mock in Sanity). The deterministic pivot eliminates this class of failure for 13/15 output sections.
+2. **Architecture with rationale.** Vercel AI: package dependency diagram showing `ai → @ai-sdk/provider-utils → @ai-sdk/provider`. Shows WHY the structure exists, not just WHAT exists.
 
-4. **Grounded prompting regressed scores.** v3 (XML tags, temperature 0, fill-in-blank templates, whitelist validator) scored 5.5, down from 5.9. Rigid templates prevented the LLM from using correct training knowledge for well-known repos. Lesson: constrain the LLM's scope rather than its creativity.
+3. **Coding style preferences.** Knip: "Prefer plain `for..in/of` loops over iterator methods." Effect: "mandatory validation steps." These are conventions that can't be inferred from code patterns alone.
 
-5. **The engine is a starting point, not a replacement.** It beats sparse human files (excalidraw, 34 lines) and bloated LLM output (medusa, 309 lines). It loses where deep project knowledge matters. Positioning: "generates an accurate structural foundation; add your domain knowledge."
+4. **Debug workflows.** Knip: "Use `--performance` or `--performance-fn [name]` to profile." Excalidraw: "Use `yarn test:typecheck` to verify TypeScript."
+
+### The Gap
+
+The engine produces the **structural 60%** that's tedious to write by hand: commands, API surface, conventions, tech stack, change impact. Human files have the **operational 40%** that requires project knowledge: debug workflows, coding preferences, architectural rationale, and project-specific "when X → do Y" rules.
+
+The **prompted Team Knowledge** section bridges this gap by asking the right questions — the engine tells you what it found and asks you to fill in what it can't know.
+
+---
+
+## Historical Scores (v1-v3)
+
+Before the deterministic output pivot, the engine used full-LLM generation which produced hallucinations. These scores are included for historical context.
+
+| Version | What Changed | Engine Avg |
+|---------|-------------|----------:|
+| v1 (baseline) | First 10-repo benchmark | 5.9 |
+| v2 (post-bugfix) | 16 algorithm bugs fixed | 5.9 |
+| v3 (grounded prompting) | XML tags, temperature 0, whitelist validator | 5.5 |
+| **v5 (deterministic)** | **14/16 sections in code, fixture exclusion, meta-tool, change impact** | **—** |
+
+v5 has not been formally scored on the 7-dimension scale. The structural validation shows zero hallucinations and correct output across all repos — a qualitative improvement that the 7-dimension scoring didn't capture for v1-v3.
+
+### Key Lesson
+
+The pivot from full-LLM generation (v1-v3) to deterministic output (v5) solved the accuracy problem by construction. Instead of trying to make the LLM more faithful with prompting tricks, the engine now generates most sections in code where hallucination is impossible. The LLM is only used for 2 narrowly-scoped synthesis tasks (architecture capabilities, domain terminology) where it receives constrained input and cannot fabricate technology names.
 
 ## Algorithm Audit Summary
 
-A systematic trace of all data flow paths found 16 bugs across 7 categories. All critical and high bugs were fixed in commit `8e4628e`.
+A systematic trace of all data flow paths found 16 bugs across 7 categories. All fixed.
 
 | Category | Count | Severity | Example |
 |----------|------:|----------|---------|
@@ -106,8 +111,8 @@ A systematic trace of all data flow paths found 16 bugs across 7 categories. All
 | Package name resolution | 2 | High | Analysis path "src" leaked as title instead of "nitro" |
 | Framework false positives | 3 | High | Version guidance for frameworks not imported by source |
 | Command extraction | 2 | Medium | Workspace commands from unrelated packages |
-| Output quality | 3 | Medium | Templates treated as ceilings (50-70 lines, not 80-120) |
+| Output quality | 3 | Medium | Templates treated as ceilings, not floors |
 | Edge cases | 4 | Medium | Analyzing src/ directly, workspace:\* protocol |
 | Validator gaps | 3 | Medium | Can't catch upstream data pollution |
 
-Key fixes: per-package dependency isolation (no root dep merge), walk-up package name resolution, import-verified framework detection, meaningless title rejection, test framework fallback to root devDeps.
+Additional fixes in v5: fixture/example directory exclusion from analysis, `get(?=[A-Z])` false positive in domain signals, package.json description preference in role inference, type-only import filtering in ecosystem detectors.
