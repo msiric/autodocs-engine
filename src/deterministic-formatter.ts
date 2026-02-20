@@ -291,11 +291,12 @@ function formatContributionPatterns(analysis: StructuredAnalysis): string {
   const lines = ["## How to Add New Code"];
 
   for (const cp of allPatterns) {
+    // Use export suffix or directory name as header instead of generic kind
+    const dirName = cp.directory.replace(/\/$/, "").split("/").pop() ?? cp.type;
+    const header = cp.exportSuffix ?? dirName;
     lines.push("");
-    lines.push(`### ${cp.type}`);
+    lines.push(`### ${header}`);
     lines.push("");
-    lines.push(`Create \`${cp.filePattern}\` in \`${cp.directory}\``);
-    if (cp.testPattern) lines.push(`Test: \`${cp.testPattern}\``);
     lines.push(`Example: \`${cp.exampleFile}\``);
     if (cp.steps.length > 0) {
       lines.push("");

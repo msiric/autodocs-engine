@@ -21,17 +21,13 @@ node 18.18.0 | typescript 5.4.0 | vitest 2.0.0
 
 ## Architecture
 
-• Analyzes codebases to detect patterns and anti-patterns across multiple packages, deriving shared issues and classifying their impacts on the system
+**Type:** cli
+**Entry point:** `src/index.ts`
 
-• Implements multiple specialized detectors that examine build tools, data fetching patterns, database usage, and file naming conventions with confidence scoring
-
-• Processes and parses source files to extract structural information and build comprehensive analysis reports
-
-• Generates hierarchical output formats with deterministic formatting for consistent documentation structure
-
-• Provides command-line interface for initializing analysis workflows and executing cross-package examinations
-
-• Combines detection results with confidence metrics to produce actionable insights about codebase architecture and potential improvements
+- **Feature: detectors** (`src/detectors/`, 8 files)
+- **Feature: llm** (`src/llm/`): HierarchicalOutput
+- **Feature: templates** (`src/templates/`, 3 files)
+- **Feature: bin** (`src/bin/`, 2 files)
 
 ## Workflow Rules
 
@@ -41,19 +37,10 @@ Run `npm run test` to verify changes
 **When modifying `src/types.ts`**
 Also check: `src/analysis-builder.ts` (17 symbols), `src/ast-parser.ts` (8 symbols), `src/convention-extractor.ts` (7 symbols), and 9 more
 
-## Domain Terminology
-
-• **AGENTS.md files** - Documentation files that provide structured guidelines and context for AI coding assistants to understand project requirements, coding standards, and domain-specific knowledge.
-
-• **Research-backed** - Documentation approaches validated through empirical studies on AI tool effectiveness and developer productivity metrics.
-
-• **AI coding tools** - Automated programming assistants like GitHub Copilot, CodeT5, or similar machine learning models that generate or suggest code based on context.
-
 ## How to Add New Code
 
-### function
+### Detector
 
-Create `{name}.ts` in `src/detectors/`
 Example: `src/detectors/build-tool.ts`
 
 1. Create `{name}.ts` in `src/detectors/`
@@ -63,18 +50,16 @@ Example: `src/detectors/build-tool.ts`
 1. Register in `src/convention-extractor.ts`
 1. Add re-export to `src/index.ts`
 
-### function
+### llm
 
-Create `{name}.ts` in `src/llm/`
 Example: `src/llm/hierarchical.ts`
 
 1. Create `{name}.ts` in `src/llm/`
 1. Import `StructuredAnalysis, ResolvedConfig, PackageAnalysis` from `../types.js` (4/5 siblings)
 1. Add re-export to `src/index.ts`
 
-### const
+### Template
 
-Create `{name}.ts` in `src/templates/`
 Example: `src/templates/agents-md.ts`
 
 1. Create `{name}.ts` in `src/templates/`
