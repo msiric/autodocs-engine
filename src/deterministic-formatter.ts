@@ -389,7 +389,8 @@ function formatDependencies(analysis: StructuredAnalysis): string {
           if (fam === family) supportedPkgs.add(pkgName);
         }
       }
-      const coreDeps = pkg.dependencies.external.filter(d => !supportedPkgs.has(d.name));
+      const testFw = pkg.dependencyInsights?.testFramework?.name;
+      const coreDeps = pkg.dependencies.external.filter(d => !supportedPkgs.has(d.name) && d.name !== testFw);
       if (coreDeps.length > 0) {
         if (!hasContent && prefix) lines.push("", prefix.trim());
         lines.push("");
@@ -400,7 +401,8 @@ function formatDependencies(analysis: StructuredAnalysis): string {
         hasContent = true;
       }
     } else {
-      const topExternal = pkg.dependencies.external.slice(0, 10);
+      const testFw = pkg.dependencyInsights?.testFramework?.name;
+      const topExternal = pkg.dependencies.external.filter(d => d.name !== testFw).slice(0, 10);
       if (topExternal.length > 0) {
         if (!hasContent && prefix) lines.push("", prefix.trim());
         lines.push("");
@@ -646,13 +648,13 @@ function formatTeamKnowledge(analysis: StructuredAnalysis): string {
   }
 
   const lines = ["## Team Knowledge", ""];
-  lines.push("<!-- autodocs-engine detected these patterns but needs your input to provide complete guidance:");
-  for (const q of selected) {
-    lines.push(`  - ${q}`);
-  }
-  lines.push("-->");
+  lines.push("_autodocs-engine detected these patterns but needs your input:_");
   lines.push("");
-  lines.push("_Fill in the questions above (remove the comment markers) with project-specific context that AI tools can't infer from code._");
+  for (const q of selected) {
+    lines.push(`- [ ] ${q}`);
+  }
+  lines.push("");
+  lines.push("_Replace the checkboxes above with your answers to help AI tools understand this project._");
   return lines.join("\n");
 }
 

@@ -25,7 +25,7 @@ runs:
       shell: bash
       env:
         ANTHROPIC_API_KEY: ${{ inputs.anthropic-api-key }}
-      run: npx autodocs-engine@latest analyze . --dry-run --quiet > /tmp/autodocs-analysis.json 2>/dev/null || true
+      run: npx autodocs-engine@latest analyze . --dry-run --quiet > /tmp/autodocs-analysis.json || true
 
     - name: Comment on PR
       if: github.event_name == 'pull_request'
@@ -42,14 +42,26 @@ runs:
             return;
           }
 
-          const pkg = analysis.packages?.[0];
-          if (!pkg) {
+          const packages = analysis.packages ?? [];
+          if (packages.length === 0) {
             core.info('No packages in analysis — skipping PR comment');
             return;
           }
 
+          const pkg = packages[0];
+
           // Build comment body
           let body = `## AGENTS.md Analysis\n\n`;
+
+          // Multi-package summary
+          if (packages.length > 1) {
+            body += `**${packages.length} packages analyzed:**\n`;
+            for (const p of packages) {
+              body += `- **${p.name}** — ${p.files.total} files, ${p.publicAPI.length} exports\n`;
+            }
+            body += `\n`;
+          }
+
           body += `**${pkg.name}** — ${pkg.role?.summary || pkg.architecture?.packageType || 'TypeScript package'}\n\n`;
 
           // Metrics table

@@ -143,16 +143,16 @@ function bfsReachability(start: string, reverseAdj: Map<string, Set<string>>): n
 
 /** Generate a short impact label based on caller count. */
 export function impactLabel(transitiveCallers: number): string {
-  if (transitiveCallers >= 20) return "Critical — widely depended on";
-  if (transitiveCallers >= 10) return "High — used by many modules";
-  if (transitiveCallers >= 5) return "Moderate — multiple callers";
+  if (transitiveCallers >= 15) return "Critical — widely depended on";
+  if (transitiveCallers >= 8) return "High — used by many modules";
+  if (transitiveCallers >= 3) return "Moderate — multiple callers";
   return "Low";
 }
 
 /** Generate a complexity label based on call count. */
 export function complexityLabel(directCalls: number): string {
-  if (directCalls >= 15) return "Very complex — many dependencies";
-  if (directCalls >= 10) return "Complex — many dependencies";
-  if (directCalls >= 5) return "Moderate complexity";
+  if (directCalls >= 12) return "Very complex — many dependencies";
+  if (directCalls >= 7) return "Complex — many dependencies";
+  if (directCalls >= 4) return "Moderate complexity";
   return "Simple";
 }
