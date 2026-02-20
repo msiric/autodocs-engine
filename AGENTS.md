@@ -21,13 +21,17 @@ node 18.18.0 | typescript 5.4.0 | vitest 2.0.0
 
 ## Architecture
 
-**Type:** cli
-**Entry point:** `src/index.ts`
+• Analyzes codebases to detect patterns and anti-patterns across multiple packages, deriving shared issues and classifying their impacts on the system
 
-- **Feature: detectors** (`src/detectors/`, 8 files)
-- **Feature: llm** (`src/llm/`): HierarchicalOutput
-- **Feature: templates** (`src/templates/`, 3 files)
-- **Feature: bin** (`src/bin/`, 2 files)
+• Implements confidence-based detection system that evaluates build tools, data fetching mechanisms, and database usage patterns to assess code quality
+
+• Processes file naming conventions and source code structure to identify organizational patterns and potential inconsistencies
+
+• Generates hierarchical documentation output with deterministic formatting to ensure consistent and reproducible results
+
+• Provides command-line interface for initializing analysis workflows that combine pattern detection with structured output generation
+
+• Supports cross-package analysis capabilities to identify system-wide architectural concerns and shared implementation patterns
 
 ## Workflow Rules
 
@@ -36,6 +40,14 @@ Run `npm run test` to verify changes
 
 **When modifying `src/types.ts`**
 Also check: `src/analysis-builder.ts` (17 symbols), `src/ast-parser.ts` (8 symbols), `src/convention-extractor.ts` (7 symbols), and 9 more
+
+## Domain Terminology
+
+• **AGENTS.md files** - Documentation files that provide AI coding assistants with project-specific context, coding standards, and behavioral guidelines to improve code generation accuracy
+
+• **Research-backed** - Documentation approaches validated through empirical studies on AI tool effectiveness and developer productivity metrics
+
+• **AI coding tools** - Automated programming assistants like GitHub Copilot, Cursor, or Claude that generate code suggestions based on context and prompts
 
 ## How to Add New Code
 
@@ -163,7 +175,6 @@ Complex functions — these call many other functions:
 
 _autodocs-engine detected these patterns but needs your input:_
 
-- [ ] `src/detectors/` has 8 detectors files. What's the process for adding a new one?
 - [ ] The codebase has 49 cross-file call relationships. Are there changes that require updating multiple files together?
 - [ ] Are there CLI-specific behaviors, flags, or output formats that AI tools should know about?
 - [ ] What's the contribution workflow? (branch naming, commit conventions, PR process, review requirements)
