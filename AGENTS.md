@@ -49,6 +49,39 @@ Also check: `src/analysis-builder.ts` (17 symbols), `src/ast-parser.ts` (8 symbo
 
 • **AI coding tools** - Automated programming assistants like GitHub Copilot, CodeT5, or similar machine learning models that generate or suggest code based on context.
 
+## How to Add New Code
+
+### function
+
+Create `{name}.ts` in `src/detectors/`
+Example: `src/detectors/build-tool.ts`
+
+1. Create `{name}.ts` in `src/detectors/`
+1. Import `Convention, ConventionDetector, DetectorContext, ParsedFile` from `../types.js` (8/8 siblings)
+1. Import `buildConfidence, sourceParsedFiles` from `../convention-extractor.js` (8/8 siblings)
+1. Export as `{name}Detector` (naming convention)
+1. Register in `src/convention-extractor.ts`
+1. Add re-export to `src/index.ts`
+
+### function
+
+Create `{name}.ts` in `src/llm/`
+Example: `src/llm/hierarchical.ts`
+
+1. Create `{name}.ts` in `src/llm/`
+1. Import `StructuredAnalysis, ResolvedConfig, PackageAnalysis` from `../types.js` (4/5 siblings)
+1. Add re-export to `src/index.ts`
+
+### const
+
+Create `{name}.ts` in `src/templates/`
+Example: `src/templates/agents-md.ts`
+
+1. Create `{name}.ts` in `src/templates/`
+1. Export as `{name}Template` (naming convention)
+1. Register in `src/llm/template-selector.ts`
+1. Add re-export to `src/index.ts`
+
 ## Public API
 
 ### Functions
