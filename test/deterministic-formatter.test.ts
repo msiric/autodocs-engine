@@ -232,8 +232,8 @@ describe("deterministic-formatter", () => {
       const analysis = makeMinimalAnalysis();
       const result = generateDeterministicAgentsMd(analysis);
       expect(result.howToAddCode).toContain("## How to Add New Code");
-      expect(result.howToAddCode).toContain("use-*.ts");
-      expect(result.howToAddCode).toContain("src/hooks/use-auth.ts");
+      expect(result.howToAddCode).toContain("### hooks"); // directory name as header
+      expect(result.howToAddCode).toContain("src/hooks/use-auth.ts"); // example file
     });
 
     it("leaves architecture and domainTerminology empty", () => {
