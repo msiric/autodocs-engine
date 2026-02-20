@@ -110,16 +110,16 @@ describe("computeImpactRadius", () => {
 
 describe("labels", () => {
   it("impactLabel returns correct severity", () => {
-    expect(impactLabel(25)).toBe("Critical — widely depended on");
-    expect(impactLabel(15)).toBe("High — used by many modules");
-    expect(impactLabel(7)).toBe("Moderate — multiple callers");
+    expect(impactLabel(20)).toBe("Critical — widely depended on");
+    expect(impactLabel(10)).toBe("High — used by many modules");
+    expect(impactLabel(5)).toBe("Moderate — multiple callers");
     expect(impactLabel(2)).toBe("Low");
   });
 
   it("complexityLabel returns correct severity", () => {
-    expect(complexityLabel(20)).toBe("Very complex — many dependencies");
-    expect(complexityLabel(12)).toBe("Complex — many dependencies");
-    expect(complexityLabel(6)).toBe("Moderate complexity");
+    expect(complexityLabel(15)).toBe("Very complex — many dependencies");
+    expect(complexityLabel(9)).toBe("Complex — many dependencies");
+    expect(complexityLabel(5)).toBe("Moderate complexity");
     expect(complexityLabel(2)).toBe("Simple");
   });
 });

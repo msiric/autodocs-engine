@@ -38,7 +38,7 @@ npx autodocs-engine init
 ```
 
 Auto-detects:
-- Monorepo vs single package (from `workspaces` in package.json, `pnpm-workspace.yaml`, `turbo.json`)
+- Monorepo vs single package (from `workspaces` in package.json, `pnpm-workspace.yaml`)
 - Package paths from workspace configuration
 - Package manager from lockfiles
 - Whether an API key is available (JSON-only vs full AGENTS.md)

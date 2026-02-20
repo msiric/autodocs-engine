@@ -104,7 +104,6 @@ Run `npm run test` to verify changes
 
 **External:**
 - `node:path` (34 imports)
-- `vitest` (24 imports)
 - `node:fs` (20 imports)
 - `typescript` (2 imports)
 - `node:child_process` (1 imports)
@@ -125,29 +124,29 @@ High-impact functions — changes to these affect many callers:
 
 | Function | File | Callers | Impact |
 |----------|------|--------:|--------|
-| `callLLMWithRetry` | `src/llm/client.ts` | 9 | Moderate — multiple callers |
-| `buildConfidence` | `src/convention-extractor.ts` | 8 | Moderate — multiple callers |
-| `formatArchitectureFallback` | `src/deterministic-formatter.ts` | 4 | Low |
-| `serializeToMarkdown` | `src/llm/serializer.ts` | 4 | Low |
-| `generateDeterministicAgentsMd` | `src/deterministic-formatter.ts` | 3 | Low |
+| `callLLMWithRetry` | `src/llm/client.ts` | 9 | High — used by many modules |
+| `buildConfidence` | `src/convention-extractor.ts` | 8 | High — used by many modules |
+| `formatArchitectureFallback` | `src/deterministic-formatter.ts` | 4 | Moderate — multiple callers |
+| `serializeToMarkdown` | `src/llm/serializer.ts` | 4 | Moderate — multiple callers |
+| `generateDeterministicAgentsMd` | `src/deterministic-formatter.ts` | 3 | Moderate — multiple callers |
 
 Complex functions — these call many other functions:
 
 | Function | File | Calls | Complexity |
 |----------|------|------:|------------|
-| `formatHierarchicalDeterministic` | `src/index.ts` | 7 | Moderate complexity |
+| `formatHierarchicalDeterministic` | `src/index.ts` | 7 | Complex — many dependencies |
 | `runPipeline` | `src/pipeline.ts` | 6 | Moderate complexity |
-| `formatDeterministic` | `src/index.ts` | 4 | Simple |
+| `formatDeterministic` | `src/index.ts` | 4 | Moderate complexity |
 
 ## Team Knowledge
 
-<!-- autodocs-engine detected these patterns but needs your input to provide complete guidance:
-  - `src/detectors/` has 8 detectors files. What's the process for adding a new one?
-  - The codebase has 47 cross-file call relationships. Are there changes that require updating multiple files together?
-  - Are there CLI-specific behaviors, flags, or output formats that AI tools should know about?
-  - What's the contribution workflow? (branch naming, commit conventions, PR process, review requirements)
-  - Are there ordering requirements between commands? (e.g., build before test, lint before commit)
-  - What's the testing philosophy? (unit vs integration, what needs tests, coverage expectations)
--->
+_autodocs-engine detected these patterns but needs your input:_
 
-_Fill in the questions above (remove the comment markers) with project-specific context that AI tools can't infer from code._
+- [ ] `src/detectors/` has 8 detectors files. What's the process for adding a new one?
+- [ ] The codebase has 47 cross-file call relationships. Are there changes that require updating multiple files together?
+- [ ] Are there CLI-specific behaviors, flags, or output formats that AI tools should know about?
+- [ ] What's the contribution workflow? (branch naming, commit conventions, PR process, review requirements)
+- [ ] Are there ordering requirements between commands? (e.g., build before test, lint before commit)
+- [ ] What's the testing philosophy? (unit vs integration, what needs tests, coverage expectations)
+
+_Replace the checkboxes above with your answers to help AI tools understand this project._
