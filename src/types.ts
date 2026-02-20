@@ -187,6 +187,9 @@ export interface ContributionPattern {
   testPattern?: string;
   exampleFile: string;
   steps: string[];
+  commonImports?: { specifier: string; symbols: string[]; coverage: number }[];
+  exportSuffix?: string;
+  registrationFile?: string;
 }
 
 export interface FileInventory {
