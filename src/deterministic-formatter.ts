@@ -570,11 +570,19 @@ function formatTeamKnowledge(analysis: StructuredAnalysis): string {
   const questions: string[] = [];
   const isMultiPackage = analysis.packages.length > 1;
 
+  // Collect directories already covered by contribution patterns (don't ask redundant questions)
+  const coveredDirs = new Set<string>();
   for (const pkg of analysis.packages) {
-    // Directories with multiple files suggest extensible patterns
+    for (const cp of pkg.contributionPatterns ?? []) {
+      coveredDirs.add(cp.directory.replace(/\/$/, ""));
+    }
+  }
+
+  for (const pkg of analysis.packages) {
+    // Directories with multiple files suggest extensible patterns — skip if already covered
     for (const dir of pkg.architecture.directories) {
       if (dir.fileCount >= 5 && questions.length < MAX_TEAM_KNOWLEDGE_QUESTIONS) {
-        // Clean up the purpose label (strip "Feature: " prefix from fallback labels)
+        if (coveredDirs.has(dir.path)) continue; // Already answered in "How to Add New Code"
         const label = dir.purpose.replace(/^Feature:\s*/i, "").toLowerCase();
         questions.push(
           `\`${dir.path}/\` has ${dir.fileCount} ${label} files. What's the process for adding a new one?`,
