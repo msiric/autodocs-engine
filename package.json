@@ -1,6 +1,6 @@
 {
   "name": "autodocs-engine",
-  "version": "0.3.0",
+  "version": "0.5.0",
   "description": "Codebase intelligence engine for generating AI context files",
   "type": "module",
   "main": "dist/index.js",
@@ -17,6 +17,10 @@
     "node": ">=18.18.0"
   },
   "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/msiric/autodocs-engine"
