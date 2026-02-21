@@ -506,7 +506,7 @@ export interface AnalysisDiff {
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-export const ENGINE_VERSION = "0.3.0";
+export const ENGINE_VERSION = "0.5.0";
 
 export const DEFAULT_EXCLUDE_DIRS = [
   "node_modules",
