@@ -97,6 +97,17 @@ async function main() {
     process.exit(0);
   }
 
+  // Handle "serve" subcommand — MCP server for live codebase intelligence
+  if (args.packages[0] === "serve") {
+    const { runServe } = await import("./serve.js");
+    await runServe({
+      path: args.packages[1],
+      verbose: args.verbose,
+    });
+    // Don't exit — server stays alive until client disconnects
+    return;
+  }
+
   // Strip "analyze" subcommand if present
   if (args.packages[0] === "analyze") {
     args.packages.shift();
