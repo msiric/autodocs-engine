@@ -32,6 +32,7 @@ import { extractExamples } from "./example-extractor.js";
 import { generateDependencyDiagram } from "./mermaid-generator.js";
 import { detectMetaTool } from "./meta-tool-detector.js";
 import { computeImportChain, generateImportChainRules } from "./import-chain.js";
+import { mineGitHistory, generateCoChangeRules } from "./git-history.js";
 
 /** Verbose logger — writes to stderr only when verbose is enabled. */
 function vlog(verbose: boolean, msg: string): void {
@@ -49,9 +50,25 @@ export async function runPipeline(
   const packageAnalyses: PackageAnalysis[] = [];
   const verbose = config.verbose;
 
+  // Git history mining — run once at repo level, distribute to packages
+  const gitHistoryMap = mineGitHistory(
+    config.rootDir ?? config.packages[0],
+    config.packages,
+    warnings,
+  );
+  if (gitHistoryMap) {
+    vlog(verbose, `Git history: mined for ${gitHistoryMap.size} package(s)`);
+  }
+
   for (const pkgPath of config.packages) {
     try {
       const analysis = analyzePackage(pkgPath, config, warnings);
+      // Attach pre-computed git history for this package
+      const pkgGitHistory = gitHistoryMap?.get(pkgPath);
+      if (pkgGitHistory) {
+        analysis.gitHistory = pkgGitHistory;
+        vlog(verbose, `  Git co-change: ${pkgGitHistory.coChangeEdges.length} edges (${pkgGitHistory.totalCommitsAnalyzed} commits analyzed)`);
+      }
       packageAnalyses.push(analysis);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -118,12 +135,22 @@ export async function runPipeline(
     allConventions: packageAnalyses.flatMap((p) => p.conventions),
   });
   // Add import-chain rules (from file-to-file coupling analysis)
-  const importChainRules = generateImportChainRules(
-    packageAnalyses.flatMap((p) => p.importChain ?? []),
-  );
+  const allImportChainEdges = packageAnalyses.flatMap((p) => p.importChain ?? []);
+  const importChainRules = generateImportChainRules(allImportChainEdges);
   if (importChainRules.length > 0) {
     vlog(verbose, `Import chain rules: ${importChainRules.length} high-coupling rules generated`);
     workflowRules.push(...importChainRules);
+  }
+
+  // Add co-change rules from git history (structured dedup against import-chain)
+  const importChainCoveredFiles = new Set(allImportChainEdges.map((e) => e.source));
+  const coChangeRules = generateCoChangeRules(
+    packageAnalyses.flatMap((p) => p.gitHistory?.coChangeEdges ?? []),
+    importChainCoveredFiles,
+  );
+  if (coChangeRules.length > 0) {
+    vlog(verbose, `Co-change rules: ${coChangeRules.length} rules from git history`);
+    workflowRules.push(...coChangeRules);
   }
 
   if (workflowRules.length > 0) {

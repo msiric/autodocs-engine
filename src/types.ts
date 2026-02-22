@@ -79,6 +79,7 @@ export interface PackageAnalysis {
   existingDocs?: ExistingDocs;
   callGraph?: CallGraphEdge[];
   importChain?: FileImportEdge[];
+  gitHistory?: GitHistoryAnalysis;
   patternFingerprints?: PatternFingerprint[];
   examples?: UsageExample[]; // W5-C1: Usage examples extracted from test files
   isMetaTool?: boolean;
@@ -163,6 +164,25 @@ export interface FileImportEdge {
   source: string;
   symbolCount: number;
   symbols: string[];
+}
+
+// ─── Git History Co-Change Analysis ──────────────────────────────────────────
+
+export interface CoChangeEdge {
+  file1: string;              // relative path (alphabetically first)
+  file2: string;              // relative path (alphabetically second)
+  coChangeCount: number;      // commits where both files changed
+  file1Commits: number;       // total commits changing file1
+  file2Commits: number;       // total commits changing file2
+  jaccard: number;            // coChangeCount / (file1Commits + file2Commits - coChangeCount)
+  lastCoChangeTimestamp: number; // unix timestamp of most recent co-change commit
+}
+
+export interface GitHistoryAnalysis {
+  coChangeEdges: CoChangeEdge[];
+  totalCommitsAnalyzed: number;
+  commitsFilteredBySize: number;  // how many were skipped (squash-merge detection)
+  historySpanDays: number;
 }
 
 export interface PackageRole {
