@@ -25,16 +25,22 @@ export async function generateCode(
   shuffledAgentsMd: string | null,
   llmConfig: ResolvedConfig["llm"],
 ): Promise<CodeGenResult> {
-  const systemPrompt = buildSystemPrompt(task.packageName);
+  const systemPrompt = buildSystemPrompt(task.packageName, task.taskType);
   const userPrompt = buildUserPrompt(task, condition, agentsMd, shuffledAgentsMd);
 
   const start = performance.now();
   try {
     const response = await callLLMWithRetry(systemPrompt, userPrompt, llmConfig);
     const latencyMs = Math.round(performance.now() - start);
-    const files = parseCodeBlocks(response);
+    let files = parseCodeBlocks(response);
     // Rough token estimate: 1 token ≈ 4 chars
     const tokensUsed = Math.round((systemPrompt.length + userPrompt.length + response.length) / 4);
+
+    // For Q&A tasks (command, architecture), the raw response IS the answer.
+    // If no code blocks were parsed, wrap the full response as a virtual file.
+    if (files.length === 0 && response.trim().length > 0) {
+      files = [{ path: "__response__", content: response }];
+    }
 
     return { files, tokensUsed, latencyMs };
   } catch (err: unknown) {
@@ -50,7 +56,33 @@ export async function generateCode(
 
 // ─── Prompt Construction ─────────────────────────────────────────────────────
 
-function buildSystemPrompt(packageName: string): string {
+function buildSystemPrompt(packageName: string, taskType?: import("./types.js").TaskType): string {
+  if (taskType === "command") {
+    return [
+      `You are an expert TypeScript developer working on the ${packageName} project.`,
+      `Your task is to write a build/CI configuration using this project's exact commands.`,
+      `Output the configuration file in a code block with filepath:`,
+      "",
+      "```filepath",
+      "// file content here",
+      "```",
+      "",
+      `Use the EXACT commands and package manager from this project. Do not guess or use defaults.`,
+    ].join("\n");
+  }
+
+  if (taskType === "architecture") {
+    return [
+      `You are an expert TypeScript developer working on the ${packageName} project.`,
+      `Your task is to determine where new code should be placed in this project's structure.`,
+      `Respond with:`,
+      `1. The directory path where the code should go`,
+      `2. A brief justification (2-3 sentences) explaining why`,
+      ``,
+      `Be specific — use actual directory names from this project, not generic suggestions.`,
+    ].join("\n");
+  }
+
   return [
     `You are an expert TypeScript developer working on the ${packageName} project.`,
     `Your task is to add new code to this codebase.`,

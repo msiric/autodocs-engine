@@ -49,6 +49,26 @@ export function generateMarkdownReport(results: BenchmarkResults): string {
   lines.push(`**Headline (A - B):** ${summary.headlineDelta >= 0 ? "+" : ""}${summary.headlineDelta.toFixed(1)}%`);
   lines.push(`**Upper bound (A - C):** ${summary.upperBoundDelta >= 0 ? "+" : ""}${summary.upperBoundDelta.toFixed(1)}%`);
 
+  // Per-task-type breakdown
+  const taskTypes = [...new Set(tasks.map(t => t.taskType))];
+  if (taskTypes.length > 1) {
+    lines.push("");
+    lines.push("## Results by Task Type");
+    lines.push("");
+    lines.push("| Type | Tasks | A Mean | B Mean | A-B Delta |");
+    lines.push("|------|-------|--------|--------|-----------|");
+
+    for (const type of taskTypes) {
+      const typeTasks = tasks.filter(t => t.taskType === type);
+      const aScores = typeTasks.map(t => t.results["treatment"]?.score ?? 0);
+      const bScores = typeTasks.map(t => t.results["realistic-control"]?.score ?? 0);
+      const aMean = aScores.reduce((s, v) => s + v, 0) / aScores.length;
+      const bMean = bScores.reduce((s, v) => s + v, 0) / bScores.length;
+      const delta = aMean - bMean;
+      lines.push(`| ${type} | ${typeTasks.length} | ${aMean.toFixed(1)}% | ${bMean.toFixed(1)}% | ${delta >= 0 ? "+" : ""}${delta.toFixed(1)}% |`);
+    }
+  }
+
   // Statistical analysis (full mode only)
   if (meta.mode === "full" && summary.pValue !== undefined) {
     lines.push("");

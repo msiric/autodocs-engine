@@ -13,20 +13,35 @@ export type BenchmarkCondition =
 // ─── Tasks ───────────────────────────────────────────────────────────────────
 
 export type TaskTier = "A" | "B" | "C";
+export type TaskType = "pattern" | "command" | "architecture";
 
 export interface BenchmarkTask {
   id: string;
   repoPath: string;
   packageName: string;
   tier: TaskTier;
+  taskType: TaskType;
   prompt: string;
-  contributionPattern: ContributionPattern;
+  contributionPattern?: ContributionPattern;  // pattern tasks only
   conventions: Convention[];
   antiPatterns: AntiPattern[];
   expectedDirectory: string;
   expectedFilePattern: string;    // regex source string
   maxScoringPoints: number;
   context: TaskContext;
+  // Command task data
+  commandData?: {
+    expectedCommands: string[];
+    packageManager: string;
+    allCommandNames: string[];    // build, test, lint, start, etc.
+  };
+  // Architecture task data
+  architectureData?: {
+    expectedDirectory: string;
+    directoryPurpose: string;
+    alternatives?: string[];      // acceptable alternative directories
+    allDirectories: string[];     // all project directory names for matching
+  };
 }
 
 export interface TaskContext {
@@ -69,6 +84,7 @@ export interface ConditionSummary {
 export interface TaskResult {
   taskId: string;
   tier: TaskTier;
+  taskType: TaskType;
   prompt: string;
   results: Record<BenchmarkCondition, RunResult>;
 }
@@ -87,7 +103,7 @@ export interface RunResult {
 
 export interface CheckResult {
   name: string;
-  category: "convention" | "integration" | "structure" | "quality";
+  category: "convention" | "integration" | "structure" | "quality" | "command" | "architecture";
   weight: number;
   score: number;
   passed: boolean;

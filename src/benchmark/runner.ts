@@ -63,12 +63,15 @@ export async function orchestrateBenchmark(
     );
   }
 
-  log(`  ${tasks.length} tasks generated (${tasks.filter(t => t.tier === "A").length} Tier A, ${tasks.filter(t => t.tier === "B").length} Tier B, ${tasks.filter(t => t.tier === "C").length} Tier C)`);
+  const patternCount = tasks.filter(t => t.taskType === "pattern").length;
+  const commandCount = tasks.filter(t => t.taskType === "command").length;
+  const archCount = tasks.filter(t => t.taskType === "architecture").length;
+  log(`  ${tasks.length} tasks generated: ${patternCount} pattern, ${commandCount} command, ${archCount} architecture (${tasks.filter(t => t.tier === "A").length} Tier A, ${tasks.filter(t => t.tier === "B").length} Tier B, ${tasks.filter(t => t.tier === "C").length} Tier C)`);
 
   // Dry run: show tasks and exit
   if (options.dryRun) {
     for (const task of tasks) {
-      process.stderr.write(`\n--- Task: ${task.id} (Tier ${task.tier}) ---\n`);
+      process.stderr.write(`\n--- Task: ${task.id} [${task.taskType}] (Tier ${task.tier}) ---\n`);
       process.stderr.write(`Prompt: ${task.prompt}\n`);
       process.stderr.write(`Directory: ${task.expectedDirectory}\n`);
       process.stderr.write(`Pattern: ${task.expectedFilePattern}\n`);
@@ -139,6 +142,7 @@ export async function orchestrateBenchmark(
     taskResults.push({
       taskId: task.id,
       tier: task.tier,
+      taskType: task.taskType,
       prompt: task.prompt,
       results,
     });
