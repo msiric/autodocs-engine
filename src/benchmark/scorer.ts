@@ -20,51 +20,31 @@ export function scoreGeneratedOutput(
   latencyMs: number,
   error?: string,
 ): RunResult {
-  if (error || files.length === 0) {
+  // For Q&A tasks (command, architecture), the "files" contain the raw text response
+  const rawResponse = files.map(f => f.content).join("\n") || "";
+
+  if (error && (task.taskType === "pattern" || files.length === 0)) {
     return {
       score: 0, rawScore: 0, maxPoints: task.maxScoringPoints,
       passed: false, checks: [], filesCreated: [],
-      tokensUsed, latencyMs, error: error ?? "No files generated",
+      tokensUsed, latencyMs, error: error ?? "No output generated",
     };
   }
 
-  const checks: CheckResult[] = [];
+  let checks: CheckResult[];
 
-  // Find the primary implementation file (non-test, in expected directory)
-  const implFiles = files.filter(f =>
-    !f.path.includes(".test.") && !f.path.includes(".spec.") &&
-    f.path.includes(task.expectedDirectory)
-  );
-  const primaryFile = implFiles[0];
-
-  // Convention checks (10 pts for Tier A)
-  if (task.tier !== "C") {
-    checks.push(checkCommonImports(primaryFile, task));
-    checks.push(checkExportSuffix(primaryFile, task));
+  switch (task.taskType) {
+    case "command":
+      checks = scoreCommandTask(rawResponse, files, task);
+      break;
+    case "architecture":
+      checks = scoreArchitectureTask(rawResponse, task);
+      break;
+    case "pattern":
+    default:
+      checks = scorePatternTask(files, task);
+      break;
   }
-  checks.push(checkFileNaming(primaryFile, task));
-  if (task.tier !== "C") {
-    checks.push(checkAntiPatterns(primaryFile, task));
-  }
-
-  // Integration checks (8 pts for Tier A)
-  if (task.contributionPattern.registrationFile) {
-    checks.push(checkRegistrationUpdate(files, task));
-  }
-  if (task.context.barrelFile) {
-    checks.push(checkBarrelUpdate(files, task));
-  }
-  checks.push(checkFileLocation(files, task));
-
-  // Structure checks (4 pts)
-  checks.push(checkFilenamePattern(primaryFile, task));
-  if (task.contributionPattern.testPattern) {
-    checks.push(checkTestCoLocation(files, task));
-  }
-
-  // Quality checks (3 pts)
-  checks.push(checkCompilability(primaryFile));
-  checks.push(checkHasExports(primaryFile));
 
   const rawScore = checks.reduce((sum, c) => sum + c.score, 0);
   const maxPossible = checks.reduce((sum, c) => sum + c.weight, 0);
@@ -82,6 +62,210 @@ export function scoreGeneratedOutput(
   };
 }
 
+// ─── Pattern Task Scoring (existing) ─────────────────────────────────────────
+
+function scorePatternTask(files: GeneratedFile[], task: BenchmarkTask): CheckResult[] {
+  if (files.length === 0) return [fail("no-files", "quality", 1, "No files generated")];
+
+  const checks: CheckResult[] = [];
+
+  const implFiles = files.filter(f =>
+    !f.path.includes(".test.") && !f.path.includes(".spec.") &&
+    f.path.includes(task.expectedDirectory)
+  );
+  const primaryFile = implFiles[0];
+
+  // Convention checks
+  if (task.tier !== "C") {
+    checks.push(checkCommonImports(primaryFile, task));
+    checks.push(checkExportSuffix(primaryFile, task));
+  }
+  checks.push(checkFileNaming(primaryFile, task));
+  if (task.tier !== "C") {
+    checks.push(checkAntiPatterns(primaryFile, task));
+  }
+
+  // Integration checks
+  if (task.contributionPattern?.registrationFile) {
+    checks.push(checkRegistrationUpdate(files, task));
+  }
+  if (task.context.barrelFile) {
+    checks.push(checkBarrelUpdate(files, task));
+  }
+  checks.push(checkFileLocation(files, task));
+
+  // Structure checks
+  checks.push(checkFilenamePattern(primaryFile, task));
+  if (task.contributionPattern?.testPattern) {
+    checks.push(checkTestCoLocation(files, task));
+  }
+
+  // Quality checks
+  checks.push(checkCompilability(primaryFile));
+  checks.push(checkHasExports(primaryFile));
+
+  return checks;
+}
+
+// ─── Command Task Scoring ────────────────────────────────────────────────────
+
+function scoreCommandTask(rawResponse: string, files: GeneratedFile[], task: BenchmarkTask): CheckResult[] {
+  const checks: CheckResult[] = [];
+  const data = task.commandData;
+  if (!data) return [fail("no-command-data", "command", 1, "No command data for scoring")];
+
+  // Combine all text: raw response + file contents
+  const allText = rawResponse + "\n" + files.map(f => f.content).join("\n");
+  const allTextLower = allText.toLowerCase();
+
+  // Check 1: Command accuracy (4 pts)
+  // Look for expected commands in ANY format:
+  // - "npm run test", "pnpm test", "yarn lint"
+  // - "run: npm test" (YAML)
+  // - "npm run build" in prose
+  // - bare "test", "build", "lint" in CI/script context
+  const expectedNames = data.allCommandNames.filter(n =>
+    ["build", "test", "lint", "start", "typecheck", "type-check", "dev"].includes(n)
+  );
+
+  const matched = expectedNames.filter(name => {
+    const nameLower = name.toLowerCase();
+    // Check explicit PM + command: "npm run test", "pnpm test", etc.
+    const pmPatterns = [
+      `npm run ${nameLower}`, `npm ${nameLower}`,
+      `pnpm run ${nameLower}`, `pnpm ${nameLower}`,
+      `yarn run ${nameLower}`, `yarn ${nameLower}`,
+      `bun run ${nameLower}`, `bun ${nameLower}`,
+    ];
+    if (pmPatterns.some(p => allTextLower.includes(p))) return true;
+    // Check YAML-style: "run: npm test" or just the command name in a run block
+    if (allTextLower.includes(`run: ${nameLower}`) || allTextLower.includes(`run ${nameLower}`)) return true;
+    // Check quoted: '"test"', "'build'"
+    if (allText.includes(`"${name}"`) || allText.includes(`'${name}'`)) return true;
+    return false;
+  });
+  const accuracy = expectedNames.length > 0 ? matched.length / expectedNames.length : 0;
+  checks.push({
+    name: "command-accuracy",
+    category: "command",
+    weight: 4,
+    score: Math.round(accuracy * 4),
+    passed: accuracy >= 0.5,
+    detail: matched.length > 0
+      ? `Found ${matched.length}/${expectedNames.length} commands: ${matched.join(", ")}`
+      : `No expected commands found (looked for: ${expectedNames.join(", ")})`,
+  });
+
+  // Check 2: Package manager consistency (2 pts)
+  const pmMentions = {
+    npm: (allText.match(/\bnpm\s+(?:run\s+)?[a-z]/gi) ?? []).length,
+    pnpm: (allText.match(/\bpnpm\s+(?:run\s+)?[a-z]/gi) ?? []).length,
+    yarn: (allText.match(/\byarn\s+(?:run\s+)?[a-z]/gi) ?? []).length,
+    bun: (allText.match(/\bbun\s+(?:run\s+)?[a-z]/gi) ?? []).length,
+  };
+  const usedPMs = Object.entries(pmMentions).filter(([, count]) => count > 0);
+  const correctPM = data.packageManager !== "unknown" && usedPMs.some(([pm]) => pm === data.packageManager);
+  const consistent = usedPMs.length <= 1;
+  checks.push({
+    name: "pm-consistency",
+    category: "command",
+    weight: 2,
+    score: correctPM && consistent ? 2 : correctPM || consistent ? 1 : 0,
+    passed: correctPM || consistent,
+    detail: correctPM
+      ? `Correctly uses ${data.packageManager}`
+      : `Expected ${data.packageManager}, found: ${usedPMs.map(([pm]) => pm).join(", ") || "none"}`,
+  });
+
+  // Check 3: Completeness (2 pts) — includes build AND test AND lint if all exist
+  const hasBuild = data.allCommandNames.includes("build") ? allText.toLowerCase().includes("build") : true;
+  const hasTest = data.allCommandNames.includes("test") ? allText.toLowerCase().includes("test") : true;
+  const hasLint = data.allCommandNames.includes("lint") ? allText.toLowerCase().includes("lint") : true;
+  const complete = hasBuild && hasTest && hasLint;
+  checks.push({
+    name: "command-completeness",
+    category: "command",
+    weight: 2,
+    score: complete ? 2 : (hasBuild && hasTest) || (hasBuild && hasLint) || (hasTest && hasLint) ? 1 : 0,
+    passed: complete,
+    detail: complete
+      ? "Includes build, test, and lint"
+      : `Missing: ${[!hasBuild && "build", !hasTest && "test", !hasLint && "lint"].filter(Boolean).join(", ")}`,
+  });
+
+  return checks;
+}
+
+// ─── Architecture Task Scoring ───────────────────────────────────────────────
+
+function scoreArchitectureTask(rawResponse: string, task: BenchmarkTask): CheckResult[] {
+  const checks: CheckResult[] = [];
+  const data = task.architectureData;
+  if (!data) return [fail("no-arch-data", "architecture", 1, "No architecture data for scoring")];
+
+  if (!rawResponse || rawResponse.trim().length === 0) {
+    return [fail("no-response", "architecture", 8, "No response generated")];
+  }
+
+  const response = rawResponse.toLowerCase();
+  const expectedDir = data.expectedDirectory.toLowerCase().replace(/\/$/, "");
+  const expectedDirName = expectedDir.split("/").filter(Boolean).pop() ?? "";
+
+  // Check 1: Correct directory (4 pts)
+  // Match full path (e.g., "src/hooks/") — not just the last segment
+  const exactMatch = response.includes(expectedDir);
+  const altMatch = !exactMatch && data.alternatives?.some(alt =>
+    response.includes(alt.toLowerCase().replace(/\/$/, ""))
+  );
+
+  checks.push({
+    name: "correct-directory",
+    category: "architecture",
+    weight: 4,
+    score: exactMatch ? 4 : altMatch ? 2 : 0,
+    passed: exactMatch || !!altMatch,
+    detail: exactMatch
+      ? `Correctly identified ${data.expectedDirectory}`
+      : altMatch
+        ? `Suggested acceptable alternative`
+        : `Expected ${data.expectedDirectory}, not found in response`,
+  });
+
+  // Check 2: Uses project directory names (2 pts)
+  const mentionedDirs = data.allDirectories.filter(dir => {
+    const dirName = dir.split("/").filter(Boolean).pop()?.toLowerCase() ?? "";
+    return dirName.length > 2 && response.includes(dirName);
+  });
+  checks.push({
+    name: "uses-project-dirs",
+    category: "architecture",
+    weight: 2,
+    score: mentionedDirs.length >= 2 ? 2 : mentionedDirs.length >= 1 ? 1 : 0,
+    passed: mentionedDirs.length >= 1,
+    detail: mentionedDirs.length > 0
+      ? `References project directories: ${mentionedDirs.slice(0, 3).join(", ")}`
+      : "Does not reference any project directory names",
+  });
+
+  // Check 3: Justification quality (2 pts)
+  const reasoningKeywords = ["because", "since", "convention", "pattern", "layer", "separation",
+    "domain", "cohesion", "existing", "alongside", "consistent", "structure", "organized"];
+  const hasReasoning = reasoningKeywords.some(k => response.includes(k));
+  const hasSubstance = rawResponse.trim().length > 50;
+  checks.push({
+    name: "justification-quality",
+    category: "architecture",
+    weight: 2,
+    score: hasReasoning && hasSubstance ? 2 : hasReasoning || hasSubstance ? 1 : 0,
+    passed: hasReasoning && hasSubstance,
+    detail: hasReasoning
+      ? "Provides architectural reasoning"
+      : "No architectural justification given",
+  });
+
+  return checks;
+}
+
 // ─── Convention Checks (10 pts) ──────────────────────────────────────────────
 
 /**
@@ -93,7 +277,7 @@ function checkCommonImports(file: GeneratedFile | undefined, task: BenchmarkTask
   const weight = 4;
   if (!file) return fail("common-imports", "convention", weight, "No implementation file found");
 
-  const commonImports = task.contributionPattern.commonImports;
+  const commonImports = task.contributionPattern?.commonImports;
   if (!commonImports || commonImports.length === 0) {
     return pass("common-imports", "convention", weight, "No common imports expected");
   }
@@ -144,7 +328,7 @@ function checkExportSuffix(file: GeneratedFile | undefined, task: BenchmarkTask)
   const weight = 3;
   if (!file) return fail("export-suffix", "convention", weight, "No implementation file found");
 
-  const suffix = task.contributionPattern.exportSuffix;
+  const suffix = task.contributionPattern?.exportSuffix;
   if (!suffix) return pass("export-suffix", "convention", weight, "No export suffix expected");
 
   const sourceFile = parseSource(file);
@@ -216,7 +400,7 @@ function checkAntiPatterns(file: GeneratedFile | undefined, task: BenchmarkTask)
  */
 function checkRegistrationUpdate(files: GeneratedFile[], task: BenchmarkTask): CheckResult {
   const weight = 4;
-  const regFile = task.contributionPattern.registrationFile;
+  const regFile = task.contributionPattern?.registrationFile;
   if (!regFile) return pass("registration-update", "integration", weight, "No registration file");
 
   // Find the AI's version of the registration file
