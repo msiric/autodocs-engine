@@ -47,6 +47,18 @@ export function detectContributionPatterns(
     const dirInfo = directories.find((d) => d.path === dirPath);
     if (!dirInfo) continue;
 
+    // Skip workspace-level directories that are containers for sub-packages,
+    // not containers for source files. These produce useless patterns like
+    // "add a function to packages/" which is nonsensical.
+    // Heuristic: if most files in this dir are deeply nested (3+ path segments
+    // deeper than the dir itself), it's a workspace container, not a code dir.
+    const dirDepth = dirPath.split("/").filter(Boolean).length;
+    const deepFiles = files.filter(f => {
+      const fileDepth = f.relativePath.split("/").filter(Boolean).length;
+      return fileDepth > dirDepth + 2; // file is 3+ levels below this dir
+    });
+    if (deepFiles.length > files.length * 0.5) continue; // >50% are deeply nested → workspace dir
+
     // Dominant export kind
     const kindCounts = new Map<string, number>();
     for (const pf of files) {
