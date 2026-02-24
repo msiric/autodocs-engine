@@ -197,6 +197,103 @@ describe("MCP accuracy: get_conventions", () => {
   });
 });
 
+// ─── diagnose accuracy ──────────────────────────────────────────────────────
+
+describe("MCP accuracy: diagnose", () => {
+  it("diagnoses from filePath against real import graph", () => {
+    const result = tools.handleDiagnose(analysis, {
+      filePath: "src/types.ts",
+    });
+    const text = result.content[0].text;
+    expect(text).toContain("## Diagnosis");
+    expect(text).toContain("src/types.ts");
+    expect(text).toContain("Suspect Files");
+    expect(text).toContain("Suggested Actions");
+    // types.ts is heavily imported — should have suspects
+    expect(text).toMatch(/\d\.\s+\*\*/); // At least one numbered suspect
+  });
+
+  it("diagnoses from testFile and resolves its imports", () => {
+    const result = tools.handleDiagnose(analysis, {
+      testFile: "test/mcp/tools.test.ts",
+    });
+    const text = result.content[0].text;
+    expect(text).toContain("## Diagnosis");
+    // test/mcp/tools.test.ts imports from src/mcp/tools.ts — should appear
+    expect(text).toContain("tools.ts");
+  });
+
+  it("diagnoses from realistic V8 error text", () => {
+    const result = tools.handleDiagnose(analysis, {
+      errorText: `TypeError: Cannot read property 'conventions' of undefined
+    at extractConventions (src/convention-extractor.ts:42:15)
+    at analyzePackage (src/pipeline.ts:120:7)
+    at Object.<anonymous> (test/integration.test.ts:15:5)`,
+    });
+    const text = result.content[0].text;
+    expect(text).toContain("## Diagnosis");
+    expect(text).toContain("Cannot read property");
+    expect(text).toContain("convention-extractor.ts");
+    expect(text).toContain("Suspect Files");
+  });
+
+  it("getRecentFileChanges returns real git data", () => {
+    const rootDir = analysis.meta?.rootDir;
+    if (!rootDir) return;
+    const changes = Q.getRecentFileChanges(rootDir);
+    // We have recent commits — should have some changes
+    // (If this test runs right after a commit, there will be committed changes)
+    expect(Array.isArray(changes)).toBe(true);
+    for (const c of changes) {
+      expect(c.file).toBeTruthy();
+      expect(c.hoursAgo).toBeGreaterThanOrEqual(0);
+      expect(typeof c.isUncommitted).toBe("boolean");
+    }
+  });
+
+  it("traceImportChain finds path between known connected files", () => {
+    // pipeline.ts imports from types.ts — should find a path
+    const chain = Q.traceImportChain(analysis, "src/pipeline.ts", "src/types.ts");
+    expect(chain).not.toBeNull();
+    expect(chain![0]).toBe("src/pipeline.ts");
+    expect(chain![chain!.length - 1]).toBe("src/types.ts");
+  });
+
+  it("traceImportChain returns null for unrelated files", () => {
+    // A file that doesn't exist in the graph should return null
+    const chain = Q.traceImportChain(analysis, "src/pipeline.ts", "src/nonexistent.ts");
+    expect(chain).toBeNull();
+  });
+
+  it("buildSuspectList returns scored suspects for a real file", () => {
+    const rootDir = analysis.meta?.rootDir;
+    const changes = rootDir ? Q.getRecentFileChanges(rootDir) : [];
+    const suspects = Q.buildSuspectList(analysis, ["src/types.ts"], changes);
+
+    expect(suspects.length).toBeGreaterThan(0);
+    expect(suspects.length).toBeLessThanOrEqual(5);
+
+    // Suspects should be sorted by score descending
+    for (let i = 1; i < suspects.length; i++) {
+      expect(suspects[i].score).toBeLessThanOrEqual(suspects[i - 1].score);
+    }
+
+    // Each suspect should have a reason
+    for (const s of suspects) {
+      expect(s.file).toBeTruthy();
+      expect(s.score).toBeGreaterThan(0);
+      expect(s.reason).toBeTruthy();
+    }
+  });
+
+  it("suggests plan_change as next step", () => {
+    const result = tools.handleDiagnose(analysis, {
+      filePath: "src/types.ts",
+    });
+    expect(result.content[0].text).toContain("plan_change");
+  });
+});
+
 // ─── Cross-cutting accuracy checks ──────────────────────────────────────────
 
 describe("MCP accuracy: data consistency", () => {
