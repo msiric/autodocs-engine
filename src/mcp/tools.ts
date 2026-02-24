@@ -673,6 +673,185 @@ export function handleReviewChanges(
   return { content: [{ type: "text", text: lines.join("\n") }] };
 }
 
+// ─── diagnose ────────────────────────────────────────────────────────────────
+
+const CONFIG_FILES = ["tsconfig.json", "package.json", ".env", ".env.local"];
+const FLAKY_PATTERNS = /timeout|ETIMEDOUT|ECONNREFUSED|ECONNRESET|socket hang up|fetch failed/i;
+
+export function handleDiagnose(
+  analysis: StructuredAnalysis,
+  args: {
+    errorText?: string;
+    filePath?: string;
+    testFile?: string;
+    packagePath?: string;
+  },
+): ToolResult {
+  const lines: string[] = [];
+  const rootDir = analysis.meta?.rootDir;
+
+  // Validate: at least one input required
+  if (!args.errorText && !args.filePath && !args.testFile) {
+    lines.push("## Diagnosis");
+    lines.push("");
+    lines.push("Provide at least one of `errorText`, `filePath`, or `testFile` to diagnose.");
+    lines.push("**Tip:** Paste the full test output as `errorText` for best results.");
+    return { content: [{ type: "text", text: lines.join("\n") }] };
+  }
+
+  // 1. Parse error text
+  const parsed = args.errorText
+    ? Q.parseErrorText(args.errorText, rootDir)
+    : { files: [] as string[], testFile: null as string | null, message: null as string | null };
+
+  // 2. Determine error files
+  const errorFiles = new Set<string>(parsed.files);
+  if (args.filePath) errorFiles.add(args.filePath);
+
+  const testFile = args.testFile ?? parsed.testFile;
+  if (testFile) {
+    // Add source files the test imports (these are the error-adjacent code)
+    const pkg = Q.resolvePackage(analysis, args.packagePath);
+    for (const edge of pkg.importChain ?? []) {
+      if (edge.importer === testFile) errorFiles.add(edge.source);
+    }
+  }
+
+  // Handle no parseable files gracefully
+  if (errorFiles.size === 0 && !testFile) {
+    lines.push("## Diagnosis");
+    lines.push("");
+    lines.push("Could not extract file paths from the error text.");
+    lines.push("Try providing `filePath` (the file with the error) or `testFile` (the failing test) directly.");
+    return { content: [{ type: "text", text: lines.join("\n") }] };
+  }
+
+  if (errorFiles.size === 0 && testFile) errorFiles.add(testFile);
+  const errorFileList = [...errorFiles];
+
+  // 3. Get recent git changes
+  const recentChanges = rootDir ? Q.getRecentFileChanges(rootDir) : [];
+
+  // 4. Build suspect list
+  const suspects = Q.buildSuspectList(analysis, errorFileList, recentChanges, args.packagePath);
+
+  // 5. Format output
+  lines.push("## Diagnosis");
+  lines.push("");
+
+  if (parsed.message) {
+    lines.push(`**Error:** ${parsed.message}`);
+  }
+  if (errorFileList.length > 0) {
+    lines.push(`**Error site:** ${errorFileList.map(f => "`" + f + "`").join(", ")}`);
+  }
+  if (suspects.length > 0) {
+    lines.push(`**Likely root cause:** \`${suspects[0].file}\` — ${suspects[0].reason}`);
+  }
+  lines.push("");
+
+  // Suspect list
+  if (suspects.length > 0) {
+    lines.push("### Suspect Files");
+    lines.push("");
+    for (let i = 0; i < suspects.length; i++) {
+      const s = suspects[i];
+      lines.push(`${i + 1}. **${s.file}** (score: ${s.score})`);
+      lines.push(`   ${s.reason}`);
+    }
+    lines.push("");
+  } else {
+    lines.push("No suspect files identified. The error may be in the files listed above.");
+    lines.push("");
+  }
+
+  // Dependency chain (test → top suspect)
+  if (testFile && suspects.length > 0) {
+    const chain = Q.traceImportChain(analysis, testFile, suspects[0].file, args.packagePath);
+    if (chain) {
+      lines.push("### Dependency Chain");
+      lines.push(chain.map(f => `\`${f}\``).join(" → "));
+      lines.push("");
+    }
+  }
+
+  // Config file changes
+  const configChanges = recentChanges.filter(c =>
+    CONFIG_FILES.some(cf => c.file.endsWith(cf)),
+  );
+  if (configChanges.length > 0) {
+    lines.push("### Configuration Changes");
+    for (const c of configChanges) {
+      const ago = c.isUncommitted ? "uncommitted" :
+        c.hoursAgo < 1 ? "just now" :
+        c.hoursAgo < 24 ? `${Math.round(c.hoursAgo)}h ago` :
+        `${Math.round(c.hoursAgo / 24)}d ago`;
+      lines.push(`- \`${c.file}\` (${ago})`);
+    }
+    lines.push("");
+  }
+
+  // Flaky test detection
+  if (args.errorText && FLAKY_PATTERNS.test(args.errorText) && recentChanges.length === 0) {
+    lines.push("### Possible Flaky Test");
+    lines.push("No code changes correlate with this failure. The error pattern (timeout/network) suggests a flaky test — try re-running.");
+    lines.push("");
+  }
+
+  // Recently added test detection
+  if (testFile) {
+    const testChange = recentChanges.find(c => c.file === testFile);
+    const noSuspectChanges = suspects.slice(0, 3).every(s =>
+      !recentChanges.some(c => c.file === s.file),
+    );
+    if (testChange && noSuspectChanges) {
+      lines.push("### Recently Added Test");
+      lines.push(`\`${testFile}\` was recently modified. This may be exposing a pre-existing bug.`);
+      lines.push("");
+    }
+  }
+
+  // At-risk tests
+  if (suspects.length > 0) {
+    const atRisk = new Set<string>();
+    for (const s of suspects.slice(0, 3)) {
+      const testInfo = Q.resolveTestFile(analysis, s.file, args.packagePath);
+      if (testInfo.exists && testInfo.testFile) atRisk.add(testInfo.testFile);
+    }
+    if (testFile) atRisk.delete(testFile);
+    if (atRisk.size > 0) {
+      lines.push("### At-Risk Tests");
+      lines.push([...atRisk].map(t => `\`${t}\``).join(", "));
+      lines.push("");
+    }
+  }
+
+  // Suggested actions
+  lines.push("### Suggested Actions");
+  if (suspects.length > 0) {
+    lines.push(`1. Inspect the likely root cause: \`${suspects[0].file}\``);
+    if (suspects[0].reason.includes("Missing co-change")) {
+      lines.push(`2. Check what was missed: \`git diff HEAD~3 -- ${suspects[0].file}\``);
+    } else {
+      lines.push(`2. Review recent changes: \`git log --oneline -5 -- ${suspects[0].file}\``);
+    }
+    const testCmd = testFile ? `npx vitest run ${testFile}` : "npx vitest run";
+    lines.push(`3. Run related tests: \`${testCmd}\``);
+  } else {
+    lines.push("1. Check the error site files listed above");
+    lines.push("2. Review recent git changes: `git log --oneline -10`");
+  }
+  lines.push("");
+
+  // Next step: suggest plan_change
+  if (suspects.length > 0) {
+    const topFiles = suspects.slice(0, 3).map(s => `"${s.file}"`).join(", ");
+    lines.push(`**Next step:** Call \`plan_change({ files: [${topFiles}] })\` to understand full blast radius before fixing.`);
+  }
+
+  return { content: [{ type: "text", text: lines.join("\n") }] };
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const MAX_EXAMPLE_LINES = 15;

@@ -31,7 +31,7 @@ npx autodocs-engine serve
 claude mcp add autodocs -- npx autodocs-engine serve
 ```
 
-This gives Claude Code 12 codebase intelligence tools:
+This gives Claude Code 13 codebase intelligence tools:
 
 | Tool | What It Returns |
 |------|----------------|
@@ -43,10 +43,11 @@ This gives Claude Code 12 codebase intelligence tools:
 | `get_exports` | Public API with usage examples and parameter shapes |
 | `analyze_impact` | Blast radius + importers + co-change partners for a file |
 | `list_packages` | Monorepo package inventory |
-| **`plan_change`** | **Full change plan: dependents, co-changes, registrations, tests, checklist** |
-| **`get_test_info`** | **Test file path + exact per-file run command for any source file** |
-| **`auto_register`** | **Exact code insertions for registration files + barrel updates** |
-| **`review_changes`** | **Pattern compliance check: suffix, imports, registration, barrel, tests** |
+| `plan_change` | Full change plan: dependents, co-changes, registrations, tests, checklist |
+| `get_test_info` | Test file path + exact per-file run command for any source file |
+| `auto_register` | Exact code insertions for registration files + barrel updates |
+| `review_changes` | Pattern compliance check: suffix, imports, registration, barrel, tests |
+| **`diagnose`** | **Root cause analysis: traces test failures to suspect files via import graph, git co-change, and call graph** |
 
 ## Why Minimal Mode?
 
@@ -70,7 +71,7 @@ The difference: developer-written files are short, focused, and only include wha
 Unlike tools that dump code into an LLM or pack everything into one file, autodocs-engine uses deterministic static analysis:
 
 1. **Parse** — AST analysis via TypeScript Compiler API
-2. **Detect** — 8 convention detectors (naming, hooks, testing, frameworks, etc.)
+2. **Detect** — 9 convention detectors (naming, hooks, testing, import ordering, frameworks, etc.)
 3. **Extract** — Commands from package.json, turbo.json, biome.json, and 10+ config formats
 4. **Graph** — Call graph, import chains, and git co-change analysis (Jaccard similarity)
 5. **Score** — Inferability scoring decides what's worth including vs. what the AI already knows
@@ -123,7 +124,7 @@ Returns exit code 1 if conventions have drifted. Useful in CI pipelines to keep 
 | sanity | 3,746 | 1.6s | — |
 | medusa | 720 | 316ms | — |
 
-501 tests. Zero type errors. 12 MCP tools. Zero technology hallucinations across all tested repos.
+538 tests. Zero type errors. 13 MCP tools. Zero technology hallucinations across all tested repos.
 
 ## Library API
 
@@ -179,7 +180,7 @@ Options:
 git clone https://github.com/msiric/autodocs-engine.git
 cd autodocs-engine
 npm install
-npm test          # 501 tests
+npm test          # 538 tests
 npm run typecheck # Zero errors
 npm run build
 ```

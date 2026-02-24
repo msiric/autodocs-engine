@@ -308,5 +308,30 @@ DO NOT CALL:
     ),
   );
 
+  // ─── New: diagnose ──────────────────────────────────────────────
+  server.tool(
+    "diagnose",
+    `Diagnose test failures by tracing backward from errors to likely root cause using import graph, git co-change history, and call graph analysis. Returns ranked suspect files with evidence.
+
+WHEN TO CALL:
+- IMMEDIATELY after a test failure — before attempting any fix
+- When an error's root cause isn't obvious from the stack trace alone
+- When a fix attempt caused a new failure (breaking the "fix loop")
+
+DO NOT CALL:
+- For syntax errors or import-not-found (the fix is in the error message)
+- When the failing file is the obvious and only cause
+- For build/config errors (check get_commands or get_workflow_rules instead)`,
+    {
+      errorText: z.string().optional().describe("Raw test output / stack trace / error message"),
+      filePath: z.string().optional().describe("File where the error occurs (e.g., 'src/types.ts')"),
+      testFile: z.string().optional().describe("Failing test file (e.g., 'test/pipeline.test.ts')"),
+      packagePath: z.string().optional().describe("Package path or name"),
+    },
+    async (args) => withTelemetry("diagnose", () =>
+      cache.get().then(a => tools.handleDiagnose(a, args)),
+    ),
+  );
+
   return { server, cache };
 }

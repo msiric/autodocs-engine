@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.8.0 (2026-02-24)
+
+### New MCP Tool
+
+- **`diagnose`** — Root cause analysis for test failures. Paste a stack trace, point at a file, or name a failing test — and get ranked suspect files with structural evidence the AI cannot derive from reading error text alone.
+
+  **How it works:** Collects candidates from the import graph (upstream dependencies + downstream dependents) and git co-change partners of the error site. Scores each with 5 signals using dynamic weights, then applies a call graph bonus:
+
+  | Signal | What It Captures |
+  |--------|-----------------|
+  | Missing co-change (35%) | File that usually co-changes with a recently modified file but wasn't updated |
+  | Recency (25%) | Recently modified files (exponential decay, ~14h half-life) |
+  | Coupling (20%) | Jaccard co-change score from git history |
+  | Dependency (10%) | Import graph proximity (shared symbols) |
+  | Workflow (10%) | Workflow rule matches |
+
+  Plus 1.5x call graph multiplier for suspects with direct call edges to the error site (excluding the error site itself to avoid circular boosting).
+
+  The output includes: ranked suspect list with per-signal reasons, dependency chain from test to top suspect, configuration file changes, flaky test detection (timeout/network patterns with no code changes), recently-added-test detection, at-risk tests, and a `plan_change` next-step suggestion.
+
+  Designed to break the "fix loop" where AI tools guess at fixes from error text, break something else, and spiral. Validated by PRAXIS paper (graph-guided RCA improves accuracy 3.8x) and 2 rounds of adversarial review (10 reviews, 5 models).
+
+### Stats
+
+- 538 tests, 0 type errors, 13 MCP tools
+- 9 convention detectors
+
 ## 0.7.0 (2026-02-24)
 
 ### New MCP Tools
