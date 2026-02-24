@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.0 (2026-02-24)
+
+### New MCP Tools
+
+- **`auto_register`** — Given a newly created file, generates exact code insertions for registration files and barrel/index updates. Returns line numbers and import/export statements the AI can apply directly. Solves the #1 failure mode: "created the file but forgot to wire it up."
+
+- **`review_changes`** — Pattern compliance checker. Given files the AI generated, checks 5 things: export naming suffix, common imports, registration status, barrel exports, and test file existence. Returns pass/fail per check. Scoped to project-specific conventions that no linter catches.
+
+Together these create a closed self-correction loop: the AI creates code → review_changes catches violations → auto_register generates the exact fixes.
+
 ## 0.6.0 (2026-02-24)
 
 ### New MCP Tools

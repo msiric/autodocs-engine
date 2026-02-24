@@ -518,6 +518,160 @@ export function handleGetTestInfo(
   return { content: [{ type: "text", text: lines.join("\n") }] };
 }
 
+// ─── auto_register + review_changes ─────────────────────────────────────────
+
+export function handleAutoRegister(
+  analysis: StructuredAnalysis,
+  args: { newFilePath: string; packagePath?: string },
+): ToolResult {
+  const result = Q.getRegistrationInsertions(analysis, args.newFilePath, args.packagePath);
+  const lines: string[] = [];
+
+  lines.push(`## Auto-Registration: ${args.newFilePath}`);
+  lines.push(`Export name: \`${result.exportName}\``);
+  lines.push("");
+
+  if (!result.registrationFile && !result.barrelFile) {
+    lines.push("No registration or barrel file detected for this directory. The file may work as-is.");
+    return { content: [{ type: "text", text: lines.join("\n") }] };
+  }
+
+  if (result.registrationFile) {
+    const reg = result.registrationFile;
+    lines.push(`### Registration File: \`${reg.path}\``);
+    lines.push(`Insert after line ${reg.lastImportLine} (last import):`);
+    lines.push("```typescript");
+    lines.push(reg.importStatement);
+    lines.push("```");
+    if (reg.registryHintLine) {
+      lines.push(`Also add \`${result.exportName}\` to the registry/invocation (around line ${reg.registryHintLine}).`);
+    }
+    lines.push("");
+  }
+
+  if (result.barrelFile) {
+    const barrel = result.barrelFile;
+    lines.push(`### Barrel File: \`${barrel.path}\``);
+    lines.push(`Insert after line ${barrel.lastExportLine} (last re-export):`);
+    lines.push("```typescript");
+    lines.push(barrel.exportStatement);
+    lines.push("```");
+    lines.push("");
+  }
+
+  return { content: [{ type: "text", text: lines.join("\n") }] };
+}
+
+export function handleReviewChanges(
+  analysis: StructuredAnalysis,
+  args: { files: { path: string; content: string }[]; packagePath?: string },
+): ToolResult {
+  const lines: string[] = [];
+  lines.push(`## Code Review: ${args.files.length} file(s) checked`);
+  lines.push("");
+
+  for (const file of args.files) {
+    const dir = file.path.replace(/\/[^/]+$/, "");
+    const fileBase = file.path.replace(/.*\//, "").replace(/\.[^.]+$/, "");
+    const patterns = Q.getContributionPatterns(analysis, args.packagePath, dir);
+    const pattern = patterns.find(p =>
+      file.path.startsWith(p.directory) || dir.includes(p.directory),
+    );
+
+    lines.push(`### ${file.path}`);
+
+    if (!pattern) {
+      lines.push("No contribution pattern detected for this directory — skipping pattern checks.");
+      lines.push("");
+      continue;
+    }
+
+    // Parse the file content
+    const ts = require("typescript") as typeof import("typescript");
+    const sf = ts.createSourceFile(file.path, file.content, ts.ScriptTarget.Latest, true);
+
+    // Extract exports
+    const exportNames: string[] = [];
+    ts.forEachChild(sf, (node) => {
+      const mods = ts.canHaveModifiers(node) ? ts.getModifiers(node) : undefined;
+      const isExported = mods?.some((m: any) => m.kind === ts.SyntaxKind.ExportKeyword);
+      if (!isExported) return;
+      if (ts.isFunctionDeclaration(node) && node.name) exportNames.push(node.name.text);
+      else if (ts.isClassDeclaration(node) && node.name) exportNames.push(node.name.text);
+      else if (ts.isVariableStatement(node)) {
+        for (const decl of node.declarationList.declarations) {
+          if (ts.isIdentifier(decl.name)) exportNames.push(decl.name.text);
+        }
+      }
+    });
+
+    // Extract import specifiers
+    const importSpecs: string[] = [];
+    ts.forEachChild(sf, (node) => {
+      if (ts.isImportDeclaration(node) && node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)) {
+        importSpecs.push(node.moduleSpecifier.text);
+      }
+    });
+
+    // Check 1: Export suffix
+    if (pattern.exportSuffix) {
+      const hasSuffix = exportNames.some(n => n.endsWith(pattern.exportSuffix!));
+      lines.push(hasSuffix
+        ? `- ✅ Export suffix: \`${exportNames.find(n => n.endsWith(pattern.exportSuffix!))}\` ends with "${pattern.exportSuffix}"`
+        : `- ❌ Export suffix: expected export ending with "${pattern.exportSuffix}", found: ${exportNames.join(", ") || "none"}`);
+    }
+
+    // Check 2: Common imports
+    if (pattern.commonImports && pattern.commonImports.length > 0) {
+      for (const expected of pattern.commonImports) {
+        const found = importSpecs.some(s => s === expected.specifier || s.endsWith(expected.specifier.replace(/^\.\//, "")));
+        lines.push(found
+          ? `- ✅ Import: imports from \`${expected.specifier}\``
+          : `- ❌ Import: missing import from \`${expected.specifier}\` (${expected.symbols.join(", ")})`);
+      }
+    }
+
+    // Check 3: Registration
+    if (pattern.registrationFile) {
+      const rootDir = analysis.meta?.rootDir ?? ".";
+      let isRegistered = false;
+      try {
+        const regContent = readFileSync(resolve(rootDir, pattern.registrationFile), "utf-8");
+        isRegistered = regContent.includes(fileBase);
+      } catch { /* can't read */ }
+      lines.push(isRegistered
+        ? `- ✅ Registration: referenced in \`${pattern.registrationFile}\``
+        : `- ❌ Registration: not yet registered in \`${pattern.registrationFile}\` — use auto_register to fix`);
+    }
+
+    // Check 4: Barrel
+    const barrelPath = Q.getBarrelFile(analysis, dir, args.packagePath);
+    if (barrelPath) {
+      const rootDir = analysis.meta?.rootDir ?? ".";
+      let isExported = false;
+      try {
+        const barrelContent = readFileSync(resolve(rootDir, barrelPath), "utf-8");
+        isExported = barrelContent.includes(fileBase);
+      } catch { /* can't read */ }
+      lines.push(isExported
+        ? `- ✅ Barrel: exported from \`${barrelPath}\``
+        : `- ❌ Barrel: not exported from \`${barrelPath}\` — use auto_register to fix`);
+    }
+
+    // Check 5: Test file
+    const testInfo = Q.resolveTestFile(analysis, file.path, args.packagePath);
+    if (testInfo.exists) {
+      lines.push(`- ✅ Test: \`${testInfo.testFile}\` exists`);
+    } else {
+      lines.push(`- ⚠️ Test: no test file at \`${testInfo.testFile}\``);
+    }
+
+    lines.push("");
+  }
+
+  return { content: [{ type: "text", text: lines.join("\n") }] };
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const MAX_EXAMPLE_LINES = 15;

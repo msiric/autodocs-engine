@@ -263,5 +263,50 @@ DO NOT CALL:
     ),
   );
 
+  // ─── New: auto_register ─────────────────────────────────────────
+  server.tool(
+    "auto_register",
+    `Generate exact code insertions to register a new file in registration files and barrel/index files. Returns line numbers and code to insert.
+
+WHEN TO CALL:
+- After creating a new file that follows a contribution pattern
+- When plan_change or review_changes indicates registration is needed
+
+DO NOT CALL:
+- For files in directories without contribution patterns
+- When modifying existing files (this is for NEW files only)`,
+    {
+      newFilePath: z.string().describe("Path of the newly created file (e.g., 'src/detectors/graphql.ts')"),
+      packagePath: z.string().optional().describe("Package path or name"),
+    },
+    async (args) => withTelemetry("auto_register", () =>
+      cache.get().then(a => tools.handleAutoRegister(a, args)),
+    ),
+  );
+
+  // ─── New: review_changes ──────────────────────────────────────────
+  server.tool(
+    "review_changes",
+    `Review generated code against detected contribution patterns. Checks: export naming suffix, common imports, registration status, barrel exports, and test file existence. Returns pass/fail per check.
+
+WHEN TO CALL:
+- After generating new files, before presenting them to the user
+- To verify code follows project conventions
+
+DO NOT CALL:
+- For style/formatting issues (use linters instead)
+- For type checking (use TypeScript compiler instead)`,
+    {
+      files: z.array(z.object({
+        path: z.string().describe("File path"),
+        content: z.string().describe("File content"),
+      })).describe("Files to review"),
+      packagePath: z.string().optional().describe("Package path or name"),
+    },
+    async (args) => withTelemetry("review_changes", () =>
+      cache.get().then(a => tools.handleReviewChanges(a, args)),
+    ),
+  );
+
   return { server, cache };
 }
