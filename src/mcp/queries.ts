@@ -2,7 +2,7 @@
 // Isolates tool handlers from analysis schema internals.
 // When analysis types change, update here — not in every tool handler.
 
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type {
   StructuredAnalysis,
@@ -323,6 +323,127 @@ export function resolveTestFile(
       : "No test pattern detected";
 
   return { testFile, exists, framework, command, pattern: patternDesc };
+}
+
+// ─── Auto-Register Queries ──────────────────────────────────────────────────
+
+export interface RegistrationInsertions {
+  registrationFile: {
+    path: string;
+    lastImportLine: number;
+    importStatement: string;
+    registryHintLine?: number;
+  } | null;
+  barrelFile: {
+    path: string;
+    lastExportLine: number;
+    exportStatement: string;
+  } | null;
+  exportName: string;
+}
+
+export function getRegistrationInsertions(
+  analysis: StructuredAnalysis,
+  newFilePath: string,
+  packagePath?: string,
+): RegistrationInsertions {
+  const pkg = resolvePackage(analysis, packagePath);
+  const dir = newFilePath.replace(/\/[^/]+$/, "");
+  const rootDir = analysis.meta?.rootDir ?? ".";
+
+  // Find contribution pattern for this directory
+  const patterns = pkg.contributionPatterns ?? [];
+  const pattern = patterns.find(p =>
+    newFilePath.startsWith(p.directory) || dir.includes(p.directory),
+  );
+
+  // Infer export name from filename + pattern suffix
+  const fileBase = newFilePath.replace(/.*\//, "").replace(/\.[^.]+$/, "");
+  const exportName = pattern?.exportSuffix
+    ? kebabToCamel(fileBase) + pattern.exportSuffix
+    : kebabToCamel(fileBase);
+
+  // Registration file insertions
+  let regResult: RegistrationInsertions["registrationFile"] = null;
+  if (pattern?.registrationFile) {
+    const regPath = resolve(rootDir, pattern.registrationFile);
+    try {
+      const content = readFileSync(regPath, "utf-8");
+      const { lastImportLine, firstNonImportLine } = findImportBoundary(content);
+
+      // Compute relative path from registration file to new file
+      const regDir = pattern.registrationFile.replace(/\/[^/]+$/, "");
+      let relPath = newFilePath;
+      if (newFilePath.startsWith(regDir + "/")) {
+        relPath = "./" + newFilePath.slice(regDir.length + 1);
+      } else {
+        relPath = "./" + newFilePath;
+      }
+      relPath = relPath.replace(/\.tsx?$/, ".js"); // .ts → .js for imports
+
+      regResult = {
+        path: pattern.registrationFile,
+        lastImportLine,
+        importStatement: `import { ${exportName} } from "${relPath}";`,
+        registryHintLine: firstNonImportLine,
+      };
+    } catch { /* registration file not readable */ }
+  }
+
+  // Barrel file insertions
+  let barrelResult: RegistrationInsertions["barrelFile"] = null;
+  const barrelPath = getBarrelFile(analysis, dir, packagePath);
+  if (barrelPath) {
+    try {
+      const content = readFileSync(resolve(rootDir, barrelPath), "utf-8");
+      const lastExportLine = findLastExportFromLine(content);
+      const moduleRef = "./" + fileBase + ".js";
+
+      barrelResult = {
+        path: barrelPath,
+        lastExportLine,
+        exportStatement: `export * from "${moduleRef}";`,
+      };
+    } catch { /* barrel file not readable */ }
+  }
+
+  return { registrationFile: regResult, barrelFile: barrelResult, exportName };
+}
+
+// ─── Auto-Register Helpers ──────────────────────────────────────────────────
+
+function kebabToCamel(kebab: string): string {
+  return kebab.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+}
+
+function findImportBoundary(content: string): { lastImportLine: number; firstNonImportLine: number } {
+  const ts = require("typescript") as typeof import("typescript");
+  const sf = ts.createSourceFile("file.ts", content, ts.ScriptTarget.Latest, true);
+  let lastImportLine = 0;
+  let firstNonImportLine = 0;
+
+  for (const stmt of sf.statements) {
+    if (ts.isImportDeclaration(stmt)) {
+      const pos = sf.getLineAndCharacterOfPosition(stmt.getEnd());
+      lastImportLine = pos.line + 1; // 1-based
+    } else if (lastImportLine > 0 && firstNonImportLine === 0) {
+      const pos = sf.getLineAndCharacterOfPosition(stmt.getStart());
+      firstNonImportLine = pos.line + 1;
+    }
+  }
+
+  return { lastImportLine, firstNonImportLine };
+}
+
+function findLastExportFromLine(content: string): number {
+  const lines = content.split("\n");
+  let lastLine = 0;
+  for (let i = 0; i < lines.length; i++) {
+    if (/export\s+(?:\*|\{[^}]+\})\s+from\s+["']/.test(lines[i])) {
+      lastLine = i + 1; // 1-based
+    }
+  }
+  return lastLine;
 }
 
 export { computeInferabilityScore } from "../inferability.js";

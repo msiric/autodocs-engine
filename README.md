@@ -31,7 +31,7 @@ npx autodocs-engine serve
 claude mcp add autodocs -- npx autodocs-engine serve
 ```
 
-This gives Claude Code 10 codebase intelligence tools:
+This gives Claude Code 12 codebase intelligence tools:
 
 | Tool | What It Returns |
 |------|----------------|
@@ -45,6 +45,8 @@ This gives Claude Code 10 codebase intelligence tools:
 | `list_packages` | Monorepo package inventory |
 | **`plan_change`** | **Full change plan: dependents, co-changes, registrations, tests, checklist** |
 | **`get_test_info`** | **Test file path + exact per-file run command for any source file** |
+| **`auto_register`** | **Exact code insertions for registration files + barrel updates** |
+| **`review_changes`** | **Pattern compliance check: suffix, imports, registration, barrel, tests** |
 
 ## Why Minimal Mode?
 
@@ -121,7 +123,7 @@ Returns exit code 1 if conventions have drifted. Useful in CI pipelines to keep 
 | sanity | 3,746 | 1.6s | — |
 | medusa | 720 | 316ms | — |
 
-501 tests. Zero type errors. 10 MCP tools. Zero technology hallucinations across all tested repos.
+501 tests. Zero type errors. 12 MCP tools. Zero technology hallucinations across all tested repos.
 
 ## Library API
 
