@@ -17,10 +17,12 @@ export async function runServe(args: { path?: string; verbose?: boolean }): Prom
   // Connect first — handshake must complete before heavy analysis work
   await server.connect(transport);
 
-  // THEN warm the cache — analysis runs in background after handshake
-  cache.warm();
-
   process.stderr.write(`[autodocs] MCP server ready (project: ${projectPath})\n`);
+
+  // Defer warmup to next tick — ensures the MCP handshake response is fully
+  // flushed before synchronous AST parsing blocks the event loop.
+  // Without this, large repos block the transport and Claude Code times out.
+  setTimeout(() => cache.warm(), 100);
 
   // Signal handlers for clean shutdown
   process.on("SIGTERM", () => {
