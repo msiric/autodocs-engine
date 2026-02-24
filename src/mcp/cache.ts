@@ -14,9 +14,15 @@ import type { StructuredAnalysis } from "../types.js";
 const CHECK_TTL_MS = 300;        // Don't hammer git on rapid-fire calls
 const NON_GIT_TTL_MS = 15_000;   // Re-analyze non-git repos every 15s
 
+export interface CacheMeta {
+  analyzedAt: string;
+  analyzedCommit: string;
+  isFresh: boolean;
+}
+
 export class AnalysisCache {
   private projectPath: string;
-  private cached: { analysis: StructuredAnalysis; key: string } | null = null;
+  private cached: { analysis: StructuredAnalysis; key: string; analyzedAt: string } | null = null;
   private inflight: Promise<StructuredAnalysis> | null = null;
   private lastCheckAt = 0;
   private nonGitEpoch = 0;
@@ -25,6 +31,18 @@ export class AnalysisCache {
 
   /** Whether the most recent get() call was a cache hit. */
   get lastWasCacheHit(): boolean { return this._lastWasCacheHit; }
+
+  /** Freshness metadata for tool responses. */
+  getMeta(): CacheMeta {
+    const key = this.cached?.key ?? "";
+    const commit = key.includes(":") ? key.split(":")[0] : "unknown";
+    const currentKey = this.getCacheKey();
+    return {
+      analyzedAt: this.cached?.analyzedAt ?? new Date().toISOString(),
+      analyzedCommit: commit.length === 40 ? commit.slice(0, 8) : commit,
+      isFresh: this.cached?.key === currentKey,
+    };
+  }
 
   constructor(projectPath: string) {
     this.projectPath = resolve(projectPath);
@@ -65,7 +83,7 @@ export class AnalysisCache {
 
     this.inflight = (async () => {
       const analysis = await analyze({ packages: [this.projectPath] });
-      this.cached = { analysis, key: this.getCacheKey() };
+      this.cached = { analysis, key: this.getCacheKey(), analyzedAt: new Date().toISOString() };
       return analysis;
     })();
 

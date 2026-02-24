@@ -53,6 +53,14 @@ export function createAutodocsServer(
           `[autodocs] tool=${toolName} latency=${latency}ms cache=${cacheStatus}${status}\n`,
         );
       }
+      // Append freshness metadata to every tool response
+      if (!result.isError && result.content.length > 0) {
+        const meta = cache.getMeta();
+        const last = result.content[result.content.length - 1];
+        if (last.type === "text") {
+          last.text += `\n\n---\n*Analyzed: ${meta.analyzedAt} | Commit: ${meta.analyzedCommit} | ${meta.isFresh ? "Fresh" : "Stale — files changed since analysis"}*`;
+        }
+      }
       return result;
     });
   }

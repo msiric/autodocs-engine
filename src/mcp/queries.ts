@@ -146,6 +146,28 @@ export function getPublicAPI(
   return exports.slice(0, limit);
 }
 
+export function getExampleForExport(
+  analysis: StructuredAnalysis,
+  exportName: string,
+  packagePath?: string,
+): { snippet: string; testFile: string } | null {
+  const pkg = resolvePackage(analysis, packagePath);
+  const example = (pkg.examples ?? []).find(e => e.exportName === exportName);
+  if (!example) return null;
+  return { snippet: example.snippet, testFile: example.testFile };
+}
+
+export function getFingerprintForExport(
+  analysis: StructuredAnalysis,
+  exportName: string,
+  packagePath?: string,
+): { parameterShape: string; returnShape: string } | null {
+  const pkg = resolvePackage(analysis, packagePath);
+  const fp = (pkg.patternFingerprints ?? []).find(f => f.exportName === exportName);
+  if (!fp) return null;
+  return { parameterShape: fp.parameterShape, returnShape: fp.returnShape };
+}
+
 export function getConventions(
   analysis: StructuredAnalysis,
   packagePath?: string,
