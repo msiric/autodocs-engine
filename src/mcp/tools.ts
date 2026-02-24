@@ -1,6 +1,8 @@
 // src/mcp/tools.ts — MCP tool handler implementations
 // Each function formats analysis data as human-readable markdown for AI consumption.
 
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import type { StructuredAnalysis } from "../types.js";
 import * as Q from "./queries.js";
 
@@ -114,6 +116,15 @@ export function handleAnalyzeImpact(
     lines.push("## Impact Analysis");
     lines.push("Specify filePath or functionName to analyze.");
     return { content: [{ type: "text", text: lines.join("\n") }] };
+  }
+
+  // Blast radius summary (one-line orientation before details)
+  if (args.filePath) {
+    const importers = Q.getImportersForFile(analysis, args.filePath, args.packagePath);
+    const coChanges = Q.getCoChangesForFile(analysis, args.filePath, args.packagePath);
+    const total = importers.length + coChanges.length;
+    const radius = total <= 5 ? "Small" : total <= 15 ? "Medium" : "Large";
+    lines.push(`**Blast radius: ${radius}** — ${importers.length} direct importers, ${coChanges.length} co-change partners.`);
   }
 
   lines.push("");
@@ -246,6 +257,15 @@ export function handleGetContributionGuide(
         lines.push(`- \`${imp.specifier}\`: ${imp.symbols.join(", ")} (${Math.round(imp.coverage * 100)}% of siblings)`);
       }
     }
+    // Inline example code (first 15 lines of example file)
+    const exampleSnippet = readExampleFile(analysis, pattern.exampleFile);
+    if (exampleSnippet) {
+      lines.push("");
+      lines.push(`Example (\`${pattern.exampleFile}\`):`);
+      lines.push("```typescript");
+      lines.push(exampleSnippet);
+      lines.push("```");
+    }
     lines.push("");
   }
 
@@ -267,12 +287,25 @@ export function handleGetExports(
     return { content: [{ type: "text", text: lines.join("\n") }] };
   }
 
-  lines.push("| Name | Kind | Source | Imports | Signature |");
-  lines.push("|------|------|--------|--------:|-----------|");
-
   for (const exp of exports) {
-    const sig = exp.signature ? exp.signature.slice(0, 60) : "";
-    lines.push(`| ${exp.name} | ${exp.kind} | ${exp.sourceFile} | ${exp.importCount ?? 0} | ${sig} |`);
+    const sig = exp.signature ? exp.signature.slice(0, 80) : "";
+    lines.push(`### ${exp.name} (${exp.kind})`);
+    lines.push(`Source: \`${exp.sourceFile}\` | Imported by: ${exp.importCount ?? 0} files`);
+    if (sig) lines.push(`Signature: \`${sig}\``);
+
+    // Add parameter shape from fingerprint if available
+    const fp = Q.getFingerprintForExport(analysis, exp.name, args.packagePath);
+    if (fp) {
+      lines.push(`Params: ${fp.parameterShape} → ${fp.returnShape}`);
+    }
+
+    // Add top usage example if available
+    const example = Q.getExampleForExport(analysis, exp.name, args.packagePath);
+    if (example) {
+      lines.push(`Usage (from \`${example.testFile}\`): \`${example.snippet.split("\n")[0].trim()}\``);
+    }
+
+    lines.push("");
   }
 
   return { content: [{ type: "text", text: lines.join("\n") }] };
@@ -293,7 +326,9 @@ export function handleGetConventions(
   if (conventions.length > 0) {
     lines.push("### DO");
     for (const conv of conventions) {
-      lines.push(`- **${conv.name}**: ${conv.description} (${conv.confidence.description})`);
+      const pct = conv.confidence.percentage;
+      const strength = pct >= 95 ? "strong" : pct >= 80 ? "moderate" : "weak";
+      lines.push(`- **${conv.name}**: ${conv.description} (${pct}% confidence — ${strength})`);
     }
     lines.push("");
   }
@@ -311,4 +346,24 @@ export function handleGetConventions(
   }
 
   return { content: [{ type: "text", text: lines.join("\n") }] };
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+const MAX_EXAMPLE_LINES = 15;
+
+function readExampleFile(analysis: StructuredAnalysis, relativePath: string): string | null {
+  try {
+    const rootDir = analysis.meta?.rootDir;
+    if (!rootDir) return null;
+    const absPath = resolve(rootDir, relativePath);
+    const content = readFileSync(absPath, "utf-8");
+    const lines = content.split("\n").slice(0, MAX_EXAMPLE_LINES);
+    if (content.split("\n").length > MAX_EXAMPLE_LINES) {
+      lines.push("// ... (truncated)");
+    }
+    return lines.join("\n");
+  } catch {
+    return null;
+  }
 }
