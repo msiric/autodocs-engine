@@ -168,7 +168,7 @@ export function serializeToMarkdown(analysis: StructuredAnalysis): string {
 /**
  * Serialize a single package into markdown lines (shared between full and per-package serialization).
  */
-export function serializePackage(pkg: PackageAnalysis, lines: string[]): void {
+function serializePackage(pkg: PackageAnalysis, lines: string[]): void {
   lines.push(`# ${sanitize(pkg.name, 200)}`);
   if (pkg.description) lines.push(sanitize(pkg.description));
   lines.push(`Version: ${pkg.version}`);

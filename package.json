@@ -65,6 +65,7 @@
     "@biomejs/biome": "^2.4.4",
     "@types/node": "^22.0.0",
     "@types/picomatch": "^3.0.0",
+    "@vitest/coverage-v8": "^4.0.18",
     "husky": "^9.1.7",
     "knip": "^5.85.0",
     "lint-staged": "^16.2.7",

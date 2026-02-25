@@ -311,7 +311,7 @@ export function detectClusters(edges: CoChangeEdge[]): string[][] {
 // ─── Internal Functions ──────────────────────────────────────────────────────
 
 /** Run git log and return raw output, or null on failure. */
-export function runGitLog(dir: string, maxCommits: number, maxDays: number): string | null {
+function runGitLog(dir: string, maxCommits: number, maxDays: number): string | null {
   try {
     return execSync(
       `git log --name-status --diff-filter=AMCR --format="COMMIT:%H %at" --no-merges -n ${maxCommits} --since="${maxDays} days ago"`,

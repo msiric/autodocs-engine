@@ -356,6 +356,3 @@ _This section is for human-maintained context that cannot be inferred from sourc
 IMPORTANT:
 - You MUST produce at least 1000 words (approximately 120-200 lines). Target 1200-1600 words for 5-8 packages.`,
 };
-
-// Default export (single-package)
-export const agentsMdTemplate = agentsMdSingleTemplate;

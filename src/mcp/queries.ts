@@ -840,6 +840,3 @@ function formatHoursAgo(hours: number): string {
   if (hours < 24) return `${Math.round(hours)}h ago`;
   return `${Math.round(hours / 24)}d ago`;
 }
-
-export type { InferabilityScore } from "../inferability.js";
-export { computeInferabilityScore } from "../inferability.js";

@@ -13,8 +13,6 @@ import { AnalysisCache } from "./cache.js";
 import { safeToolHandler } from "./errors.js";
 import * as tools from "./tools.js";
 
-export { AnalysisCache } from "./cache.js";
-
 export interface ServerOptions {
   verbose?: boolean;
   telemetry?: boolean;
