@@ -1,15 +1,9 @@
 // src/architecture-detector.ts — Module 7: Architecture Detector
 // Errata applied: E-30 (remove org-specific name matching, content-based heuristics only)
 
-import { readdirSync, existsSync, readFileSync } from "node:fs";
-import { resolve, join, relative } from "node:path";
-import type {
-  ParsedFile,
-  PublicAPIEntry,
-  PackageArchitecture,
-  DirectoryInfo,
-  Warning,
-} from "./types.js";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+import type { DirectoryInfo, PackageArchitecture, ParsedFile, PublicAPIEntry, Warning } from "./types.js";
 
 const DIRECTORY_PURPOSES: Record<string, string> = {
   hooks: "Custom hooks",
@@ -38,19 +32,13 @@ export function detectArchitecture(
   packageDir: string,
   publicAPI: PublicAPIEntry[],
   barrelFile: string | undefined,
-  warnings: Warning[] = [],
+  _warnings: Warning[] = [],
 ): PackageArchitecture {
   const absPackageDir = resolve(packageDir);
 
   const entryPoint = barrelFile ?? "none";
-  const hasJSX = parsedFiles.some(
-    (f) => f.hasJSX && !f.isTestFile && !f.isGeneratedFile,
-  );
-  const packageType = classifyPackageType(
-    publicAPI,
-    parsedFiles,
-    absPackageDir,
-  );
+  const hasJSX = parsedFiles.some((f) => f.hasJSX && !f.isTestFile && !f.isGeneratedFile);
+  const packageType = classifyPackageType(publicAPI, parsedFiles, absPackageDir);
   const directories = detectDirectories(parsedFiles, absPackageDir, publicAPI);
 
   return { entryPoint, directories, packageType, hasJSX };
@@ -84,18 +72,13 @@ function classifyPackageType(
   // E-30: Content-based heuristics (not org-specific name matching)
   // Check for GraphQL files
   const hasGraphql = parsedFiles.some(
-    (f) => f.isGeneratedFile && (
-      f.relativePath.includes(".graphql.") ||
-      f.relativePath.includes(".generated.")
-    ),
+    (f) => f.isGeneratedFile && (f.relativePath.includes(".graphql.") || f.relativePath.includes(".generated.")),
   );
   if (hasGraphql) return "library"; // was "graphql", now generic per E-30
 
   // Check for bin field → CLI
   try {
-    const pkgJson = JSON.parse(
-      readFileSync(join(packageDir, "package.json"), "utf-8"),
-    );
+    const pkgJson = JSON.parse(readFileSync(join(packageDir, "package.json"), "utf-8"));
     if (pkgJson.bin) return "cli";
   } catch {
     // No package.json
@@ -113,9 +96,7 @@ function classifyPackageType(
  */
 function classifyByDependencies(packageDir: string): PackageArchitecture["packageType"] | undefined {
   try {
-    const pkgJson = JSON.parse(
-      readFileSync(join(packageDir, "package.json"), "utf-8"),
-    );
+    const pkgJson = JSON.parse(readFileSync(join(packageDir, "package.json"), "utf-8"));
     const allDeps = {
       ...pkgJson.dependencies,
       ...pkgJson.devDependencies,
@@ -150,32 +131,26 @@ function detectDirectories(
       if (!entry.isDirectory()) continue;
       if (entry.name.startsWith(".") || entry.name === "node_modules") continue;
 
-      const dirRelPath = baseDirRel
-        ? `${baseDirRel}/${entry.name}`
-        : entry.name;
+      const dirRelPath = baseDirRel ? `${baseDirRel}/${entry.name}` : entry.name;
 
       const filesInDir = parsedFiles.filter(
-        (f) =>
-          f.relativePath.startsWith(dirRelPath + "/") &&
-          !f.isTestFile &&
-          !f.isGeneratedFile,
+        (f) => f.relativePath.startsWith(`${dirRelPath}/`) && !f.isTestFile && !f.isGeneratedFile,
       );
 
       if (filesInDir.length === 0) continue;
 
-      const purpose =
-        DIRECTORY_PURPOSES[entry.name] ?? `Feature: ${entry.name}`;
+      const purpose = DIRECTORY_PURPOSES[entry.name] ?? `Feature: ${entry.name}`;
 
       // Enhancement 2: Map public exports to this directory
-      const dirExports = publicAPI
-        .filter((e) => e.sourceFile.startsWith(dirRelPath + "/"))
-        .map((e) => e.name);
+      const dirExports = publicAPI.filter((e) => e.sourceFile.startsWith(`${dirRelPath}/`)).map((e) => e.name);
 
       // Enhancement 2: Detect file naming pattern
-      const pattern = detectFilePattern(filesInDir.map((f) => {
-        const parts = f.relativePath.split("/");
-        return parts[parts.length - 1];
-      }));
+      const pattern = detectFilePattern(
+        filesInDir.map((f) => {
+          const parts = f.relativePath.split("/");
+          return parts[parts.length - 1];
+        }),
+      );
 
       dirs.push({
         path: dirRelPath,
@@ -198,9 +173,7 @@ function detectDirectories(
  */
 export function detectFilePattern(filenames: string[]): string | undefined {
   // Filter out index files and non-source files
-  const names = filenames.filter(
-    (n) => !n.startsWith("index.") && /\.(ts|tsx|js|jsx)$/.test(n),
-  );
+  const names = filenames.filter((n) => !n.startsWith("index.") && /\.(ts|tsx|js|jsx)$/.test(n));
   if (names.length < 3) return undefined;
 
   // Strip extension for pattern detection
@@ -240,9 +213,7 @@ export function detectFilePattern(filenames: string[]): string | undefined {
   // Only return pattern if prefix or suffix is meaningful (>= 2 chars)
   if (prefix.length < 2 && suffix.length < 2) return undefined;
 
-  const variable = prefix.length > 0 || suffix.length > 0
-    ? `${prefix}{...}${suffix}${commonExt}`
-    : undefined;
+  const variable = prefix.length > 0 || suffix.length > 0 ? `${prefix}{...}${suffix}${commonExt}` : undefined;
 
   return variable;
 }
@@ -252,7 +223,7 @@ function getMostCommonExtension(filenames: string[]): string {
   for (const name of filenames) {
     const match = name.match(/\.(tsx?|jsx?)$/);
     if (match) {
-      const ext = "." + match[1];
+      const ext = `.${match[1]}`;
       counts.set(ext, (counts.get(ext) ?? 0) + 1);
     }
   }

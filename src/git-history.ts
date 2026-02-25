@@ -6,12 +6,7 @@
 import { execSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { relative, resolve } from "node:path";
-import type {
-  CoChangeEdge,
-  GitHistoryAnalysis,
-  WorkflowRule,
-  Warning,
-} from "./types.js";
+import type { CoChangeEdge, GitHistoryAnalysis, Warning, WorkflowRule } from "./types.js";
 import { SOURCE_EXTENSIONS } from "./types.js";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -28,8 +23,8 @@ const MIN_CO_CHANGES = 3;
 const MAX_EDGES = 50;
 const MAX_RULES = 5;
 const MAX_DISPLAY_PARTNERS = 3;
-const RECENCY_DAYS = 45;          // co-change pair must have at least 1 co-change within this window
-const MIN_CLUSTER_SIZE = 3;       // minimum files to form a co-change cluster
+const RECENCY_DAYS = 45; // co-change pair must have at least 1 co-change within this window
+const MIN_CLUSTER_SIZE = 3; // minimum files to form a co-change cluster
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -103,9 +98,8 @@ export function mineGitHistory(
       const pkgFiles: string[] = [];
       for (const file of commit.files) {
         // Filter to package scope
-        const inPackage = pkgPrefix === ""
-          ? !file.includes("/node_modules/")
-          : file.startsWith(pkgPrefix + "/") || file === pkgPrefix;
+        const inPackage =
+          pkgPrefix === "" ? !file.includes("/node_modules/") : file.startsWith(`${pkgPrefix}/`) || file === pkgPrefix;
         if (!inPackage) continue;
 
         // Convert to package-relative path
@@ -142,10 +136,10 @@ export function mineGitHistory(
     );
 
     // History span in days
-    const timestamps = packageCommits.map(c => c.timestamp);
+    const timestamps = packageCommits.map((c) => c.timestamp);
     const oldest = Math.min(...timestamps);
     const newest = Math.max(...timestamps);
-    const spanDays = Math.round((newest - oldest) / (86400));
+    const spanDays = Math.round((newest - oldest) / 86400);
 
     results.set(pkgDir, {
       coChangeEdges: edges,
@@ -181,15 +175,15 @@ export function generateCoChangeRules(
 
   // Step 1: Detect co-change clusters (cliques)
   const clusters = detectClusters(edges);
-  const clusterFiles = new Set(clusters.flatMap(c => c));
+  const clusterFiles = new Set(clusters.flat());
   const rules: WorkflowRule[] = [];
 
   // Step 2: Emit cluster rules (1 per cluster instead of N individual rules)
   for (const cluster of clusters) {
     // Skip cluster if all files are already covered by import-chain
-    if (cluster.every(f => coveredFiles?.has(f))) continue;
+    if (cluster.every((f) => coveredFiles?.has(f))) continue;
 
-    const fileList = cluster.map(f => `\`${f}\``).join(", ");
+    const fileList = cluster.map((f) => `\`${f}\``).join(", ");
     rules.push({
       trigger: `When modifying any of: ${fileList}`,
       action: `Check all files in this co-change cluster — they frequently change together`,
@@ -201,7 +195,10 @@ export function generateCoChangeRules(
   }
 
   // Step 3: Generate individual rules for non-cluster files
-  const byFile = new Map<string, { partner: string; jaccard: number; coChangeCount: number; partnerCommits: number }[]>();
+  const byFile = new Map<
+    string,
+    { partner: string; jaccard: number; coChangeCount: number; partnerCommits: number }[]
+  >();
 
   for (const edge of edges) {
     for (const [file, partner, partnerCommits] of [
@@ -233,7 +230,7 @@ export function generateCoChangeRules(
     const remaining = sorted.length - MAX_DISPLAY_PARTNERS;
 
     const partnerList = top
-      .map(p => {
+      .map((p) => {
         const pct = Math.round((p.coChangeCount / p.partnerCommits) * 100);
         return `\`${p.partner}\` (co-changed in ${pct}% of its commits)`;
       })
@@ -288,14 +285,14 @@ export function detectClusters(edges: CoChangeEdge[]): string[][] {
     // Greedily build a clique starting from seed
     const clique = [seed];
     const candidateNeighbors = [...neighbors]
-      .filter(n => !claimed.has(n))
+      .filter((n) => !claimed.has(n))
       .sort((a, b) => (adjacency.get(b)?.size ?? 0) - (adjacency.get(a)?.size ?? 0));
 
     for (const candidate of candidateNeighbors) {
       // Check if candidate is connected to ALL current clique members
       const candidateAdj = adjacency.get(candidate);
       if (!candidateAdj) continue;
-      const isConnectedToAll = clique.every(member => candidateAdj.has(member));
+      const isConnectedToAll = clique.every((member) => candidateAdj.has(member));
       if (isConnectedToAll) {
         clique.push(candidate);
       }
@@ -314,11 +311,7 @@ export function detectClusters(edges: CoChangeEdge[]): string[][] {
 // ─── Internal Functions ──────────────────────────────────────────────────────
 
 /** Run git log and return raw output, or null on failure. */
-export function runGitLog(
-  dir: string,
-  maxCommits: number,
-  maxDays: number,
-): string | null {
+export function runGitLog(dir: string, maxCommits: number, maxDays: number): string | null {
   try {
     return execSync(
       `git log --name-status --diff-filter=AMCR --format="COMMIT:%H %at" --no-merges -n ${maxCommits} --since="${maxDays} days ago"`,
@@ -350,7 +343,7 @@ export function parseGitLog(raw: string): ParsedCommit[] {
 
     const hash = header.slice(0, spaceIdx);
     const timestamp = parseInt(header.slice(spaceIdx + 1), 10);
-    if (isNaN(timestamp)) continue;
+    if (Number.isNaN(timestamp)) continue;
 
     // Remaining lines: "STATUS\tFILE" (e.g., "M\tsrc/foo.ts")
     const files: string[] = [];
@@ -377,7 +370,7 @@ export function computeCoChangeEdges(
   maxFilesPerCommit: number,
   hubThreshold: number,
   minHubCommits: number,
-  warnings: Warning[],
+  _warnings: Warning[],
 ): { edges: CoChangeEdge[]; commitsFilteredBySize: number } {
   // Count per-file commit appearances (before filtering)
   const fileCommitCount = new Map<string, number>();
@@ -394,9 +387,7 @@ export function computeCoChangeEdges(
   const totalCommits = commits.length;
   const hubFiles = new Set<string>();
   if (totalCommits >= MIN_COMMITS) {
-    const effectiveHubThreshold = totalCommits >= minHubCommits
-      ? hubThreshold
-      : HUB_FILE_THRESHOLD_YOUNG;
+    const effectiveHubThreshold = totalCommits >= minHubCommits ? hubThreshold : HUB_FILE_THRESHOLD_YOUNG;
     for (const [file, count] of fileCommitCount) {
       if (count / totalCommits > effectiveHubThreshold) {
         hubFiles.add(file);
@@ -410,7 +401,7 @@ export function computeCoChangeEdges(
 
   for (const commit of commits) {
     // Filter to non-hub source files
-    const files = commit.files.filter(f => !hubFiles.has(f));
+    const files = commit.files.filter((f) => !hubFiles.has(f));
 
     if (files.length > maxFilesPerCommit) {
       commitsFilteredBySize++;
@@ -421,9 +412,7 @@ export function computeCoChangeEdges(
     // Create pairs (alphabetically sorted for canonical key)
     for (let i = 0; i < files.length; i++) {
       for (let j = i + 1; j < files.length; j++) {
-        const [a, b] = files[i] < files[j]
-          ? [files[i], files[j]]
-          : [files[j], files[i]];
+        const [a, b] = files[i] < files[j] ? [files[i], files[j]] : [files[j], files[i]];
         const key = `${a}\0${b}`;
         pairCounts.set(key, (pairCounts.get(key) ?? 0) + 1);
         const prev = pairLastTimestamp.get(key) ?? 0;
@@ -436,7 +425,7 @@ export function computeCoChangeEdges(
 
   // Recency cutoff: pairs must have co-changed within RECENCY_DAYS
   const newestCommit = commits.reduce((max, c) => Math.max(max, c.timestamp), 0);
-  const recencyCutoff = newestCommit - (RECENCY_DAYS * 86400);
+  const recencyCutoff = newestCommit - RECENCY_DAYS * 86400;
 
   // Compute Jaccard and filter
   // Adaptive thresholds: young repos (<30 commits) get lower minimums

@@ -1,10 +1,7 @@
 // src/llm/template-selector.ts — Pick template for output format
 // Split from llm-adapter.ts (W5-B1)
 
-import {
-  agentsMdSingleTemplate,
-  agentsMdMultiTemplate,
-} from "../templates/agents-md.js";
+import { agentsMdMultiTemplate, agentsMdSingleTemplate } from "../templates/agents-md.js";
 import { claudeMdTemplate } from "../templates/claude-md.js";
 import { cursorrulesTemplate } from "../templates/cursorrules.js";
 

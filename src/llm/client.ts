@@ -18,7 +18,7 @@ export async function callLLMWithRetry(
 ): Promise<string> {
   try {
     return await callLLM(systemPrompt, userPrompt, llmConfig);
-  } catch (err) {
+  } catch (_err) {
     await new Promise((resolve) => setTimeout(resolve, 2000));
     try {
       return await callLLM(systemPrompt, userPrompt, llmConfig);
@@ -30,11 +30,7 @@ export async function callLLMWithRetry(
   }
 }
 
-async function callLLM(
-  systemPrompt: string,
-  userPrompt: string,
-  llmConfig: ResolvedConfig["llm"],
-): Promise<string> {
+async function callLLM(systemPrompt: string, userPrompt: string, llmConfig: ResolvedConfig["llm"]): Promise<string> {
   const baseUrl = llmConfig.baseUrl ?? "https://api.anthropic.com";
   const url = `${baseUrl}/v1/messages`;
 
@@ -66,10 +62,7 @@ async function callLLM(
       const body = await response.text().catch(() => "");
       // Truncate error body to avoid leaking sensitive data in logs
       const safeBody = body.slice(0, 200);
-      throw new LLMError(
-        `LLM API returned ${response.status}: ${safeBody}`,
-        response.status,
-      );
+      throw new LLMError(`LLM API returned ${response.status}: ${safeBody}`, response.status);
     }
 
     const data: AnthropicResponse = await response.json();

@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { validateBudget, formatBudgetReport } from "../src/budget-validator.js";
+import { describe, expect, it } from "vitest";
+import { formatBudgetReport, validateBudget } from "../src/budget-validator.js";
 
 describe("budget-validator", () => {
   describe("validateBudget", () => {
@@ -41,9 +41,7 @@ describe("budget-validator", () => {
 
     it("warns when over budget", () => {
       // Generate >120 rules (W5-B2: MAX_RULES increased to 120)
-      const rules = Array.from({ length: 130 }, (_, i) =>
-        `- Use feature-${i} for all operations`,
-      );
+      const rules = Array.from({ length: 130 }, (_, i) => `- Use feature-${i} for all operations`);
       const content = ["# Package", ...rules].join("\n");
 
       const report = validateBudget(content);
@@ -108,9 +106,7 @@ describe("budget-validator", () => {
     });
 
     it("includes over-budget warning", () => {
-      const rules = Array.from({ length: 130 }, (_, i) =>
-        `- Use feature-${i} for all operations`,
-      );
+      const rules = Array.from({ length: 130 }, (_, i) => `- Use feature-${i} for all operations`);
       const report = validateBudget(["# Pkg", ...rules].join("\n"));
       const formatted = formatBudgetReport(report);
       expect(formatted).toContain("Over budget");

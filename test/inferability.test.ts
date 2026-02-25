@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { computeInferabilityScore } from "../src/inferability.js";
 import type { PackageAnalysis } from "../src/types.js";
 
@@ -8,7 +8,15 @@ function makePkg(overrides: Partial<PackageAnalysis> = {}): PackageAnalysis {
     version: "1.0.0",
     description: "",
     relativePath: ".",
-    files: { total: 10, byTier: { tier1: { count: 3, lines: 100, files: [] }, tier2: { count: 3, lines: 100, files: [] }, tier3: { count: 4, lines: 100 } }, byExtension: { ".ts": 10 } },
+    files: {
+      total: 10,
+      byTier: {
+        tier1: { count: 3, lines: 100, files: [] },
+        tier2: { count: 3, lines: 100, files: [] },
+        tier3: { count: 4, lines: 100 },
+      },
+      byExtension: { ".ts": 10 },
+    },
     publicAPI: [],
     conventions: [],
     commands: { packageManager: "npm", other: [] },
@@ -35,7 +43,13 @@ describe("computeInferabilityScore", () => {
         hasJSX: true,
       },
       conventions: [
-        { category: "file-naming", name: "kebab-case", description: "", confidence: { matched: 95, total: 100, percentage: 95, description: "" }, examples: [] },
+        {
+          category: "file-naming",
+          name: "kebab-case",
+          description: "",
+          confidence: { matched: 95, total: 100, percentage: 95, description: "" },
+          examples: [],
+        },
       ],
     });
 
@@ -58,12 +72,21 @@ describe("computeInferabilityScore", () => {
         hasJSX: false,
       },
       conventions: [
-        { category: "file-naming", name: "kebab-case", description: "", confidence: { matched: 70, total: 100, percentage: 70, description: "" }, examples: [] },
+        {
+          category: "file-naming",
+          name: "kebab-case",
+          description: "",
+          confidence: { matched: 70, total: 100, percentage: 70, description: "" },
+          examples: [],
+        },
       ],
       contributionPatterns: [
         {
-          type: "function", directory: "src/detectors/", filePattern: "{name}.ts",
-          exampleFile: "src/detectors/file-naming.ts", steps: ["Create file"],
+          type: "function",
+          directory: "src/detectors/",
+          filePattern: "{name}.ts",
+          exampleFile: "src/detectors/file-naming.ts",
+          steps: ["Create file"],
           commonImports: [{ specifier: "../types.js", symbols: ["Convention"], coverage: 0.9 }],
           exportSuffix: "Detector",
           registrationFile: "src/convention-extractor.ts",
@@ -90,12 +113,21 @@ describe("computeInferabilityScore", () => {
         hasJSX: false,
       },
       conventions: [
-        { category: "file-naming", name: "kebab-case", description: "", confidence: { matched: 75, total: 100, percentage: 75, description: "" }, examples: [] },
+        {
+          category: "file-naming",
+          name: "kebab-case",
+          description: "",
+          confidence: { matched: 75, total: 100, percentage: 75, description: "" },
+          examples: [],
+        },
       ],
       contributionPatterns: [
         {
-          type: "function", directory: "src/adapters/", filePattern: "{name}.ts",
-          exampleFile: "src/adapters/react.ts", steps: ["Create adapter"],
+          type: "function",
+          directory: "src/adapters/",
+          filePattern: "{name}.ts",
+          exampleFile: "src/adapters/react.ts",
+          steps: ["Create adapter"],
           exportSuffix: "Adapter",
           commonImports: [{ specifier: "../base.js", symbols: ["BaseAdapter"], coverage: 0.8 }],
         },
@@ -117,9 +149,30 @@ describe("computeInferabilityScore", () => {
   it("gives lower score when multiple registration files exist", () => {
     const pkg = makePkg({
       contributionPatterns: [
-        { type: "function", directory: "src/a/", filePattern: "*.ts", exampleFile: "a.ts", steps: [], registrationFile: "src/registry-a.ts" },
-        { type: "function", directory: "src/b/", filePattern: "*.ts", exampleFile: "b.ts", steps: [], registrationFile: "src/registry-b.ts" },
-        { type: "function", directory: "src/c/", filePattern: "*.ts", exampleFile: "c.ts", steps: [], registrationFile: "src/registry-c.ts" },
+        {
+          type: "function",
+          directory: "src/a/",
+          filePattern: "*.ts",
+          exampleFile: "a.ts",
+          steps: [],
+          registrationFile: "src/registry-a.ts",
+        },
+        {
+          type: "function",
+          directory: "src/b/",
+          filePattern: "*.ts",
+          exampleFile: "b.ts",
+          steps: [],
+          registrationFile: "src/registry-b.ts",
+        },
+        {
+          type: "function",
+          directory: "src/c/",
+          filePattern: "*.ts",
+          exampleFile: "c.ts",
+          steps: [],
+          registrationFile: "src/registry-c.ts",
+        },
       ],
     });
 

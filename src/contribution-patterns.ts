@@ -2,13 +2,7 @@
 // Detects "how to add new code" patterns from existing directory structure.
 // Deep patterns: analyzes common imports, export naming, and registration files.
 
-import type {
-  ParsedFile,
-  PublicAPIEntry,
-  TierInfo,
-  DirectoryInfo,
-  ContributionPattern,
-} from "./types.js";
+import type { ContributionPattern, DirectoryInfo, ParsedFile, PublicAPIEntry, TierInfo } from "./types.js";
 
 const COMMON_IMPORT_THRESHOLD = 0.8; // ≥80% of siblings must share the import
 const MAX_COMMON_IMPORT_SYMBOLS = 5;
@@ -53,7 +47,7 @@ export function detectContributionPatterns(
     // Heuristic: if most files in this dir are deeply nested (3+ path segments
     // deeper than the dir itself), it's a workspace container, not a code dir.
     const dirDepth = dirPath.split("/").filter(Boolean).length;
-    const deepFiles = files.filter(f => {
+    const deepFiles = files.filter((f) => {
       const fileDepth = f.relativePath.split("/").filter(Boolean).length;
       return fileDepth > dirDepth + 2; // file is 3+ levels below this dir
     });
@@ -71,16 +65,17 @@ export function detectContributionPatterns(
     let dominantKind = "function";
     let maxCount = 0;
     for (const [kind, count] of kindCounts) {
-      if (count > maxCount) { dominantKind = kind; maxCount = count; }
+      if (count > maxCount) {
+        dominantKind = kind;
+        maxCount = count;
+      }
     }
 
     const filePattern = dirInfo.pattern ?? detectSimplePattern(files, dominantKind);
     if (!filePattern) continue;
 
     // Co-located tests
-    const testFiles = parsedFiles.filter(
-      (pf) => pf.isTestFile && pf.relativePath.startsWith(dirPath + "/"),
-    );
+    const testFiles = parsedFiles.filter((pf) => pf.isTestFile && pf.relativePath.startsWith(`${dirPath}/`));
     const hasCoLocatedTests = testFiles.length >= Math.floor(files.length / 2);
     let testPattern: string | undefined;
     if (hasCoLocatedTests && testFiles.length > 0) {
@@ -88,7 +83,7 @@ export function detectContributionPatterns(
     }
 
     // Best example file
-    const dirExports = publicAPI.filter((e) => e.sourceFile.startsWith(dirPath + "/"));
+    const dirExports = publicAPI.filter((e) => e.sourceFile.startsWith(`${dirPath}/`));
     const bestExport = dirExports.reduce(
       (best, exp) => ((exp.importCount ?? 0) > (best?.importCount ?? 0) ? exp : best),
       dirExports[0],
@@ -136,7 +131,7 @@ export function detectContributionPatterns(
 
     patterns.push({
       type: dominantKind,
-      directory: dirPath + "/",
+      directory: `${dirPath}/`,
       filePattern,
       testPattern,
       exampleFile,
@@ -155,9 +150,7 @@ export function detectContributionPatterns(
 /**
  * Find relative imports that ≥80% of sibling files share.
  */
-function detectCommonImports(
-  files: ParsedFile[],
-): { specifier: string; symbols: string[]; coverage: number }[] {
+function detectCommonImports(files: ParsedFile[]): { specifier: string; symbols: string[]; coverage: number }[] {
   const importCounts = new Map<string, { count: number; names: Set<string> }>();
 
   for (const pf of files) {
@@ -224,11 +217,7 @@ function detectExportSuffix(files: ParsedFile[]): string | null {
  * Find a file outside this directory that imports most of the directory's exports.
  * This is the "registration file" — where new items need to be added.
  */
-function detectRegistrationFile(
-  dirFiles: ParsedFile[],
-  dirPath: string,
-  allFiles: ParsedFile[],
-): string | null {
+function detectRegistrationFile(dirFiles: ParsedFile[], dirPath: string, allFiles: ParsedFile[]): string | null {
   // Collect all non-type export names from the directory
   const dirExportNames = new Set<string>();
   for (const pf of dirFiles) {
@@ -245,7 +234,7 @@ function detectRegistrationFile(
   let bestCount = 0;
 
   for (const pf of allFiles) {
-    if (pf.relativePath.startsWith(dirPath + "/")) continue; // Skip files IN the directory
+    if (pf.relativePath.startsWith(`${dirPath}/`)) continue; // Skip files IN the directory
     if (pf.isTestFile || pf.isGeneratedFile) continue;
 
     let matchCount = 0;
@@ -271,13 +260,10 @@ function detectRegistrationFile(
 
 // ─── Basic Helpers ───────────────────────────────────────────────────────────
 
-function findParentDir(
-  filePath: string,
-  directories: DirectoryInfo[],
-): DirectoryInfo | undefined {
+function findParentDir(filePath: string, directories: DirectoryInfo[]): DirectoryInfo | undefined {
   let best: DirectoryInfo | undefined;
   for (const dir of directories) {
-    if (filePath.startsWith(dir.path + "/")) {
+    if (filePath.startsWith(`${dir.path}/`)) {
       if (!best || dir.path.length > best.path.length) {
         best = dir;
       }
@@ -287,10 +273,12 @@ function findParentDir(
 }
 
 function detectSimplePattern(files: ParsedFile[], kind: string): string | undefined {
-  const names = files.map((f) => {
-    const parts = f.relativePath.split("/");
-    return parts[parts.length - 1];
-  }).filter((n) => !n.startsWith("index."));
+  const names = files
+    .map((f) => {
+      const parts = f.relativePath.split("/");
+      return parts[parts.length - 1];
+    })
+    .filter((n) => !n.startsWith("index."));
 
   if (names.length < 3) return undefined;
 
@@ -298,18 +286,24 @@ function detectSimplePattern(files: ParsedFile[], kind: string): string | undefi
   for (const name of names) {
     const match = name.match(/\.(tsx?|jsx?)$/);
     if (match) {
-      extCounts.set("." + match[1], (extCounts.get("." + match[1]) ?? 0) + 1);
+      extCounts.set(`.${match[1]}`, (extCounts.get(`.${match[1]}`) ?? 0) + 1);
     }
   }
   let ext = ".ts";
   let maxExtCount = 0;
   for (const [e, c] of extCounts) {
-    if (c > maxExtCount) { ext = e; maxExtCount = c; }
+    if (c > maxExtCount) {
+      ext = e;
+      maxExtCount = c;
+    }
   }
 
   switch (kind) {
-    case "hook": return `use-{feature}${ext}`;
-    case "component": return `{ComponentName}${ext}`;
-    default: return `{name}${ext}`;
+    case "hook":
+      return `use-{feature}${ext}`;
+    case "component":
+      return `{ComponentName}${ext}`;
+    default:
+      return `{name}${ext}`;
   }
 }

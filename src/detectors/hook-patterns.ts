@@ -1,6 +1,6 @@
 import { basename } from "node:path";
+import { buildConfidence, sourceParsedFiles } from "../convention-extractor.js";
 import type { Convention, ConventionDetector, ParsedFile } from "../types.js";
-import { sourceParsedFiles, buildConfidence } from "../convention-extractor.js";
 
 const REACT_MODULES = new Set(["react", "react-dom", "preact", "preact/hooks", "preact/compat"]);
 
@@ -37,7 +37,9 @@ export const hookPatternDetector: ConventionDetector = (files, tiers, _warnings)
   });
 
   // Return type analysis
-  let returnObj = 0, returnArr = 0, returnVoid = 0;
+  let returnObj = 0,
+    returnArr = 0,
+    returnVoid = 0;
   for (const f of hookFiles) {
     for (const exp of f.exports) {
       if (exp.kind !== "hook" || !exp.signature) continue;
@@ -65,9 +67,7 @@ export const hookPatternDetector: ConventionDetector = (files, tiers, _warnings)
   for (const hf of hookFiles) {
     const base = hf.relativePath.replace(/\.[^.]+$/, "");
     const testExists =
-      allFiles.has(`${base}.test.ts`) ||
-      allFiles.has(`${base}.test.tsx`) ||
-      allFiles.has(`${base}.spec.ts`);
+      allFiles.has(`${base}.test.ts`) || allFiles.has(`${base}.test.tsx`) || allFiles.has(`${base}.spec.ts`);
     if (testExists) coLocated++;
   }
 
@@ -82,7 +82,10 @@ export const hookPatternDetector: ConventionDetector = (files, tiers, _warnings)
   }
 
   // Aggregate React hook usage
-  let useMemo = 0, useCallback = 0, useEffect = 0, useState = 0;
+  let useMemo = 0,
+    useCallback = 0,
+    useEffect = 0,
+    useState = 0;
   for (const f of sourceFiles) {
     useMemo += f.contentSignals.useMemoCount;
     useCallback += f.contentSignals.useCallbackCount;

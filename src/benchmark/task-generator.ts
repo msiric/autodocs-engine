@@ -2,20 +2,32 @@
 // Tasks are self-referential: the engine tests whether its own AGENTS.md helps AI follow
 // the patterns the engine detected.
 
-import { readFileSync, readdirSync, statSync } from "node:fs";
-import { join, basename, dirname, relative } from "node:path";
-import type { StructuredAnalysis, ContributionPattern, Convention, AntiPattern } from "../types.js";
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { basename, join, relative } from "node:path";
+import type { AntiPattern, ContributionPattern, Convention, StructuredAnalysis } from "../types.js";
 import { SOURCE_EXTENSIONS } from "../types.js";
-import type { BenchmarkTask, TaskContext, TaskTier, TaskType } from "./types.js";
+import type { BenchmarkTask, TaskContext, TaskTier } from "./types.js";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const MAX_SIBLING_LINES = 100;
 const TASK_NAME_POOL = [
-  "import-ordering", "error-boundary", "accessibility", "keyboard-navigation",
-  "dark-mode", "internationalization", "pagination", "search-filter",
-  "form-validation", "notification", "authentication", "rate-limiting",
-  "caching", "retry-logic", "health-check", "metric-collection",
+  "import-ordering",
+  "error-boundary",
+  "accessibility",
+  "keyboard-navigation",
+  "dark-mode",
+  "internationalization",
+  "pagination",
+  "search-filter",
+  "form-validation",
+  "notification",
+  "authentication",
+  "rate-limiting",
+  "caching",
+  "retry-logic",
+  "health-check",
+  "metric-collection",
 ];
 
 // ─── Public API ──────────────────────────────────────────────────────────────
@@ -39,9 +51,7 @@ export function generateTasksFromAnalysis(
 
     for (const pattern of patterns) {
       const tier = classifyTier(pattern);
-      const task = generateTaskFromPattern(
-        pattern, pkg.name, pkgPath, tier, conventions, antiPatterns,
-      );
+      const task = generateTaskFromPattern(pattern, pkg.name, pkgPath, tier, conventions, antiPatterns);
       if (task) tasks.push(task);
     }
 
@@ -124,26 +134,23 @@ function generateTaskFromPattern(
 /**
  * Derive a plausible task name that doesn't collide with existing exports.
  */
-export function deriveTaskName(
-  pattern: ContributionPattern,
-  absDir: string,
-): string | null {
+export function deriveTaskName(pattern: ContributionPattern, absDir: string): string | null {
   // List existing files in the directory
   let existingFiles: string[] = [];
   try {
     existingFiles = readdirSync(absDir)
-      .filter(f => SOURCE_EXTENSIONS.test(f))
-      .map(f => basename(f, f.slice(f.lastIndexOf("."))));
+      .filter((f) => SOURCE_EXTENSIONS.test(f))
+      .map((f) => basename(f, f.slice(f.lastIndexOf("."))));
   } catch {
     return null;
   }
 
-  const existing = new Set(existingFiles.map(f => f.toLowerCase()));
+  const existing = new Set(existingFiles.map((f) => f.toLowerCase()));
 
   // Try names from the pool, applying the pattern's naming convention
   for (const candidate of TASK_NAME_POOL) {
     const name = pattern.exportSuffix
-      ? candidate  // Will get suffix applied later
+      ? candidate // Will get suffix applied later
       : candidate;
 
     if (!existing.has(name.toLowerCase())) {
@@ -154,20 +161,22 @@ export function deriveTaskName(
   return null;
 }
 
-function buildTaskPrompt(
-  pattern: ContributionPattern,
-  taskName: string,
-  packageName: string,
-): string {
-  const typeLabel = pattern.type === "function" ? "utility function"
-    : pattern.type === "hook" ? "React hook"
-    : pattern.type === "component" ? "React component"
-    : pattern.type;
+function buildTaskPrompt(pattern: ContributionPattern, taskName: string, packageName: string): string {
+  const typeLabel =
+    pattern.type === "function"
+      ? "utility function"
+      : pattern.type === "hook"
+        ? "React hook"
+        : pattern.type === "component"
+          ? "React component"
+          : pattern.type;
 
   // Deliberately vague — doesn't mention imports, suffixes, or registration
-  return `Add a new ${typeLabel} for "${taskName}" to the ${packageName} project. `
-    + `It should handle ${taskName.replace(/-/g, " ")} functionality. `
-    + `Include implementation, any necessary registration or re-exports, and a test file.`;
+  return (
+    `Add a new ${typeLabel} for "${taskName}" to the ${packageName} project. ` +
+    `It should handle ${taskName.replace(/-/g, " ")} functionality. ` +
+    `Include implementation, any necessary registration or re-exports, and a test file.`
+  );
 }
 
 // ─── Context Collection ──────────────────────────────────────────────────────
@@ -176,11 +185,7 @@ function buildTaskPrompt(
  * Collect context files for benchmark conditions.
  * Deterministic sibling selection: exampleFile + most recent + median-dated.
  */
-export function collectContext(
-  pattern: ContributionPattern,
-  pkgPath: string,
-  absDir: string,
-): TaskContext {
+export function collectContext(pattern: ContributionPattern, pkgPath: string, absDir: string): TaskContext {
   const siblingFiles = selectSiblings(pattern, pkgPath, absDir);
   const directoryListing = listDirectory(absDir);
 
@@ -192,7 +197,9 @@ export function collectContext(
         path: pattern.registrationFile,
         content: readFileSync(regPath, "utf-8"),
       };
-    } catch { /* file doesn't exist */ }
+    } catch {
+      /* file doesn't exist */
+    }
   }
 
   // Find barrel file (index.ts in directory or parent)
@@ -206,7 +213,9 @@ export function collectContext(
         content,
       };
       break;
-    } catch { /* try next */ }
+    } catch {
+      /* try next */
+    }
   }
 
   return { siblingFiles, registrationFile, barrelFile, directoryListing };
@@ -218,11 +227,7 @@ export function collectContext(
  * 2. Most recently modified non-example sibling
  * 3. If 5+ files, add median-dated file
  */
-function selectSiblings(
-  pattern: ContributionPattern,
-  pkgPath: string,
-  absDir: string,
-): TaskContext["siblingFiles"] {
+function selectSiblings(pattern: ContributionPattern, pkgPath: string, absDir: string): TaskContext["siblingFiles"] {
   const result: TaskContext["siblingFiles"] = [];
 
   // 1. Always include the example file
@@ -232,26 +237,37 @@ function selectSiblings(
       path: pattern.exampleFile,
       content: truncateFile(readFileSync(examplePath, "utf-8")),
     });
-  } catch { /* missing */ }
+  } catch {
+    /* missing */
+  }
 
   // List all source files in directory, with modification times
   let filesWithMtime: { name: string; mtime: number }[] = [];
   try {
     filesWithMtime = readdirSync(absDir)
-      .filter(f => SOURCE_EXTENSIONS.test(f) && !f.includes(".test.") && !f.includes(".spec.") && f !== "index.ts" && f !== "index.tsx")
-      .map(f => {
+      .filter(
+        (f) =>
+          SOURCE_EXTENSIONS.test(f) &&
+          !f.includes(".test.") &&
+          !f.includes(".spec.") &&
+          f !== "index.ts" &&
+          f !== "index.tsx",
+      )
+      .map((f) => {
         try {
           return { name: f, mtime: statSync(join(absDir, f)).mtimeMs };
         } catch {
           return { name: f, mtime: 0 };
         }
       })
-      .filter(f => {
+      .filter((f) => {
         const relPath = relative(pkgPath, join(absDir, f.name));
         return relPath !== pattern.exampleFile;
       })
       .sort((a, b) => b.mtime - a.mtime);
-  } catch { /* dir read error */ }
+  } catch {
+    /* dir read error */
+  }
 
   // 2. Most recently modified non-example sibling
   if (filesWithMtime.length > 0) {
@@ -262,7 +278,9 @@ function selectSiblings(
         path: relative(pkgPath, newestPath),
         content: truncateFile(readFileSync(newestPath, "utf-8")),
       });
-    } catch { /* read error */ }
+    } catch {
+      /* read error */
+    }
   }
 
   // 3. If 5+ files, add median-dated file
@@ -277,7 +295,9 @@ function selectSiblings(
           path: relative(pkgPath, medianPath),
           content: truncateFile(readFileSync(medianPath, "utf-8")),
         });
-      } catch { /* read error */ }
+      } catch {
+        /* read error */
+      }
     }
   }
 
@@ -287,7 +307,7 @@ function selectSiblings(
 function listDirectory(absDir: string): string[] {
   try {
     return readdirSync(absDir)
-      .filter(f => SOURCE_EXTENSIONS.test(f))
+      .filter((f) => SOURCE_EXTENSIONS.test(f))
       .sort();
   } catch {
     return [];
@@ -297,7 +317,7 @@ function listDirectory(absDir: string): string[] {
 function truncateFile(content: string): string {
   const lines = content.split("\n");
   if (lines.length <= MAX_SIBLING_LINES) return content;
-  return lines.slice(0, MAX_SIBLING_LINES).join("\n") + "\n// ... truncated";
+  return `${lines.slice(0, MAX_SIBLING_LINES).join("\n")}\n// ... truncated`;
 }
 
 // ─── Command Task Generation ─────────────────────────────────────────────────
@@ -351,48 +371,58 @@ function generateCommandTasks(
     if (pkgJson.scripts) {
       packageJsonScripts = JSON.stringify(pkgJson.scripts, null, 2);
     }
-  } catch { /* no package.json */ }
+  } catch {
+    /* no package.json */
+  }
 
   const dirListing = listDirectory(join(pkgPath, "src")) ?? listDirectory(pkgPath);
 
   const taskDef = COMMAND_TASK_PROMPTS[0]; // CI workflow task
-  return [{
-    id: `command-${taskDef.id}`,
-    repoPath: pkgPath,
-    packageName: pkg.name,
-    tier,
-    taskType: "command" as const,
-    prompt: taskDef.prompt(pkg.name),
-    conventions,
-    antiPatterns,
-    expectedDirectory: "",
-    expectedFilePattern: "",
-    maxScoringPoints: 8,
-    context: {
-      siblingFiles: packageJsonScripts ? [{ path: "package.json (scripts)", content: packageJsonScripts }] : [],
-      directoryListing: dirListing,
+  return [
+    {
+      id: `command-${taskDef.id}`,
+      repoPath: pkgPath,
+      packageName: pkg.name,
+      tier,
+      taskType: "command" as const,
+      prompt: taskDef.prompt(pkg.name),
+      conventions,
+      antiPatterns,
+      expectedDirectory: "",
+      expectedFilePattern: "",
+      maxScoringPoints: 8,
+      context: {
+        siblingFiles: packageJsonScripts ? [{ path: "package.json (scripts)", content: packageJsonScripts }] : [],
+        directoryListing: dirListing,
+      },
+      commandData: {
+        expectedCommands: availableCommands,
+        packageManager: commands.packageManager,
+        allCommandNames: allNames,
+      },
     },
-    commandData: {
-      expectedCommands: availableCommands,
-      packageManager: commands.packageManager,
-      allCommandNames: allNames,
-    },
-  }];
+  ];
 }
 
 // ─── Architecture Task Generation ────────────────────────────────────────────
 
 const ARCHITECTURE_FEATURE_MAP: Record<string, { feature: string; keywords: string[] }> = {
-  "hooks": { feature: "a new React hook for clipboard management", keywords: ["hooks", "hook", "use"] },
-  "components": { feature: "a new UI component for notifications", keywords: ["components", "component", "ui"] },
-  "utils": { feature: "a new utility function for string formatting", keywords: ["utils", "utilities", "helpers"] },
-  "middleware": { feature: "new authentication middleware", keywords: ["middleware", "interceptor"] },
-  "api": { feature: "a new REST API endpoint for user preferences", keywords: ["api", "routes", "endpoints", "handlers"] },
-  "services": { feature: "a new service for email notifications", keywords: ["services", "service"] },
-  "detectors": { feature: "a new convention detector for import patterns", keywords: ["detectors", "detector", "plugins"] },
-  "lib": { feature: "a new shared library module", keywords: ["lib", "core", "shared"] },
-  "types": { feature: "new TypeScript type definitions for configuration", keywords: ["types", "interfaces", "models"] },
-  "test": { feature: "new integration test helpers", keywords: ["test", "tests", "testing", "spec"] },
+  hooks: { feature: "a new React hook for clipboard management", keywords: ["hooks", "hook", "use"] },
+  components: { feature: "a new UI component for notifications", keywords: ["components", "component", "ui"] },
+  utils: { feature: "a new utility function for string formatting", keywords: ["utils", "utilities", "helpers"] },
+  middleware: { feature: "new authentication middleware", keywords: ["middleware", "interceptor"] },
+  api: {
+    feature: "a new REST API endpoint for user preferences",
+    keywords: ["api", "routes", "endpoints", "handlers"],
+  },
+  services: { feature: "a new service for email notifications", keywords: ["services", "service"] },
+  detectors: {
+    feature: "a new convention detector for import patterns",
+    keywords: ["detectors", "detector", "plugins"],
+  },
+  lib: { feature: "a new shared library module", keywords: ["lib", "core", "shared"] },
+  types: { feature: "new TypeScript type definitions for configuration", keywords: ["types", "interfaces", "models"] },
+  test: { feature: "new integration test helpers", keywords: ["test", "tests", "testing", "spec"] },
 };
 
 function generateArchitectureTasks(
@@ -406,7 +436,7 @@ function generateArchitectureTasks(
 
   const tasks: BenchmarkTask[] = [];
   const dirListing = listDirectory(join(pkgPath, "src")) ?? listDirectory(pkgPath);
-  const allDirNames = arch.directories.map(d => d.path);
+  const allDirNames = arch.directories.map((d) => d.path);
 
   // Find directories that match our feature map
   for (const dir of arch.directories) {
@@ -414,8 +444,8 @@ function generateArchitectureTasks(
 
     // Find a matching feature for this directory
     let featureMatch: { feature: string; keywords: string[] } | undefined;
-    for (const [key, value] of Object.entries(ARCHITECTURE_FEATURE_MAP)) {
-      if (value.keywords.some(k => dirName.includes(k))) {
+    for (const [_key, value] of Object.entries(ARCHITECTURE_FEATURE_MAP)) {
+      if (value.keywords.some((k) => dirName.includes(k))) {
         featureMatch = value;
         break;
       }
@@ -425,8 +455,8 @@ function generateArchitectureTasks(
 
     // Find alternative acceptable directories
     const alternatives = arch.directories
-      .filter(d => d.path !== dir.path && d.purpose?.toLowerCase().includes(dirName))
-      .map(d => d.path);
+      .filter((d) => d.path !== dir.path && d.purpose?.toLowerCase().includes(dirName))
+      .map((d) => d.path);
 
     const tier: TaskTier = arch.directories.length >= 5 ? "A" : "B";
 
@@ -436,8 +466,9 @@ function generateArchitectureTasks(
       packageName: pkg.name,
       tier,
       taskType: "architecture" as const,
-      prompt: `You need to add ${featureMatch.feature} to the ${pkg.name} project. `
-        + `Which directory should this code go in? Respond with the directory path and a brief justification for your choice.`,
+      prompt:
+        `You need to add ${featureMatch.feature} to the ${pkg.name} project. ` +
+        `Which directory should this code go in? Respond with the directory path and a brief justification for your choice.`,
       conventions,
       antiPatterns,
       expectedDirectory: dir.path,

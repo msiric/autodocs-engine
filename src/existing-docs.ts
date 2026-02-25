@@ -11,10 +11,7 @@ import type { ExistingDocs, Warning } from "./types.js";
 /**
  * Detect existing documentation files in a package directory.
  */
-export function detectExistingDocs(
-  packageDir: string,
-  _warnings: Warning[] = [],
-): ExistingDocs {
+export function detectExistingDocs(packageDir: string, _warnings: Warning[] = []): ExistingDocs {
   const result: ExistingDocs = {
     hasReadme: false,
     hasAgentsMd: false,
@@ -74,10 +71,7 @@ export function detectExistingDocs(
  * Returns the first non-empty paragraph (up to 500 chars) after the title.
  * Searches packageDir first, then rootDir if provided.
  */
-export function extractReadmeContext(
-  packageDir: string,
-  rootDir?: string,
-): string | undefined {
+export function extractReadmeContext(packageDir: string, rootDir?: string): string | undefined {
   const dirs = rootDir ? [packageDir, rootDir] : [packageDir];
 
   for (const dir of dirs) {
@@ -88,7 +82,7 @@ export function extractReadmeContext(
           const content = readFileSync(path, "utf-8");
           const paragraph = extractFirstParagraph(content);
           if (paragraph) return paragraph;
-        } catch { continue; }
+        } catch {}
       }
     }
   }
@@ -100,16 +94,15 @@ export function extractReadmeContext(
  * Returns up to 1000 chars of meaningful content for micro-LLM synthesis.
  * Searches: CONTRIBUTING.md, contributing.md, .github/CONTRIBUTING.md
  */
-export function extractContributingContext(
-  packageDir: string,
-  rootDir?: string,
-): string | undefined {
+export function extractContributingContext(packageDir: string, rootDir?: string): string | undefined {
   const dirs = rootDir ? [packageDir, rootDir] : [packageDir];
 
   for (const dir of dirs) {
     for (const name of [
-      "CONTRIBUTING.md", "contributing.md",
-      join(".github", "CONTRIBUTING.md"), join(".github", "contributing.md"),
+      "CONTRIBUTING.md",
+      "contributing.md",
+      join(".github", "CONTRIBUTING.md"),
+      join(".github", "contributing.md"),
     ]) {
       const path = join(dir, name);
       if (existsSync(path)) {
@@ -117,7 +110,7 @@ export function extractContributingContext(
           const content = readFileSync(path, "utf-8");
           const context = extractMarkdownContent(content, 1000);
           if (context && context.length >= 50) return context;
-        } catch { continue; }
+        } catch {}
       }
     }
   }
@@ -149,7 +142,10 @@ function extractMarkdownContent(markdown: string, maxChars: number): string | un
 
     if (/^<[a-zA-Z/]/.test(trimmed)) continue;
     if (/^\[?!\[/.test(trimmed)) continue;
-    if (trimmed === "") { contentLines.push(""); continue; }
+    if (trimmed === "") {
+      contentLines.push("");
+      continue;
+    }
     if (trimmed.length < 10) continue;
 
     // Keep headings (they provide structure for the LLM) and prose
@@ -247,19 +243,11 @@ export function mergeWithExisting(
     const before = existingContent.slice(0, startIdx);
     const after = existingContent.slice(endIdx + AUTODOCS_END.length);
 
-    return before + AUTODOCS_START + "\n" + newEngineContent + "\n" + AUTODOCS_END + after;
+    return `${before + AUTODOCS_START}\n${newEngineContent}\n${AUTODOCS_END}${after}`;
   }
 
   // No delimiters — append with separator
-  return [
-    existingContent.trimEnd(),
-    "",
-    "---",
-    "",
-    AUTODOCS_START,
-    newEngineContent,
-    AUTODOCS_END,
-  ].join("\n");
+  return [existingContent.trimEnd(), "", "---", "", AUTODOCS_START, newEngineContent, AUTODOCS_END].join("\n");
 }
 
 /**

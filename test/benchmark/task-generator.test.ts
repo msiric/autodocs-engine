@@ -1,9 +1,9 @@
-import { describe, it, expect } from "vitest";
-import { classifyTier, deriveTaskName, generateTasksFromAnalysis } from "../../src/benchmark/task-generator.js";
-import type { ContributionPattern, StructuredAnalysis, PackageAnalysis } from "../../src/types.js";
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
-import { join } from "node:path";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { describe, expect, it } from "vitest";
+import { classifyTier, deriveTaskName, generateTasksFromAnalysis } from "../../src/benchmark/task-generator.js";
+import type { ContributionPattern, PackageAnalysis, StructuredAnalysis } from "../../src/types.js";
 
 function makePattern(overrides: Partial<ContributionPattern> = {}): ContributionPattern {
   return {
@@ -28,9 +28,13 @@ describe("classifyTier", () => {
 
   it("classifies Tier B when 1-2 deep signals present", () => {
     expect(classifyTier(makePattern({ exportSuffix: "Detector" }))).toBe("B");
-    expect(classifyTier(makePattern({
-      commonImports: [{ specifier: "./types.js", symbols: ["X"], coverage: 0.9 }],
-    }))).toBe("B");
+    expect(
+      classifyTier(
+        makePattern({
+          commonImports: [{ specifier: "./types.js", symbols: ["X"], coverage: 0.9 }],
+        }),
+      ),
+    ).toBe("B");
   });
 
   it("classifies Tier C when no deep signals present", () => {
@@ -75,27 +79,37 @@ describe("generateTasksFromAnalysis", () => {
         config: {} as any,
         timingMs: 100,
       },
-      packages: [{
-        name: "test-pkg",
-        version: "1.0.0",
-        description: "",
-        relativePath: ".",
-        files: { total: 10, byTier: { tier1: { count: 3, lines: 100, files: [] }, tier2: { count: 3, lines: 100, files: [] }, tier3: { count: 4, lines: 100 } }, byExtension: { ".ts": 10 } },
-        publicAPI: [],
-        conventions: [],
-        commands: { packageManager: "npm", other: [] },
-        architecture: { entryPoint: "src/index.ts", directories: [], packageType: "library", hasJSX: false },
-        dependencies: { internal: [], external: [], totalUniqueDependencies: 0 },
-        role: { summary: "test", purpose: "", whenToUse: "", inferredFrom: [] },
-        antiPatterns: [],
-        contributionPatterns: [
-          makePattern({
-            commonImports: [{ specifier: "../types.js", symbols: ["Convention"], coverage: 0.8 }],
-            exportSuffix: "Detector",
-            registrationFile: "src/convention-extractor.ts",
-          }),
-        ],
-      } as PackageAnalysis],
+      packages: [
+        {
+          name: "test-pkg",
+          version: "1.0.0",
+          description: "",
+          relativePath: ".",
+          files: {
+            total: 10,
+            byTier: {
+              tier1: { count: 3, lines: 100, files: [] },
+              tier2: { count: 3, lines: 100, files: [] },
+              tier3: { count: 4, lines: 100 },
+            },
+            byExtension: { ".ts": 10 },
+          },
+          publicAPI: [],
+          conventions: [],
+          commands: { packageManager: "npm", other: [] },
+          architecture: { entryPoint: "src/index.ts", directories: [], packageType: "library", hasJSX: false },
+          dependencies: { internal: [], external: [], totalUniqueDependencies: 0 },
+          role: { summary: "test", purpose: "", whenToUse: "", inferredFrom: [] },
+          antiPatterns: [],
+          contributionPatterns: [
+            makePattern({
+              commonImports: [{ specifier: "../types.js", symbols: ["Convention"], coverage: 0.8 }],
+              exportSuffix: "Detector",
+              registrationFile: "src/convention-extractor.ts",
+            }),
+          ],
+        } as PackageAnalysis,
+      ],
       warnings: [],
     };
 
@@ -111,21 +125,31 @@ describe("generateTasksFromAnalysis", () => {
   it("returns empty array when no contribution patterns exist", () => {
     const analysis: StructuredAnalysis = {
       meta: { engineVersion: "0.5.0", analyzedAt: "", rootDir: "/tmp", config: {} as any, timingMs: 0 },
-      packages: [{
-        name: "empty",
-        version: "1.0.0",
-        description: "",
-        relativePath: ".",
-        files: { total: 0, byTier: { tier1: { count: 0, lines: 0, files: [] }, tier2: { count: 0, lines: 0, files: [] }, tier3: { count: 0, lines: 0 } }, byExtension: {} },
-        publicAPI: [],
-        conventions: [],
-        commands: { packageManager: "npm", other: [] },
-        architecture: { entryPoint: "", directories: [], packageType: "library", hasJSX: false },
-        dependencies: { internal: [], external: [], totalUniqueDependencies: 0 },
-        role: { summary: "", purpose: "", whenToUse: "", inferredFrom: [] },
-        antiPatterns: [],
-        contributionPatterns: [],
-      } as PackageAnalysis],
+      packages: [
+        {
+          name: "empty",
+          version: "1.0.0",
+          description: "",
+          relativePath: ".",
+          files: {
+            total: 0,
+            byTier: {
+              tier1: { count: 0, lines: 0, files: [] },
+              tier2: { count: 0, lines: 0, files: [] },
+              tier3: { count: 0, lines: 0 },
+            },
+            byExtension: {},
+          },
+          publicAPI: [],
+          conventions: [],
+          commands: { packageManager: "npm", other: [] },
+          architecture: { entryPoint: "", directories: [], packageType: "library", hasJSX: false },
+          dependencies: { internal: [], external: [], totalUniqueDependencies: 0 },
+          role: { summary: "", purpose: "", whenToUse: "", inferredFrom: [] },
+          antiPatterns: [],
+          contributionPatterns: [],
+        } as PackageAnalysis,
+      ],
       warnings: [],
     };
 

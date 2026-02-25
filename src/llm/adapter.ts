@@ -1,18 +1,18 @@
 // src/llm/adapter.ts — Orchestration: serialize -> call LLM -> validate -> output
 // Split from llm-adapter.ts (W5-B1)
 
-import type { StructuredAnalysis, ResolvedConfig, PackageAnalysis } from "../types.js";
-import { LLMError } from "../types.js";
+import {
+  assembleFinalOutput,
+  formatArchitectureFallback,
+  generateDeterministicAgentsMd,
+} from "../deterministic-formatter.js";
+import { extractContributingContext, extractReadmeContext } from "../existing-docs.js";
 import { validateOutput } from "../output-validator.js";
+import type { PackageAnalysis, ResolvedConfig, StructuredAnalysis } from "../types.js";
+import { LLMError } from "../types.js";
 import { callLLMWithRetry } from "./client.js";
 import { serializeToMarkdown } from "./serializer.js";
 import { getTemplate } from "./template-selector.js";
-import {
-  generateDeterministicAgentsMd,
-  assembleFinalOutput,
-  formatArchitectureFallback,
-} from "../deterministic-formatter.js";
-import { extractReadmeContext, extractContributingContext } from "../existing-docs.js";
 
 // Note: formatHierarchical and HierarchicalOutput are re-exported from the
 // barrel (src/llm-adapter.ts) via hierarchical.ts, not through this module,
@@ -145,10 +145,7 @@ export async function formatDeterministic(
  * Input is limited to directory names, export names, and call graph edges.
  * The LLM cannot hallucinate technologies because it doesn't see them.
  */
-export async function synthesizeArchitecture(
-  pkg: PackageAnalysis,
-  llmConfig: ResolvedConfig["llm"],
-): Promise<string> {
+export async function synthesizeArchitecture(pkg: PackageAnalysis, llmConfig: ResolvedConfig["llm"]): Promise<string> {
   // Build constrained input — ONLY architecture data
   const input: string[] = [];
   input.push(`Package: ${pkg.name}`);

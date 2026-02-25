@@ -169,19 +169,19 @@ export interface FileImportEdge {
 // ─── Git History Co-Change Analysis ──────────────────────────────────────────
 
 export interface CoChangeEdge {
-  file1: string;              // relative path (alphabetically first)
-  file2: string;              // relative path (alphabetically second)
-  coChangeCount: number;      // commits where both files changed
-  file1Commits: number;       // total commits changing file1
-  file2Commits: number;       // total commits changing file2
-  jaccard: number;            // coChangeCount / (file1Commits + file2Commits - coChangeCount)
+  file1: string; // relative path (alphabetically first)
+  file2: string; // relative path (alphabetically second)
+  coChangeCount: number; // commits where both files changed
+  file1Commits: number; // total commits changing file1
+  file2Commits: number; // total commits changing file2
+  jaccard: number; // coChangeCount / (file1Commits + file2Commits - coChangeCount)
   lastCoChangeTimestamp: number; // unix timestamp of most recent co-change commit
 }
 
 export interface GitHistoryAnalysis {
   coChangeEdges: CoChangeEdge[];
   totalCommitsAnalyzed: number;
-  commitsFilteredBySize: number;  // how many were skipped (squash-merge detection)
+  commitsFilteredBySize: number; // how many were skipped (squash-merge detection)
   historySpanDays: number;
 }
 
@@ -266,11 +266,7 @@ export interface Convention {
 }
 
 // W5-A: Removed unused categories: imports, exports, components, error-handling, graphql, telemetry, state-management
-export type ConventionCategory =
-  | "file-naming"
-  | "hooks"
-  | "testing"
-  | "ecosystem";
+export type ConventionCategory = "file-naming" | "hooks" | "testing" | "ecosystem";
 
 // ─── Commands ────────────────────────────────────────────────────────────────
 
@@ -478,7 +474,15 @@ export interface ValidationResult {
 
 export interface ValidationIssue {
   severity: "error" | "warning";
-  type: "hallucinated_technology" | "version_mismatch" | "unknown_symbol" | "budget_exceeded" | "command_mismatch" | "meaningless_title" | "unused_framework" | "under_minimum_length";
+  type:
+    | "hallucinated_technology"
+    | "version_mismatch"
+    | "unknown_symbol"
+    | "budget_exceeded"
+    | "command_mismatch"
+    | "meaningless_title"
+    | "unused_framework"
+    | "under_minimum_length";
   message: string;
   line?: number;
   suggestion?: string;

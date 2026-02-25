@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { inferRole } from "../src/role-inferrer.js";
 import type { PackageAnalysis } from "../src/types.js";
 

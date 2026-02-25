@@ -3,7 +3,7 @@
 // Reads all files at commit time (not HEAD) to avoid time-travel leakage.
 
 import { execSync } from "node:child_process";
-import { resolve, dirname, basename, extname } from "node:path";
+import { basename, dirname, extname, resolve } from "node:path";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -13,10 +13,10 @@ export interface MinedTask {
   commitMessage: string;
   commitDate: string;
   groundTruth: {
-    path: string;       // repo-relative path of the added file
-    content: string;    // file content at commit time
-    directory: string;  // parent directory
-    filename: string;   // just the filename
+    path: string; // repo-relative path of the added file
+    content: string; // file content at commit time
+    directory: string; // parent directory
+    filename: string; // just the filename
     lineCount: number;
   };
   context: {
@@ -28,8 +28,8 @@ export interface MinedTask {
 
 export interface MinerOptions {
   maxTasks?: number;
-  maxCommits?: number;    // how many commits to scan
-  sinceDays?: number;     // only look at commits from last N days
+  maxCommits?: number; // how many commits to scan
+  sinceDays?: number; // only look at commits from last N days
   minFileLines?: number;
   maxFileLines?: number;
   minSiblings?: number;
@@ -75,9 +75,13 @@ const SKIP_PATTERNS = [
   /\/mocks?\//,
 ];
 const SKIP_FILENAMES = new Set([
-  "index.ts", "index.tsx", "mod.ts",  // barrel files
-  "types.ts", "constants.ts",          // typically type-only
-  "package.json", "tsconfig.json",
+  "index.ts",
+  "index.tsx",
+  "mod.ts", // barrel files
+  "types.ts",
+  "constants.ts", // typically type-only
+  "package.json",
+  "tsconfig.json",
 ]);
 
 // ─── Public API ─────────────────────────────────────────────────────────────
@@ -86,10 +90,7 @@ const SKIP_FILENAMES = new Set([
  * Mine a git repository for qualifying "add file" commits.
  * Returns tasks sorted by recency, with diverse directory coverage.
  */
-export function mineCommits(
-  repoPath: string,
-  options: MinerOptions = {},
-): { tasks: MinedTask[]; stats: MinerStats } {
+export function mineCommits(repoPath: string, options: MinerOptions = {}): { tasks: MinedTask[]; stats: MinerStats } {
   const opts = { ...DEFAULTS, ...options };
   const absRepo = resolve(repoPath);
   const gitRoot = getGitRoot(absRepo);
@@ -150,17 +151,14 @@ interface RawCommit {
  * Find commits that added TypeScript files.
  * Uses `git log --diff-filter=A --name-only` to efficiently find additions.
  */
-function findAddFileCommits(
-  gitRoot: string,
-  opts: Required<MinerOptions>,
-): RawCommit[] {
+function findAddFileCommits(gitRoot: string, opts: Required<MinerOptions>): RawCommit[] {
   const raw = gitExec(
     gitRoot,
     `git log --no-merges --diff-filter=A --name-only ` +
-    `--format="COMMIT:%H|%s|%aI" ` +
-    `--since="${opts.sinceDays} days ago" ` +
-    `-n ${opts.maxCommits} ` +
-    `-- "*.ts" "*.tsx"`,
+      `--format="COMMIT:%H|%s|%aI" ` +
+      `--since="${opts.sinceDays} days ago" ` +
+      `-n ${opts.maxCommits} ` +
+      `-- "*.ts" "*.tsx"`,
   );
   if (!raw) return [];
 
@@ -186,13 +184,8 @@ function findAddFileCommits(
 
   // Get total files changed per commit (including non-additions)
   for (const commit of commits) {
-    const stat = gitExec(
-      gitRoot,
-      `git diff-tree --no-commit-id --name-only -r ${commit.sha}`,
-    );
-    commit.totalFilesChanged = stat
-      ? stat.split("\n").filter(l => l.trim()).length
-      : commit.addedFiles.length;
+    const stat = gitExec(gitRoot, `git diff-tree --no-commit-id --name-only -r ${commit.sha}`);
+    commit.totalFilesChanged = stat ? stat.split("\n").filter((l) => l.trim()).length : commit.addedFiles.length;
   }
 
   return commits;
@@ -202,11 +195,7 @@ function findAddFileCommits(
  * Read a file's content at a specific commit SHA.
  * Returns null if the file doesn't exist at that commit.
  */
-export function readFileAtCommit(
-  gitRoot: string,
-  sha: string,
-  filePath: string,
-): string | null {
+export function readFileAtCommit(gitRoot: string, sha: string, filePath: string): string | null {
   return gitExec(gitRoot, `git show ${sha}:${filePath}`);
 }
 
@@ -214,19 +203,15 @@ export function readFileAtCommit(
  * List files in a directory at a specific commit SHA.
  * Returns repo-relative paths.
  */
-export function listDirAtCommit(
-  gitRoot: string,
-  sha: string,
-  dirPath: string,
-): string[] {
+export function listDirAtCommit(gitRoot: string, sha: string, dirPath: string): string[] {
   // Ensure dirPath ends with / for git ls-tree
-  const dir = dirPath.endsWith("/") ? dirPath : dirPath + "/";
-  const raw = gitExec(
-    gitRoot,
-    `git ls-tree --name-only ${sha} ${dir}`,
-  );
+  const dir = dirPath.endsWith("/") ? dirPath : `${dirPath}/`;
+  const raw = gitExec(gitRoot, `git ls-tree --name-only ${sha} ${dir}`);
   if (!raw) return [];
-  return raw.split("\n").filter(l => l.trim()).map(f => basename(f));
+  return raw
+    .split("\n")
+    .filter((l) => l.trim())
+    .map((f) => basename(f));
 }
 
 // ─── Candidate Processing ───────────────────────────────────────────────────
@@ -258,7 +243,7 @@ function processCandidate(
   if (SKIP_FILENAMES.has(fileName)) {
     return reason("skip-filename");
   }
-  if (SKIP_PATTERNS.some(p => p.test(filePath))) {
+  if (SKIP_PATTERNS.some((p) => p.test(filePath))) {
     return reason("skip-pattern");
   }
 
@@ -284,11 +269,11 @@ function processCandidate(
 
   // Get directory context from PARENT commit (before the file was added)
   const dir = dirname(filePath);
-  const parentSha = commit.sha + "^";
+  const parentSha = `${commit.sha}^`;
 
   // List siblings at parent commit
   const siblings = listDirAtCommit(gitRoot, parentSha, dir);
-  const tsSiblings = siblings.filter(f => TS_EXTENSIONS.test(f) && f !== fileName);
+  const tsSiblings = siblings.filter((f) => TS_EXTENSIONS.test(f) && f !== fileName);
 
   // Filter: must have enough siblings for context
   if (tsSiblings.length < opts.minSiblings) {
@@ -299,7 +284,7 @@ function processCandidate(
   const siblingFiles: { path: string; content: string }[] = [];
   const sibsToRead = tsSiblings.sort().slice(0, 5);
   for (const sib of sibsToRead) {
-    const sibPath = dir + "/" + sib;
+    const sibPath = `${dir}/${sib}`;
     const sibContent = readFileAtCommit(gitRoot, parentSha, sibPath);
     if (sibContent) {
       siblingFiles.push({
@@ -312,7 +297,7 @@ function processCandidate(
   // Check for barrel file at parent commit
   let barrelFile: { path: string; content: string } | undefined;
   for (const barrelName of ["index.ts", "index.tsx"]) {
-    const barrelPath = dir + "/" + barrelName;
+    const barrelPath = `${dir}/${barrelName}`;
     const barrelContent = readFileAtCommit(gitRoot, parentSha, barrelPath);
     if (barrelContent) {
       barrelFile = { path: barrelPath, content: barrelContent };
@@ -406,7 +391,7 @@ function getGitRoot(dir: string): string | null {
 function truncate(content: string, maxLines: number): string {
   const lines = content.split("\n");
   if (lines.length <= maxLines) return content;
-  return lines.slice(0, maxLines).join("\n") + "\n// ... truncated";
+  return `${lines.slice(0, maxLines).join("\n")}\n// ... truncated`;
 }
 
 function logStats(stats: MinerStats): void {

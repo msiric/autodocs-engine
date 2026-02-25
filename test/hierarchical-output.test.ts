@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
 import { resolve } from "node:path";
+import { describe, expect, it } from "vitest";
 import { analyze } from "../src/index.js";
 
 const FIXTURES = resolve(import.meta.dirname, "fixtures");
@@ -37,10 +37,7 @@ describe("hierarchical output support", () => {
 
     it("classifies cross-package shared convention impacts", async () => {
       const result = await analyze({
-        packages: [
-          resolve(FIXTURES, "minimal-pkg"),
-          resolve(FIXTURES, "hooks-pkg"),
-        ],
+        packages: [resolve(FIXTURES, "minimal-pkg"), resolve(FIXTURES, "hooks-pkg")],
       });
 
       expect(result.crossPackage).toBeDefined();
@@ -54,10 +51,7 @@ describe("hierarchical output support", () => {
 
     it("classifies cross-package shared anti-pattern impacts", async () => {
       const result = await analyze({
-        packages: [
-          resolve(FIXTURES, "minimal-pkg"),
-          resolve(FIXTURES, "hooks-pkg"),
-        ],
+        packages: [resolve(FIXTURES, "minimal-pkg"), resolve(FIXTURES, "hooks-pkg")],
       });
 
       expect(result.crossPackage).toBeDefined();

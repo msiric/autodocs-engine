@@ -5,7 +5,7 @@
 // Produces 1-line summaries per export with concrete details.
 
 import { readFileSync } from "node:fs";
-import { resolve, extname } from "node:path";
+import { extname, resolve } from "node:path";
 import ts from "typescript";
 import type { PatternFingerprint, PublicAPIEntry, Warning } from "./types.js";
 
@@ -49,10 +49,13 @@ export function fingerprintTopExports(
 
     const ext = extname(absPath).toLowerCase();
     const scriptKind =
-      ext === ".tsx" ? ts.ScriptKind.TSX :
-      ext === ".jsx" ? ts.ScriptKind.JSX :
-      ext === ".js" ? ts.ScriptKind.JS :
-      ts.ScriptKind.TS;
+      ext === ".tsx"
+        ? ts.ScriptKind.TSX
+        : ext === ".jsx"
+          ? ts.ScriptKind.JSX
+          : ext === ".js"
+            ? ts.ScriptKind.JS
+            : ts.ScriptKind.TS;
 
     const sourceFile = ts.createSourceFile(absPath, content, ts.ScriptTarget.Latest, true, scriptKind);
 
@@ -88,9 +91,7 @@ function fingerprintExport(
   const { params, body, returnType } = funcInfo;
 
   const parameterShape = analyzeParameterShape(params);
-  const returnShape = returnType
-    ? returnType.getText()
-    : analyzeReturnShape(body);
+  const returnShape = returnType ? returnType.getText() : analyzeReturnShape(body);
   const internalCalls = extractInternalCalls(body);
 
   const summary = composeSummary(entry, parameterShape, returnShape, internalCalls);
@@ -180,9 +181,7 @@ function analyzeParameterShape(params: ts.NodeArray<ts.ParameterDeclaration>): s
     }
     // Object type annotation
     if (param.type && ts.isTypeLiteralNode(param.type)) {
-      const props = param.type.members
-        .filter(ts.isPropertySignature)
-        .map((m) => m.name?.getText() ?? "?");
+      const props = param.type.members.filter(ts.isPropertySignature).map((m) => m.name?.getText() ?? "?");
       return `{ ${props.join(", ")} }`;
     }
     // Type reference (e.g., Options, Config)
@@ -204,19 +203,22 @@ function analyzeReturnShape(body: ts.Node): string {
     if (ts.isReturnStatement(node) && node.expression) {
       // Object literal return
       if (ts.isObjectLiteralExpression(node.expression)) {
-        const props = node.expression.properties
-          .map((p) => {
-            if (ts.isPropertyAssignment(p) || ts.isShorthandPropertyAssignment(p)) {
-              return p.name?.getText() ?? "?";
-            }
-            if (ts.isSpreadAssignment(p)) return "...spread";
-            return "?";
-          });
+        const props = node.expression.properties.map((p) => {
+          if (ts.isPropertyAssignment(p) || ts.isShorthandPropertyAssignment(p)) {
+            return p.name?.getText() ?? "?";
+          }
+          if (ts.isSpreadAssignment(p)) return "...spread";
+          return "?";
+        });
         returnExprs.push(`{ ${props.join(", ")} }`);
         return;
       }
       // JSX return
-      if (ts.isJsxElement(node.expression) || ts.isJsxSelfClosingElement(node.expression) || ts.isJsxFragment(node.expression)) {
+      if (
+        ts.isJsxElement(node.expression) ||
+        ts.isJsxSelfClosingElement(node.expression) ||
+        ts.isJsxFragment(node.expression)
+      ) {
         returnExprs.push("JSX.Element");
         return;
       }
@@ -271,14 +273,17 @@ function composeSummary(
   returnShape: string,
   internalCalls: string[],
 ): string {
-  const kind = entry.kind === "hook" ? "Custom hook" :
-    entry.kind === "component" ? "React component" :
-    entry.kind === "function" ? "Function" : "Export";
+  const kind =
+    entry.kind === "hook"
+      ? "Custom hook"
+      : entry.kind === "component"
+        ? "React component"
+        : entry.kind === "function"
+          ? "Function"
+          : "Export";
 
   const paramPart = parameterShape === "no params" ? "" : ` accepting ${parameterShape}`;
-  const callPart = internalCalls.length > 0
-    ? `, uses ${internalCalls.slice(0, 4).join(", ")}`
-    : "";
+  const callPart = internalCalls.length > 0 ? `, uses ${internalCalls.slice(0, 4).join(", ")}` : "";
   const returnPart = returnShape !== "void" ? `, returns ${returnShape}` : "";
 
   return `${kind}${paramPart}${callPart}${returnPart}`;

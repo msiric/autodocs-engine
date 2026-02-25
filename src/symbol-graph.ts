@@ -4,14 +4,14 @@
 //                 E-9 (barrelFile field), E-20 (.js→.ts mapping), E-21 (path boundary)
 
 import { existsSync, readFileSync } from "node:fs";
-import { resolve, relative, dirname, join } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 import type {
-  ParsedFile,
+  CallGraphEdge,
   ExportEntry,
   ImportEntry,
-  SymbolGraph,
+  ParsedFile,
   ResolvedExport,
-  CallGraphEdge,
+  SymbolGraph,
   Warning,
 } from "./types.js";
 
@@ -19,11 +19,7 @@ import type {
  * Build a package-level symbol graph from parsed files.
  * Resolves barrel re-exports to their source definitions.
  */
-export function buildSymbolGraph(
-  parsedFiles: ParsedFile[],
-  packageDir: string,
-  warnings: Warning[] = [],
-): SymbolGraph {
+export function buildSymbolGraph(parsedFiles: ParsedFile[], packageDir: string, warnings: Warning[] = []): SymbolGraph {
   const absPackageDir = resolve(packageDir);
 
   // Build lookups
@@ -201,7 +197,7 @@ export function buildSymbolGraph(
 function findBarrelFile(
   packageDir: string,
   fileMap: Map<string, ParsedFile>,
-  warnings: Warning[],
+  _warnings: Warning[],
 ): string | undefined {
   // 1-2: index.ts/tsx at root
   if (fileMap.has("index.ts")) return "index.ts";
@@ -246,10 +242,7 @@ function findBarrelFile(
 /**
  * E-22: Resolve package.json exports field to a source file path.
  */
-function resolveExportsField(
-  exports: unknown,
-  packageDir: string,
-): string | undefined {
+function resolveExportsField(exports: unknown, packageDir: string): string | undefined {
   if (!exports) return undefined;
 
   // String shorthand: "exports": "./src/index.ts"
@@ -282,10 +275,7 @@ function resolveExportsField(
   return undefined;
 }
 
-function resolveExportPath(
-  exportPath: string,
-  packageDir: string,
-): string | undefined {
+function resolveExportPath(exportPath: string, packageDir: string): string | undefined {
   const absPath = resolve(packageDir, exportPath);
   // E-20: If it points to .js, try .ts/.tsx
   if (existsSync(absPath)) return absPath;
@@ -305,10 +295,7 @@ function resolveExportPath(
 /**
  * Resolve a relative source path (from main/module fields) to a real source file.
  */
-function resolveToSource(
-  filePath: string,
-  packageDir: string,
-): string | undefined {
+function resolveToSource(filePath: string, packageDir: string): string | undefined {
   const resolved = resolveExportPath(filePath, packageDir);
   if (resolved) return relative(packageDir, resolved);
 
@@ -353,12 +340,12 @@ export function resolveModuleSpecifier(
     candidates.push(specifier);
   } else {
     // Extensionless — try adding extensions
-    candidates.push(specifier + ".ts");
-    candidates.push(specifier + ".tsx");
-    candidates.push(specifier + "/index.ts");
-    candidates.push(specifier + "/index.tsx");
-    candidates.push(specifier + ".js");
-    candidates.push(specifier + ".jsx");
+    candidates.push(`${specifier}.ts`);
+    candidates.push(`${specifier}.tsx`);
+    candidates.push(`${specifier}/index.ts`);
+    candidates.push(`${specifier}/index.tsx`);
+    candidates.push(`${specifier}.js`);
+    candidates.push(`${specifier}.jsx`);
   }
 
   for (const candidate of candidates) {
@@ -492,12 +479,7 @@ function resolveReExportChain(
   visited.add(key);
 
   const fromDir = dirname(resolve(packageDir, fromFile));
-  const targetRelPath = resolveModuleSpecifier(
-    exp.reExportSource,
-    fromDir,
-    packageDir,
-    warnings,
-  );
+  const targetRelPath = resolveModuleSpecifier(exp.reExportSource, fromDir, packageDir, warnings);
 
   if (!targetRelPath) {
     warnings.push({
@@ -520,16 +502,12 @@ function resolveReExportChain(
   const lookupName = exp.localName ?? exp.name;
 
   // Find matching export in target file
-  const targetExport = targetParsed.exports.find(
-    (e) => e.name === lookupName || e.name === exp.name,
-  );
+  const targetExport = targetParsed.exports.find((e) => e.name === lookupName || e.name === exp.name);
 
   if (!targetExport) {
     // Maybe the target re-exports it further — check star exports
-    const starReExport = targetParsed.exports.find(
-      (e) => e.name === "*" && e.isReExport,
-    );
-    if (starReExport && starReExport.reExportSource) {
+    const starReExport = targetParsed.exports.find((e) => e.name === "*" && e.isReExport);
+    if (starReExport?.reExportSource) {
       // Follow the star re-export
       return resolveReExportChain(
         { ...exp, reExportSource: starReExport.reExportSource },
@@ -628,8 +606,8 @@ function extractScriptEntryExports(
 function extractBinEntryExports(
   packageDir: string,
   fileMap: Map<string, ParsedFile>,
-  allExports: Map<string, ExportEntry[]>,
-  importGraph: Map<string, ImportEntry[]>,
+  _allExports: Map<string, ExportEntry[]>,
+  _importGraph: Map<string, ImportEntry[]>,
   warnings: Warning[],
 ): ResolvedExport[] {
   const pkgJsonPath = join(packageDir, "package.json");
@@ -714,7 +692,7 @@ function resolveBinToSource(
   binPath: string,
   packageDir: string,
   fileMap: Map<string, ParsedFile>,
-  warnings: Warning[],
+  _warnings: Warning[],
 ): string | undefined {
   // Try direct resolution first
   const rel = relative(packageDir, resolve(packageDir, binPath));
@@ -727,11 +705,7 @@ function resolveBinToSource(
     .replace(/^build\//, "src/");
 
   // Try .js → .ts
-  for (const candidate of [
-    srcPath.replace(/\.js$/, ".ts"),
-    srcPath.replace(/\.js$/, ".tsx"),
-    srcPath,
-  ]) {
+  for (const candidate of [srcPath.replace(/\.js$/, ".ts"), srcPath.replace(/\.js$/, ".tsx"), srcPath]) {
     if (fileMap.has(candidate)) return candidate;
   }
 
@@ -750,11 +724,7 @@ function resolveBinToSource(
  * Build a cross-file call graph from per-file call references.
  * Resolves internal module specifiers to actual file paths within the package.
  */
-function buildCallGraph(
-  parsedFiles: ParsedFile[],
-  packageDir: string,
-  _warnings: Warning[],
-): CallGraphEdge[] {
+function buildCallGraph(parsedFiles: ParsedFile[], _packageDir: string, _warnings: Warning[]): CallGraphEdge[] {
   const edges: CallGraphEdge[] = [];
   const seen = new Set<string>();
 

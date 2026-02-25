@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { computeImportChain, generateImportChainRules } from "../src/import-chain.js";
-import type { SymbolGraph, FileImportEdge, ImportEntry } from "../src/types.js";
+import type { FileImportEdge, ImportEntry, SymbolGraph } from "../src/types.js";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -24,9 +24,7 @@ function imp(specifier: string, names: string[], typeOnly = false): ImportEntry 
 describe("computeImportChain", () => {
   it("detects high-coupling file pairs (≥5 symbols)", () => {
     const sg = makeImportGraph({
-      "src/formatter.ts": [
-        imp("./types.js", ["TypeA", "TypeB", "TypeC", "TypeD", "TypeE", "TypeF"]),
-      ],
+      "src/formatter.ts": [imp("./types.js", ["TypeA", "TypeB", "TypeC", "TypeD", "TypeE", "TypeF"])],
     });
 
     // Create the types.ts file so resolution works
@@ -41,9 +39,7 @@ describe("computeImportChain", () => {
 
   it("ignores external imports", () => {
     const sg = makeImportGraph({
-      "src/a.ts": [
-        imp("react", ["useState", "useEffect", "useRef", "useMemo", "useCallback"]),
-      ],
+      "src/a.ts": [imp("react", ["useState", "useEffect", "useRef", "useMemo", "useCallback"])],
     });
     const edges = computeImportChain(sg, "/fake/pkg", [], 1);
     expect(edges).toEqual([]);

@@ -1,6 +1,6 @@
 import { basename } from "node:path";
+import { buildConfidence, sourceParsedFiles } from "../convention-extractor.js";
 import type { Convention, ConventionDetector } from "../types.js";
-import { sourceParsedFiles, buildConfidence } from "../convention-extractor.js";
 
 const KEBAB_CASE = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
 const CAMEL_CASE = /^[a-z][a-zA-Z0-9]*$/;
@@ -11,7 +11,9 @@ export const fileNamingDetector: ConventionDetector = (files, tiers, _warnings) 
   const sourceFiles = sourceParsedFiles(files, tiers);
   if (sourceFiles.length === 0) return conventions;
 
-  let kebab = 0, camel = 0, pascal = 0;
+  let kebab = 0,
+    camel = 0,
+    pascal = 0;
   const total = sourceFiles.length;
 
   for (const f of sourceFiles) {

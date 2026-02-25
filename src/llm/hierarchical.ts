@@ -1,22 +1,24 @@
 // src/llm/hierarchical.ts — Multi-file hierarchical output
 // Split from llm-adapter.ts (W5-B1)
 
-import type { StructuredAnalysis, ResolvedConfig } from "../types.js";
-import { LLMError } from "../types.js";
 import {
-  agentsMdMultiRootTemplate,
-  agentsMdPackageDetailTemplate,
-} from "../templates/agents-md.js";
-import { callLLMWithRetry } from "./client.js";
-import { serializeToMarkdown, serializePackageToMarkdown } from "./serializer.js";
-import { validateAndCorrect, synthesizeArchitecture, synthesizeDomainTerms, synthesizeContributingRules } from "./adapter.js";
-import {
-  generateDeterministicAgentsMd,
-  generatePackageDeterministicAgentsMd,
   assembleFinalOutput,
   formatArchitectureFallback,
+  generateDeterministicAgentsMd,
+  generatePackageDeterministicAgentsMd,
 } from "../deterministic-formatter.js";
-import { extractReadmeContext, extractContributingContext } from "../existing-docs.js";
+import { extractContributingContext, extractReadmeContext } from "../existing-docs.js";
+import { agentsMdMultiRootTemplate, agentsMdPackageDetailTemplate } from "../templates/agents-md.js";
+import type { ResolvedConfig, StructuredAnalysis } from "../types.js";
+import { LLMError } from "../types.js";
+import {
+  synthesizeArchitecture,
+  synthesizeContributingRules,
+  synthesizeDomainTerms,
+  validateAndCorrect,
+} from "./adapter.js";
+import { callLLMWithRetry } from "./client.js";
+import { serializePackageToMarkdown, serializeToMarkdown } from "./serializer.js";
 
 export interface HierarchicalOutput {
   root: string;
@@ -154,10 +156,12 @@ export async function formatHierarchicalDeterministic(
  * @scope/my-package-name -> my-package-name.md
  */
 export function toPackageFilename(name: string): string {
-  return name
-    .replace(/^@[^/]+\//, "") // Strip scope
-    .replace(/[^a-z0-9-]/gi, "-") // Replace unsafe chars
-    .replace(/-+/g, "-") // Collapse multiple dashes
-    .replace(/^-|-$/g, "") // Trim dashes
-    + ".md";
+  return (
+    name
+      .replace(/^@[^/]+\//, "") // Strip scope
+      .replace(/[^a-z0-9-]/gi, "-") // Replace unsafe chars
+      .replace(/-+/g, "-") // Collapse multiple dashes
+      .replace(/^-|-$/g, "") + // Trim dashes
+    ".md"
+  );
 }

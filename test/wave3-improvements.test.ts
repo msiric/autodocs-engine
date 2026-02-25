@@ -1,17 +1,18 @@
 // test/wave3-improvements.test.ts — Tests for Wave 3 improvements
-import { describe, it, expect } from "vitest";
-import { resolve, join } from "node:path";
-import { mkdirSync, writeFileSync, rmSync } from "node:fs";
+
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { describe, expect, it } from "vitest";
 import { scanWorkspaceCommands } from "../src/command-extractor.js";
-import { generateWorkflowRules } from "../src/workflow-rules.js";
 import { inferRole } from "../src/role-inferrer.js";
 import type {
+  CommandSet,
+  ConfigAnalysis,
+  DependencyInsights,
   PackageAnalysis,
   WorkspaceCommand,
-  DependencyInsights,
-  ConfigAnalysis,
-  CommandSet,
 } from "../src/types.js";
+import { generateWorkflowRules } from "../src/workflow-rules.js";
 
 // ─── Test fixture helpers ─────────────────────────────────────────────────────
 
@@ -22,68 +23,83 @@ function setupWorkspaceFixture(): void {
 
   // Root package.json
   mkdirSync(FIXTURE_ROOT, { recursive: true });
-  writeFileSync(join(FIXTURE_ROOT, "package.json"), JSON.stringify({
-    name: "test-monorepo",
-    private: true,
-    workspaces: ["packages/*", "apps/*"],
-    scripts: {
-      build: "turbo run build",
-      dev: "turbo run dev",
-      lint: "biome check .",
-    },
-  }));
+  writeFileSync(
+    join(FIXTURE_ROOT, "package.json"),
+    JSON.stringify({
+      name: "test-monorepo",
+      private: true,
+      workspaces: ["packages/*", "apps/*"],
+      scripts: {
+        build: "turbo run build",
+        dev: "turbo run dev",
+        lint: "biome check .",
+      },
+    }),
+  );
   writeFileSync(join(FIXTURE_ROOT, "bun.lockb"), "");
 
   // packages/db with operational scripts
   mkdirSync(join(FIXTURE_ROOT, "packages/db"), { recursive: true });
-  writeFileSync(join(FIXTURE_ROOT, "packages/db/package.json"), JSON.stringify({
-    name: "@test/db",
-    scripts: {
-      "db:generate": "drizzle-kit generate",
-      "db:migrate": "drizzle-kit migrate",
-      "db:push": "drizzle-kit push",
-      "db:studio": "drizzle-kit studio",
-      "lint": "biome check .",
-    },
-  }));
+  writeFileSync(
+    join(FIXTURE_ROOT, "packages/db/package.json"),
+    JSON.stringify({
+      name: "@test/db",
+      scripts: {
+        "db:generate": "drizzle-kit generate",
+        "db:migrate": "drizzle-kit migrate",
+        "db:push": "drizzle-kit push",
+        "db:studio": "drizzle-kit studio",
+        lint: "biome check .",
+      },
+    }),
+  );
 
   // apps/api with http server
   mkdirSync(join(FIXTURE_ROOT, "apps/api"), { recursive: true });
-  writeFileSync(join(FIXTURE_ROOT, "apps/api/package.json"), JSON.stringify({
-    name: "@test/api-server",
-    scripts: {
-      dev: "bun run --watch src/index.ts",
-      test: "bun test",
-      "db:migrate": "bun run ../../packages/db/src/migrate.ts",
-    },
-    dependencies: {
-      hono: "^4.0.0",
-    },
-  }));
+  writeFileSync(
+    join(FIXTURE_ROOT, "apps/api/package.json"),
+    JSON.stringify({
+      name: "@test/api-server",
+      scripts: {
+        dev: "bun run --watch src/index.ts",
+        test: "bun test",
+        "db:migrate": "bun run ../../packages/db/src/migrate.ts",
+      },
+      dependencies: {
+        hono: "^4.0.0",
+      },
+    }),
+  );
 
   // apps/web with Next.js
   mkdirSync(join(FIXTURE_ROOT, "apps/web"), { recursive: true });
-  writeFileSync(join(FIXTURE_ROOT, "apps/web/package.json"), JSON.stringify({
-    name: "@test/web",
-    scripts: {
-      dev: "next dev",
-      build: "next build",
-    },
-    dependencies: {
-      next: "^14.0.0",
-      react: "^18.0.0",
-    },
-  }));
+  writeFileSync(
+    join(FIXTURE_ROOT, "apps/web/package.json"),
+    JSON.stringify({
+      name: "@test/web",
+      scripts: {
+        dev: "next dev",
+        build: "next build",
+      },
+      dependencies: {
+        next: "^14.0.0",
+        react: "^18.0.0",
+      },
+    }),
+  );
 
   // apps/worker with worker scripts
   mkdirSync(join(FIXTURE_ROOT, "apps/worker"), { recursive: true });
-  writeFileSync(join(FIXTURE_ROOT, "apps/worker/package.json"), JSON.stringify({
-    name: "@test/worker",
-    scripts: {
-      "dev:worker": "bun run --watch src/worker.ts",
-      "sync:bulk": "bun run src/sync-bulk.ts",
-    },
-  }));
+  writeFileSync(
+    join(FIXTURE_ROOT, "apps/worker/package.json"),
+    JSON.stringify({
+      name: "@test/worker",
+      scripts: {
+        "dev:worker": "bun run --watch src/worker.ts",
+        "sync:bulk": "bun run src/sync-bulk.ts",
+      },
+    }),
+  );
 }
 
 function makeAnalysis(
@@ -183,8 +199,20 @@ describe("W3-1: scanWorkspaceCommands", () => {
 describe("W3-2: generateWorkflowRules", () => {
   it("generates Drizzle migration workflow when db commands exist", () => {
     const workspaceCommands: WorkspaceCommand[] = [
-      { run: "bun run db:generate", scriptName: "db:generate", packageName: "@test/db", packagePath: "packages/db", category: "database" },
-      { run: "bun run db:migrate", scriptName: "db:migrate", packageName: "@test/db", packagePath: "packages/db", category: "database" },
+      {
+        run: "bun run db:generate",
+        scriptName: "db:generate",
+        packageName: "@test/db",
+        packagePath: "packages/db",
+        category: "database",
+      },
+      {
+        run: "bun run db:migrate",
+        scriptName: "db:migrate",
+        packageName: "@test/db",
+        packagePath: "packages/db",
+        category: "database",
+      },
     ];
     const deps: DependencyInsights = {
       runtime: [],
@@ -269,8 +297,20 @@ describe("W3-2: generateWorkflowRules", () => {
 
   it("generates Prisma workflow when Prisma is detected", () => {
     const workspaceCommands: WorkspaceCommand[] = [
-      { run: "npx prisma generate", scriptName: "generate", packageName: "@test/db", packagePath: "packages/db", category: "codegen" },
-      { run: "npx prisma migrate", scriptName: "migrate", packageName: "@test/db", packagePath: "packages/db", category: "database" },
+      {
+        run: "npx prisma generate",
+        scriptName: "generate",
+        packageName: "@test/db",
+        packagePath: "packages/db",
+        category: "codegen",
+      },
+      {
+        run: "npx prisma migrate",
+        scriptName: "migrate",
+        packageName: "@test/db",
+        packagePath: "packages/db",
+        category: "database",
+      },
     ];
     const deps: DependencyInsights = {
       runtime: [],
@@ -329,9 +369,7 @@ describe("W3-3: inferRole with HTTP/app frameworks", () => {
         packageType: "mixed",
         hasJSX: true,
       },
-      publicAPI: [
-        { name: "HomePage", kind: "component", sourceFile: "src/app/page.tsx", isTypeOnly: false },
-      ],
+      publicAPI: [{ name: "HomePage", kind: "component", sourceFile: "src/app/page.tsx", isTypeOnly: false }],
       dependencies: {
         internal: [],
         external: [
@@ -363,9 +401,7 @@ describe("W3-3: inferRole with HTTP/app frameworks", () => {
         packageType: "hooks",
         hasJSX: false,
       },
-      publicAPI: [
-        { name: "useFetch", kind: "hook", sourceFile: "src/hooks/use-fetch.ts", isTypeOnly: false },
-      ],
+      publicAPI: [{ name: "useFetch", kind: "hook", sourceFile: "src/hooks/use-fetch.ts", isTypeOnly: false }],
       dependencies: {
         internal: [],
         external: [{ name: "express", importCount: 1 }],
@@ -431,13 +467,7 @@ describe("W3-4: serialization without percentage stats", () => {
   it("architecture-detector classifies Next.js as web-application", async () => {
     const { detectArchitecture } = await import("../src/architecture-detector.js");
     const webFixture = join(FIXTURE_ROOT, "apps/web");
-    const arch = detectArchitecture(
-      [],
-      webFixture,
-      [],
-      undefined,
-      [],
-    );
+    const arch = detectArchitecture([], webFixture, [], undefined, []);
     expect(arch.packageType).toBe("web-application");
   });
 });
@@ -454,13 +484,16 @@ describe("W3-5: default model config", () => {
     // We test the config file directly
     const configModule = await import("../src/config.js");
     const warnings: any[] = [];
-    const config = configModule.resolveConfig({
-      packages: ["."],
-      quiet: false,
-      verbose: false,
-      dryRun: true,
-      help: false,
-    }, warnings);
+    const config = configModule.resolveConfig(
+      {
+        packages: ["."],
+        quiet: false,
+        verbose: false,
+        dryRun: true,
+        help: false,
+      },
+      warnings,
+    );
 
     expect(config.llm.model).toBe("claude-opus-4-20250514");
 

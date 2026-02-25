@@ -1,11 +1,6 @@
-import { describe, it, expect } from "vitest";
-import {
-  parseGitLog,
-  computeCoChangeEdges,
-  generateCoChangeRules,
-  detectClusters,
-} from "../src/git-history.js";
-import type { CoChangeEdge, Warning } from "../src/types.js";
+import { describe, expect, it } from "vitest";
+import { computeCoChangeEdges, detectClusters, generateCoChangeRules, parseGitLog } from "../src/git-history.js";
+import type { CoChangeEdge } from "../src/types.js";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -36,13 +31,13 @@ function makeEdge(
 describe("parseGitLog", () => {
   it("parses multi-commit output with --name-status format", () => {
     const raw = [
-      'COMMIT:abc123 1700000000',
-      'M\tsrc/foo.ts',
-      'A\tsrc/bar.ts',
-      '',
-      'COMMIT:def456 1700086400',
-      'M\tsrc/baz.tsx',
-      '',
+      "COMMIT:abc123 1700000000",
+      "M\tsrc/foo.ts",
+      "A\tsrc/bar.ts",
+      "",
+      "COMMIT:def456 1700086400",
+      "M\tsrc/baz.tsx",
+      "",
     ].join("\n");
 
     const commits = parseGitLog(raw);
@@ -55,12 +50,12 @@ describe("parseGitLog", () => {
 
   it("filters out non-source files", () => {
     const raw = [
-      'COMMIT:abc123 1700000000',
-      'M\tsrc/foo.ts',
-      'M\tpackage.json',
-      'M\tREADME.md',
-      'M\tsrc/styles.css',
-      'A\tsrc/bar.jsx',
+      "COMMIT:abc123 1700000000",
+      "M\tsrc/foo.ts",
+      "M\tpackage.json",
+      "M\tREADME.md",
+      "M\tsrc/styles.css",
+      "A\tsrc/bar.jsx",
     ].join("\n");
 
     const commits = parseGitLog(raw);
@@ -75,11 +70,11 @@ describe("parseGitLog", () => {
 
   it("handles commits with AMCR status codes", () => {
     const raw = [
-      'COMMIT:abc123 1700000000',
-      'M\tsrc/modified.ts',
-      'A\tsrc/added.ts',
-      'C\tsrc/copied.ts',
-      'R100\tsrc/renamed.ts',
+      "COMMIT:abc123 1700000000",
+      "M\tsrc/modified.ts",
+      "A\tsrc/added.ts",
+      "C\tsrc/copied.ts",
+      "R100\tsrc/renamed.ts",
     ].join("\n");
 
     const commits = parseGitLog(raw);
@@ -119,9 +114,8 @@ describe("computeCoChangeEdges", () => {
     }
 
     const { edges } = computeCoChangeEdges(commits, 30, 0.7, 50, []);
-    const pair = edges.find(e =>
-      (e.file1 === "a.ts" && e.file2 === "b.ts") ||
-      (e.file1 === "b.ts" && e.file2 === "a.ts")
+    const pair = edges.find(
+      (e) => (e.file1 === "a.ts" && e.file2 === "b.ts") || (e.file1 === "b.ts" && e.file2 === "a.ts"),
     );
     expect(pair).toBeUndefined();
   });
@@ -155,7 +149,9 @@ describe("computeCoChangeEdges", () => {
       { hash: "2", timestamp: NOW, files: ["a.ts", "b.ts"] },
       // Pad to 30 commits with unrelated files to cross the threshold
       ...Array.from({ length: 28 }, (_, i) => ({
-        hash: `pad${i}`, timestamp: NOW - i * 10, files: [`other${i}.ts`],
+        hash: `pad${i}`,
+        timestamp: NOW - i * 10,
+        files: [`other${i}.ts`],
       })),
     ];
 
@@ -181,9 +177,7 @@ describe("computeCoChangeEdges", () => {
   it("excludes hub files (> threshold appearance rate)", () => {
     const commits = [];
     for (let i = 0; i < 10; i++) {
-      const files = i < 8
-        ? ["hub.ts", `file${i}.ts`]
-        : [`file${i}.ts`, `other${i}.ts`];
+      const files = i < 8 ? ["hub.ts", `file${i}.ts`] : [`file${i}.ts`, `other${i}.ts`];
       commits.push({ hash: `${i}`, timestamp: NOW - i, files });
     }
     for (let i = 10; i < 13; i++) {
@@ -200,14 +194,12 @@ describe("computeCoChangeEdges", () => {
   it("uses lenient hub threshold for young repos (< minHubCommits)", () => {
     const commits = [];
     for (let i = 0; i < 20; i++) {
-      const files = i < 15
-        ? ["types.ts", `file${i % 3}.ts`]
-        : [`file${i % 3}.ts`];
+      const files = i < 15 ? ["types.ts", `file${i % 3}.ts`] : [`file${i % 3}.ts`];
       commits.push({ hash: `${i}`, timestamp: NOW - i, files });
     }
 
     const { edges } = computeCoChangeEdges(commits, 30, 0.7, 50, []);
-    const hasTypes = edges.some(e => e.file1 === "types.ts" || e.file2 === "types.ts");
+    const hasTypes = edges.some((e) => e.file1 === "types.ts" || e.file2 === "types.ts");
     expect(hasTypes).toBe(true);
   });
 
@@ -224,7 +216,7 @@ describe("computeCoChangeEdges", () => {
 
   it("filters out pairs with no recent co-change (recency filter)", () => {
     // All co-changes happened > 45 days ago relative to newest commit
-    const oldTimestamp = NOW - (60 * 86400); // 60 days ago
+    const oldTimestamp = NOW - 60 * 86400; // 60 days ago
     const commits = [
       { hash: "1", timestamp: oldTimestamp, files: ["a.ts", "b.ts"] },
       { hash: "2", timestamp: oldTimestamp + 100, files: ["a.ts", "b.ts"] },
@@ -236,12 +228,12 @@ describe("computeCoChangeEdges", () => {
     const { edges } = computeCoChangeEdges(commits, 30, 0.7, 50, []);
     // The a-b pair last co-changed 60 days ago, but newest commit is NOW
     // recencyCutoff = NOW - 45 days. Old pair (60d ago) should be excluded.
-    const abEdge = edges.find(e => e.file1 === "a.ts" && e.file2 === "b.ts");
+    const abEdge = edges.find((e) => e.file1 === "a.ts" && e.file2 === "b.ts");
     expect(abEdge).toBeUndefined();
   });
 
   it("keeps pairs with at least one recent co-change", () => {
-    const oldTimestamp = NOW - (60 * 86400);
+    const oldTimestamp = NOW - 60 * 86400;
     const commits = [
       { hash: "1", timestamp: oldTimestamp, files: ["a.ts", "b.ts"] },
       { hash: "2", timestamp: oldTimestamp + 100, files: ["a.ts", "b.ts"] },
@@ -250,7 +242,7 @@ describe("computeCoChangeEdges", () => {
     ];
 
     const { edges } = computeCoChangeEdges(commits, 30, 0.7, 50, []);
-    const abEdge = edges.find(e => e.file1 === "a.ts" && e.file2 === "b.ts");
+    const abEdge = edges.find((e) => e.file1 === "a.ts" && e.file2 === "b.ts");
     expect(abEdge).toBeDefined();
     expect(abEdge!.lastCoChangeTimestamp).toBe(NOW);
   });
@@ -288,19 +280,14 @@ describe("detectClusters", () => {
 
   it("does not cluster when pair is missing (incomplete clique)", () => {
     // a-b, a-c exist but b-c is missing → not a 3-clique
-    const edges = [
-      makeEdge("a.ts", "b.ts", 5, 8, 7),
-      makeEdge("a.ts", "c.ts", 5, 8, 7),
-    ];
+    const edges = [makeEdge("a.ts", "b.ts", 5, 8, 7), makeEdge("a.ts", "c.ts", 5, 8, 7)];
 
     const clusters = detectClusters(edges);
     expect(clusters).toHaveLength(0);
   });
 
   it("returns empty for fewer than 3 connected files", () => {
-    const edges = [
-      makeEdge("a.ts", "b.ts", 5, 8, 7),
-    ];
+    const edges = [makeEdge("a.ts", "b.ts", 5, 8, 7)];
 
     const clusters = detectClusters(edges);
     expect(clusters).toHaveLength(0);
@@ -355,8 +342,8 @@ describe("generateCoChangeRules", () => {
     ];
 
     const rules = generateCoChangeRules(edges);
-    const clusterRules = rules.filter(r => r.source.includes("cluster"));
-    const individualRules = rules.filter(r => !r.source.includes("cluster"));
+    const clusterRules = rules.filter((r) => r.source.includes("cluster"));
+    const individualRules = rules.filter((r) => !r.source.includes("cluster"));
     expect(clusterRules).toHaveLength(1);
     expect(individualRules).toHaveLength(1);
     expect(individualRules[0].trigger).toContain("d.ts");
@@ -373,8 +360,8 @@ describe("generateCoChangeRules", () => {
     const covered = new Set(["src/types.ts"]);
     const rules = generateCoChangeRules(edges, covered);
 
-    const triggerFiles = rules.map(r => r.trigger);
-    expect(triggerFiles.some(t => t.includes("types.ts"))).toBe(false);
+    const triggerFiles = rules.map((r) => r.trigger);
+    expect(triggerFiles.some((t) => t.includes("types.ts"))).toBe(false);
   });
 
   it("caps at maxRules", () => {
@@ -412,55 +399,56 @@ describe("generateCoChangeRules", () => {
 describe("integration", () => {
   it("parseGitLog + computeCoChangeEdges produces valid pipeline", () => {
     const raw = [
-      'COMMIT:aaa 1700000000',
-      'M\tsrc/types.ts',
-      'M\tsrc/formatter.ts',
-      '',
-      'COMMIT:bbb 1700086400',
-      'M\tsrc/types.ts',
-      'M\tsrc/formatter.ts',
-      'M\tsrc/parser.ts',
-      '',
-      'COMMIT:ccc 1700172800',
-      'M\tsrc/types.ts',
-      'M\tsrc/formatter.ts',
-      '',
-      'COMMIT:ddd 1700259200',
-      'M\tsrc/types.ts',
-      'M\tsrc/parser.ts',
-      '',
-      'COMMIT:eee 1700345600',
-      'M\tsrc/parser.ts',
-      '',
-      'COMMIT:fff 1700432000',
-      'M\tsrc/types.ts',
-      'M\tsrc/formatter.ts',
-      '',
-      'COMMIT:ggg 1700518400',
-      'M\tsrc/types.ts',
-      'M\tsrc/formatter.ts',
-      '',
-      'COMMIT:hhh 1700604800',
-      'M\tsrc/types.ts',
-      'M\tsrc/formatter.ts',
-      '',
-      'COMMIT:iii 1700691200',
-      'M\tsrc/types.ts',
-      'M\tsrc/formatter.ts',
-      '',
-      'COMMIT:jjj 1700777600',
-      'M\tsrc/types.ts',
-      'M\tsrc/formatter.ts',
-      '',
+      "COMMIT:aaa 1700000000",
+      "M\tsrc/types.ts",
+      "M\tsrc/formatter.ts",
+      "",
+      "COMMIT:bbb 1700086400",
+      "M\tsrc/types.ts",
+      "M\tsrc/formatter.ts",
+      "M\tsrc/parser.ts",
+      "",
+      "COMMIT:ccc 1700172800",
+      "M\tsrc/types.ts",
+      "M\tsrc/formatter.ts",
+      "",
+      "COMMIT:ddd 1700259200",
+      "M\tsrc/types.ts",
+      "M\tsrc/parser.ts",
+      "",
+      "COMMIT:eee 1700345600",
+      "M\tsrc/parser.ts",
+      "",
+      "COMMIT:fff 1700432000",
+      "M\tsrc/types.ts",
+      "M\tsrc/formatter.ts",
+      "",
+      "COMMIT:ggg 1700518400",
+      "M\tsrc/types.ts",
+      "M\tsrc/formatter.ts",
+      "",
+      "COMMIT:hhh 1700604800",
+      "M\tsrc/types.ts",
+      "M\tsrc/formatter.ts",
+      "",
+      "COMMIT:iii 1700691200",
+      "M\tsrc/types.ts",
+      "M\tsrc/formatter.ts",
+      "",
+      "COMMIT:jjj 1700777600",
+      "M\tsrc/types.ts",
+      "M\tsrc/formatter.ts",
+      "",
     ].join("\n");
 
     const commits = parseGitLog(raw);
     expect(commits.length).toBe(10);
 
     const { edges } = computeCoChangeEdges(commits, 30, 0.7, 50, []);
-    const typesFormatter = edges.find(e =>
-      (e.file1 === "src/formatter.ts" && e.file2 === "src/types.ts") ||
-      (e.file1 === "src/types.ts" && e.file2 === "src/formatter.ts")
+    const typesFormatter = edges.find(
+      (e) =>
+        (e.file1 === "src/formatter.ts" && e.file2 === "src/types.ts") ||
+        (e.file1 === "src/types.ts" && e.file2 === "src/formatter.ts"),
     );
     expect(typesFormatter).toBeDefined();
     expect(typesFormatter!.coChangeCount).toBe(8);
@@ -492,8 +480,8 @@ describe("integration", () => {
 
     const rules = generateCoChangeRules(edges);
 
-    const clusterRules = rules.filter(r => r.source.includes("cluster"));
-    const individualRules = rules.filter(r => !r.source.includes("cluster"));
+    const clusterRules = rules.filter((r) => r.source.includes("cluster"));
+    const individualRules = rules.filter((r) => !r.source.includes("cluster"));
 
     // Should get 1 cluster rule for detectors (not 4 symmetric rules)
     expect(clusterRules).toHaveLength(1);

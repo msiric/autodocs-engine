@@ -2,9 +2,9 @@
 // Builds fair prompts for treatment (A), realistic control (B),
 // impoverished control (C), and negative control (N).
 
-import type { ResolvedConfig } from "../types.js";
 import { callLLMWithRetry } from "../llm/client.js";
-import type { BenchmarkTask, BenchmarkCondition, GeneratedFile } from "./types.js";
+import type { ResolvedConfig } from "../types.js";
+import type { BenchmarkCondition, BenchmarkTask, GeneratedFile } from "./types.js";
 
 // ─── Public API ──────────────────────────────────────────────────────────────
 
@@ -247,7 +247,20 @@ function looksLikeFilePath(s: string): boolean {
   // Must contain a dot, no spaces (spaces suggest "lang path" format), not a language name
   if (!s || !s.includes(".") || s.includes(" ")) return false;
   // Language names to reject
-  const langs = new Set(["typescript", "ts", "tsx", "javascript", "js", "jsx", "json", "md", "yaml", "yml", "bash", "sh"]);
+  const langs = new Set([
+    "typescript",
+    "ts",
+    "tsx",
+    "javascript",
+    "js",
+    "jsx",
+    "json",
+    "md",
+    "yaml",
+    "yml",
+    "bash",
+    "sh",
+  ]);
   if (langs.has(s.toLowerCase())) return false;
   // Must end with a file extension
   return /\.[a-z]{1,5}$/i.test(s);

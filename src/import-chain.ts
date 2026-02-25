@@ -3,12 +3,12 @@
 // Captures the SymbolGraph's import graph before it's discarded.
 
 import { dirname, resolve } from "node:path";
-import type { SymbolGraph, FileImportEdge, WorkflowRule, Warning } from "./types.js";
 import { resolveModuleSpecifier } from "./symbol-graph.js";
+import type { FileImportEdge, SymbolGraph, Warning, WorkflowRule } from "./types.js";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const DEFAULT_MIN_SYMBOLS = 1;  // Track all import edges for MCP tools (analyze_impact, plan_change)
+const DEFAULT_MIN_SYMBOLS = 1; // Track all import edges for MCP tools (analyze_impact, plan_change)
 const DEFAULT_MIN_DEPENDENTS = 3;
 const DEFAULT_MAX_RULES = 5;
 const MAX_DISPLAY_SYMBOLS = 5;
@@ -76,7 +76,7 @@ export function computeImportChain(
  * Generate "when modifying X → check Y, Z, W" workflow rules from import chain data.
  * Groups by source file: if types.ts has 8 high-coupling importers, one rule covers all.
  */
-const HIGH_COUPLING_SYMBOLS = 5;  // Only high-coupling edges generate workflow rules
+const HIGH_COUPLING_SYMBOLS = 5; // Only high-coupling edges generate workflow rules
 
 export function generateImportChainRules(
   importChain: FileImportEdge[],
@@ -86,7 +86,7 @@ export function generateImportChainRules(
   if (importChain.length === 0) return [];
 
   // Filter to high-coupling edges for rule generation (≥5 symbols)
-  const highCoupling = importChain.filter(e => e.symbolCount >= HIGH_COUPLING_SYMBOLS);
+  const highCoupling = importChain.filter((e) => e.symbolCount >= HIGH_COUPLING_SYMBOLS);
 
   // Group edges by source file
   const bySource = new Map<string, FileImportEdge[]>();
@@ -109,9 +109,7 @@ export function generateImportChainRules(
     const topImporters = sortedEdges.slice(0, MAX_DISPLAY_IMPORTERS);
     const remaining = sortedEdges.length - MAX_DISPLAY_IMPORTERS;
 
-    const importerList = topImporters
-      .map((e) => `\`${e.importer}\` (${e.symbolCount} symbols)`)
-      .join(", ");
+    const importerList = topImporters.map((e) => `\`${e.importer}\` (${e.symbolCount} symbols)`).join(", ");
 
     const moreText = remaining > 0 ? `, and ${remaining} more` : "";
 

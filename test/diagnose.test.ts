@@ -1,82 +1,127 @@
-import { describe, it, expect } from "vitest";
-import type { StructuredAnalysis, PackageAnalysis } from "../src/types.js";
+import { describe, expect, it } from "vitest";
 import * as Q from "../src/mcp/queries.js";
 import { handleDiagnose } from "../src/mcp/tools.js";
+import type { PackageAnalysis, StructuredAnalysis } from "../src/types.js";
 
 // ─── Fixture ─────────────────────────────────────────────────────────────────
 
 function makeAnalysis(overrides: Partial<PackageAnalysis> = {}): StructuredAnalysis {
   return {
     meta: { engineVersion: "0.7.3", analyzedAt: "", rootDir: "/tmp/project", config: {} as any, timingMs: 100 },
-    packages: [{
-      name: "test-pkg",
-      version: "1.0.0",
-      description: "Test",
-      relativePath: ".",
-      files: {
-        total: 10,
-        byTier: {
-          tier1: { count: 5, lines: 500, files: ["src/types.ts", "src/pipeline.ts", "src/validator.ts", "src/formatter.ts", "src/utils.ts"] },
-          tier2: { count: 3, lines: 300, files: ["src/config.ts", "src/logger.ts", "src/helpers.ts"] },
-          tier3: { count: 2, lines: 200 },
+    packages: [
+      {
+        name: "test-pkg",
+        version: "1.0.0",
+        description: "Test",
+        relativePath: ".",
+        files: {
+          total: 10,
+          byTier: {
+            tier1: {
+              count: 5,
+              lines: 500,
+              files: ["src/types.ts", "src/pipeline.ts", "src/validator.ts", "src/formatter.ts", "src/utils.ts"],
+            },
+            tier2: { count: 3, lines: 300, files: ["src/config.ts", "src/logger.ts", "src/helpers.ts"] },
+            tier3: { count: 2, lines: 200 },
+          },
+          byExtension: { ".ts": 10 },
         },
-        byExtension: { ".ts": 10 },
-      },
-      publicAPI: [],
-      conventions: [],
-      commands: {
-        packageManager: "pnpm" as const,
-        test: { run: "pnpm run test", source: "package.json" },
-        other: [],
-      },
-      architecture: {
-        entryPoint: "src/index.ts",
-        directories: [],
-        packageType: "library" as const,
-        hasJSX: false,
-      },
-      dependencies: { internal: [], external: [], totalUniqueDependencies: 0 },
-      role: { summary: "", purpose: "", whenToUse: "", inferredFrom: [] },
-      antiPatterns: [],
-      contributionPatterns: [],
-      importChain: [
-        // test imports from pipeline
-        { importer: "test/pipeline.test.ts", source: "src/pipeline.ts", symbolCount: 3, symbols: ["runPipeline"] },
-        // pipeline imports from types
-        { importer: "src/pipeline.ts", source: "src/types.ts", symbolCount: 12, symbols: ["StructuredAnalysis", "PackageAnalysis"] },
-        // pipeline imports from validator
-        { importer: "src/pipeline.ts", source: "src/validator.ts", symbolCount: 4, symbols: ["validate"] },
-        // formatter imports from types
-        { importer: "src/formatter.ts", source: "src/types.ts", symbolCount: 8, symbols: ["Convention", "CommandSet"] },
-        // validator imports from types
-        { importer: "src/validator.ts", source: "src/types.ts", symbolCount: 6, symbols: ["Schema", "Rule"] },
-      ],
-      callGraph: [
-        { from: "runPipeline", to: "validate", fromFile: "src/pipeline.ts", toFile: "src/validator.ts" },
-        { from: "validate", to: "checkSchema", fromFile: "src/validator.ts", toFile: "src/types.ts" },
-      ],
-      gitHistory: {
-        coChangeEdges: [
-          // types.ts and validator.ts strongly co-change (12 times, Jaccard 0.65)
-          { file1: "src/types.ts", file2: "src/validator.ts", coChangeCount: 12, file1Commits: 15, file2Commits: 14, jaccard: 0.65, lastCoChangeTimestamp: Date.now() / 1000 },
-          // types.ts and formatter.ts moderately co-change
-          { file1: "src/formatter.ts", file2: "src/types.ts", coChangeCount: 8, file1Commits: 10, file2Commits: 15, jaccard: 0.47, lastCoChangeTimestamp: Date.now() / 1000 },
-          // types.ts and pipeline.ts weakly co-change (below threshold)
-          { file1: "src/pipeline.ts", file2: "src/types.ts", coChangeCount: 3, file1Commits: 20, file2Commits: 15, jaccard: 0.09, lastCoChangeTimestamp: Date.now() / 1000 },
+        publicAPI: [],
+        conventions: [],
+        commands: {
+          packageManager: "pnpm" as const,
+          test: { run: "pnpm run test", source: "package.json" },
+          other: [],
+        },
+        architecture: {
+          entryPoint: "src/index.ts",
+          directories: [],
+          packageType: "library" as const,
+          hasJSX: false,
+        },
+        dependencies: { internal: [], external: [], totalUniqueDependencies: 0 },
+        role: { summary: "", purpose: "", whenToUse: "", inferredFrom: [] },
+        antiPatterns: [],
+        contributionPatterns: [],
+        importChain: [
+          // test imports from pipeline
+          { importer: "test/pipeline.test.ts", source: "src/pipeline.ts", symbolCount: 3, symbols: ["runPipeline"] },
+          // pipeline imports from types
+          {
+            importer: "src/pipeline.ts",
+            source: "src/types.ts",
+            symbolCount: 12,
+            symbols: ["StructuredAnalysis", "PackageAnalysis"],
+          },
+          // pipeline imports from validator
+          { importer: "src/pipeline.ts", source: "src/validator.ts", symbolCount: 4, symbols: ["validate"] },
+          // formatter imports from types
+          {
+            importer: "src/formatter.ts",
+            source: "src/types.ts",
+            symbolCount: 8,
+            symbols: ["Convention", "CommandSet"],
+          },
+          // validator imports from types
+          { importer: "src/validator.ts", source: "src/types.ts", symbolCount: 6, symbols: ["Schema", "Rule"] },
         ],
-        totalCommitsAnalyzed: 50,
-        commitsFilteredBySize: 0,
-        historySpanDays: 60,
-      },
-      ...overrides,
-    } as PackageAnalysis],
+        callGraph: [
+          { from: "runPipeline", to: "validate", fromFile: "src/pipeline.ts", toFile: "src/validator.ts" },
+          { from: "validate", to: "checkSchema", fromFile: "src/validator.ts", toFile: "src/types.ts" },
+        ],
+        gitHistory: {
+          coChangeEdges: [
+            // types.ts and validator.ts strongly co-change (12 times, Jaccard 0.65)
+            {
+              file1: "src/types.ts",
+              file2: "src/validator.ts",
+              coChangeCount: 12,
+              file1Commits: 15,
+              file2Commits: 14,
+              jaccard: 0.65,
+              lastCoChangeTimestamp: Date.now() / 1000,
+            },
+            // types.ts and formatter.ts moderately co-change
+            {
+              file1: "src/formatter.ts",
+              file2: "src/types.ts",
+              coChangeCount: 8,
+              file1Commits: 10,
+              file2Commits: 15,
+              jaccard: 0.47,
+              lastCoChangeTimestamp: Date.now() / 1000,
+            },
+            // types.ts and pipeline.ts weakly co-change (below threshold)
+            {
+              file1: "src/pipeline.ts",
+              file2: "src/types.ts",
+              coChangeCount: 3,
+              file1Commits: 20,
+              file2Commits: 15,
+              jaccard: 0.09,
+              lastCoChangeTimestamp: Date.now() / 1000,
+            },
+          ],
+          totalCommitsAnalyzed: 50,
+          commitsFilteredBySize: 0,
+          historySpanDays: 60,
+        },
+        ...overrides,
+      } as PackageAnalysis,
+    ],
     crossPackage: {
       dependencyGraph: [],
       sharedConventions: [],
       divergentConventions: [],
       sharedAntiPatterns: [],
       workflowRules: [
-        { trigger: "When modifying `src/types.ts`", action: "Check 5 dependent files", source: "Import chain", impact: "high" as const },
+        {
+          trigger: "When modifying `src/types.ts`",
+          action: "Check 5 dependent files",
+          source: "Import chain",
+          impact: "high" as const,
+        },
       ],
     },
     warnings: [],
@@ -214,7 +259,7 @@ describe("buildSuspectList", () => {
 
     expect(suspects.length).toBeGreaterThan(0);
     // validator.ts should rank high due to missing co-change
-    const validator = suspects.find(s => s.file === "src/validator.ts");
+    const validator = suspects.find((s) => s.file === "src/validator.ts");
     expect(validator).toBeDefined();
     expect(validator!.signals.missingCoChange).toBeGreaterThan(0);
     expect(validator!.reason).toContain("Missing co-change");
@@ -222,12 +267,10 @@ describe("buildSuspectList", () => {
 
   it("ranks uncommitted changes with high recency", () => {
     const analysis = makeAnalysis();
-    const recentChanges: Q.FileChange[] = [
-      { file: "src/types.ts", hoursAgo: 0, isUncommitted: true },
-    ];
+    const recentChanges: Q.FileChange[] = [{ file: "src/types.ts", hoursAgo: 0, isUncommitted: true }];
 
     const suspects = Q.buildSuspectList(analysis, ["src/pipeline.ts"], recentChanges);
-    const types = suspects.find(s => s.file === "src/types.ts");
+    const types = suspects.find((s) => s.file === "src/types.ts");
     expect(types).toBeDefined();
     expect(types!.signals.recency).toBe(1.0); // e^(-0.05 * 0) = 1.0, max(0.05, 1.0) = 1.0
   });
@@ -254,12 +297,12 @@ describe("buildSuspectList", () => {
     const suspects = Q.buildSuspectList(analysis, ["src/pipeline.ts"], recentChanges);
 
     // validator.ts has a call graph edge to pipeline.ts (error site) and is NOT the error site
-    const validator = suspects.find(s => s.file === "src/validator.ts");
+    const validator = suspects.find((s) => s.file === "src/validator.ts");
     expect(validator).toBeDefined();
     expect(validator!.callGraphBonus).toBe(true);
 
     // pipeline.ts IS the error site — should NOT get call graph bonus
-    const pipeline = suspects.find(s => s.file === "src/pipeline.ts");
+    const pipeline = suspects.find((s) => s.file === "src/pipeline.ts");
     if (pipeline) {
       expect(pipeline.callGraphBonus).toBe(false);
     }

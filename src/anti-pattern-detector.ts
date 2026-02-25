@@ -1,7 +1,7 @@
 // src/anti-pattern-detector.ts — Enhancement 3: Anti-Pattern Derivation
 // Derives "DO NOT" rules by inverting strong conventions.
 
-import type { Convention, AntiPattern } from "./types.js";
+import type { AntiPattern, Convention } from "./types.js";
 
 // W5-A: Removed inversion rules for deleted detectors (named exports, barrel imports,
 // type-only imports, relative imports, displayName). Kept: file naming, testing, hooks.

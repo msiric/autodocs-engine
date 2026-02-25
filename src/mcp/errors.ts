@@ -21,9 +21,10 @@ export async function safeToolHandler(
   try {
     return await fn();
   } catch (err) {
-    const msg = err instanceof ToolError
-      ? `${err.code}: ${err.message}\n\nHints:\n${err.hints.map(h => `- ${h}`).join("\n")}`
-      : `Internal error: ${err instanceof Error ? err.message : String(err)}`;
+    const msg =
+      err instanceof ToolError
+        ? `${err.code}: ${err.message}\n\nHints:\n${err.hints.map((h) => `- ${h}`).join("\n")}`
+        : `Internal error: ${err instanceof Error ? err.message : String(err)}`;
     return { content: [{ type: "text", text: msg }], isError: true };
   }
 }

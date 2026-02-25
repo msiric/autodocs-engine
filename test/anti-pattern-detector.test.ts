@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { deriveAntiPatterns, deriveSharedAntiPatterns } from "../src/anti-pattern-detector.js";
 import type { Convention } from "../src/types.js";
 

@@ -1,26 +1,17 @@
 // src/file-discovery.ts — Module 1: File Discovery
 // Errata applied: E-14 (gitignore via git ls-files), E-15 (picomatch), E-16 (symlink boundary)
 
-import { readdirSync, statSync, realpathSync } from "node:fs";
-import { resolve, relative, extname, join } from "node:path";
 import { execSync } from "node:child_process";
+import { readdirSync, realpathSync, statSync } from "node:fs";
+import { join, relative, resolve } from "node:path";
 import picomatch from "picomatch";
-import {
-  Warning,
-  DEFAULT_EXCLUDE_DIRS,
-  SOURCE_EXTENSIONS,
-  DTS_EXTENSION,
-} from "./types.js";
+import { DEFAULT_EXCLUDE_DIRS, DTS_EXTENSION, SOURCE_EXTENSIONS, type Warning } from "./types.js";
 
 /**
  * Discover all analyzable source files in a package directory.
  * Uses git ls-files when available (E-14), falls back to filesystem walk.
  */
-export function discoverFiles(
-  packageDir: string,
-  excludePatterns: string[],
-  warnings: Warning[] = [],
-): string[] {
+export function discoverFiles(packageDir: string, excludePatterns: string[], warnings: Warning[] = []): string[] {
   const absPackageDir = resolve(packageDir);
 
   // E-14: Try git ls-files first for .gitignore support
@@ -40,21 +31,15 @@ export function discoverFiles(
  * E-14: Use git ls-files to get non-ignored files.
  * Returns null if git is not available or packageDir is not in a git repo.
  */
-function tryGitLsFiles(
-  packageDir: string,
-  warnings: Warning[],
-): string[] | null {
+function tryGitLsFiles(packageDir: string, _warnings: Warning[]): string[] | null {
   try {
     // Check if git is available and this is a git repo
-    const output = execSync(
-      "git ls-files --cached --others --exclude-standard",
-      {
-        cwd: packageDir,
-        encoding: "utf-8",
-        timeout: 5000,
-        stdio: ["pipe", "pipe", "pipe"],
-      },
-    );
+    const output = execSync("git ls-files --cached --others --exclude-standard", {
+      cwd: packageDir,
+      encoding: "utf-8",
+      timeout: 5000,
+      stdio: ["pipe", "pipe", "pipe"],
+    });
 
     const files: string[] = [];
     for (const line of output.split("\n")) {
@@ -83,7 +68,7 @@ function walkDirectory(
   visitedInodes: Set<number>,
   warnings: Warning[],
 ): void {
-  let entries;
+  let entries: import("node:fs").Dirent[] | undefined;
   try {
     entries = readdirSync(dir, { withFileTypes: true });
   } catch (err: unknown) {
@@ -133,19 +118,10 @@ function walkDirectory(
           }
           visitedInodes.add(stat.ino);
           if (!(DEFAULT_EXCLUDE_DIRS as readonly string[]).includes(entry.name)) {
-            walkDirectory(
-              fullPath,
-              packageDir,
-              results,
-              visitedInodes,
-              warnings,
-            );
+            walkDirectory(fullPath, packageDir, results, visitedInodes, warnings);
           }
         } else if (stat.isFile()) {
-          if (
-            SOURCE_EXTENSIONS.test(entry.name) &&
-            !DTS_EXTENSION.test(entry.name)
-          ) {
+          if (SOURCE_EXTENSIONS.test(entry.name) && !DTS_EXTENSION.test(entry.name)) {
             results.push(fullPath);
           }
         }
@@ -159,10 +135,7 @@ function walkDirectory(
         });
       }
     } else if (entry.isFile()) {
-      if (
-        SOURCE_EXTENSIONS.test(entry.name) &&
-        !DTS_EXTENSION.test(entry.name)
-      ) {
+      if (SOURCE_EXTENSIONS.test(entry.name) && !DTS_EXTENSION.test(entry.name)) {
         results.push(fullPath);
       }
     }
@@ -172,11 +145,7 @@ function walkDirectory(
 /**
  * E-15: Filter by user exclude patterns using picomatch, then sort.
  */
-function filterAndSort(
-  files: string[],
-  packageDir: string,
-  excludePatterns: string[],
-): string[] {
+function filterAndSort(files: string[], packageDir: string, excludePatterns: string[]): string[] {
   if (excludePatterns.length === 0) {
     return files.sort();
   }

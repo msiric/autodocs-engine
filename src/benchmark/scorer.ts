@@ -3,8 +3,8 @@
 // AI-generated code against detected contribution patterns.
 // Scoring rubric: Convention (10) + Integration (8) + Structure (4) + Quality (3) = 25
 
+import { basename, dirname } from "node:path";
 import ts from "typescript";
-import { join, basename, dirname } from "node:path";
 import type { BenchmarkTask, CheckResult, GeneratedFile, RunResult } from "./types.js";
 
 // ─── Public API ──────────────────────────────────────────────────────────────
@@ -21,13 +21,19 @@ export function scoreGeneratedOutput(
   error?: string,
 ): RunResult {
   // For Q&A tasks (command, architecture), the "files" contain the raw text response
-  const rawResponse = files.map(f => f.content).join("\n") || "";
+  const rawResponse = files.map((f) => f.content).join("\n") || "";
 
   if (error && (task.taskType === "pattern" || files.length === 0)) {
     return {
-      score: 0, rawScore: 0, maxPoints: task.maxScoringPoints,
-      passed: false, checks: [], filesCreated: [],
-      tokensUsed, latencyMs, error: error ?? "No output generated",
+      score: 0,
+      rawScore: 0,
+      maxPoints: task.maxScoringPoints,
+      passed: false,
+      checks: [],
+      filesCreated: [],
+      tokensUsed,
+      latencyMs,
+      error: error ?? "No output generated",
     };
   }
 
@@ -40,7 +46,6 @@ export function scoreGeneratedOutput(
     case "architecture":
       checks = scoreArchitectureTask(rawResponse, task);
       break;
-    case "pattern":
     default:
       checks = scorePatternTask(files, task);
       break;
@@ -56,7 +61,7 @@ export function scoreGeneratedOutput(
     maxPoints: maxPossible,
     passed: score >= 70,
     checks,
-    filesCreated: files.map(f => f.path),
+    filesCreated: files.map((f) => f.path),
     tokensUsed,
     latencyMs,
   };
@@ -69,9 +74,8 @@ function scorePatternTask(files: GeneratedFile[], task: BenchmarkTask): CheckRes
 
   const checks: CheckResult[] = [];
 
-  const implFiles = files.filter(f =>
-    !f.path.includes(".test.") && !f.path.includes(".spec.") &&
-    f.path.includes(task.expectedDirectory)
+  const implFiles = files.filter(
+    (f) => !f.path.includes(".test.") && !f.path.includes(".spec.") && f.path.includes(task.expectedDirectory),
   );
   const primaryFile = implFiles[0];
 
@@ -115,7 +119,7 @@ function scoreCommandTask(rawResponse: string, files: GeneratedFile[], task: Ben
   if (!data) return [fail("no-command-data", "command", 1, "No command data for scoring")];
 
   // Combine all text: raw response + file contents
-  const allText = rawResponse + "\n" + files.map(f => f.content).join("\n");
+  const allText = `${rawResponse}\n${files.map((f) => f.content).join("\n")}`;
   const allTextLower = allText.toLowerCase();
 
   // Check 1: Command accuracy (4 pts)
@@ -124,20 +128,24 @@ function scoreCommandTask(rawResponse: string, files: GeneratedFile[], task: Ben
   // - "run: npm test" (YAML)
   // - "npm run build" in prose
   // - bare "test", "build", "lint" in CI/script context
-  const expectedNames = data.allCommandNames.filter(n =>
-    ["build", "test", "lint", "start", "typecheck", "type-check", "dev"].includes(n)
+  const expectedNames = data.allCommandNames.filter((n) =>
+    ["build", "test", "lint", "start", "typecheck", "type-check", "dev"].includes(n),
   );
 
-  const matched = expectedNames.filter(name => {
+  const matched = expectedNames.filter((name) => {
     const nameLower = name.toLowerCase();
     // Check explicit PM + command: "npm run test", "pnpm test", etc.
     const pmPatterns = [
-      `npm run ${nameLower}`, `npm ${nameLower}`,
-      `pnpm run ${nameLower}`, `pnpm ${nameLower}`,
-      `yarn run ${nameLower}`, `yarn ${nameLower}`,
-      `bun run ${nameLower}`, `bun ${nameLower}`,
+      `npm run ${nameLower}`,
+      `npm ${nameLower}`,
+      `pnpm run ${nameLower}`,
+      `pnpm ${nameLower}`,
+      `yarn run ${nameLower}`,
+      `yarn ${nameLower}`,
+      `bun run ${nameLower}`,
+      `bun ${nameLower}`,
     ];
-    if (pmPatterns.some(p => allTextLower.includes(p))) return true;
+    if (pmPatterns.some((p) => allTextLower.includes(p))) return true;
     // Check YAML-style: "run: npm test" or just the command name in a run block
     if (allTextLower.includes(`run: ${nameLower}`) || allTextLower.includes(`run ${nameLower}`)) return true;
     // Check quoted: '"test"', "'build'"
@@ -151,9 +159,10 @@ function scoreCommandTask(rawResponse: string, files: GeneratedFile[], task: Ben
     weight: 4,
     score: Math.round(accuracy * 4),
     passed: accuracy >= 0.5,
-    detail: matched.length > 0
-      ? `Found ${matched.length}/${expectedNames.length} commands: ${matched.join(", ")}`
-      : `No expected commands found (looked for: ${expectedNames.join(", ")})`,
+    detail:
+      matched.length > 0
+        ? `Found ${matched.length}/${expectedNames.length} commands: ${matched.join(", ")}`
+        : `No expected commands found (looked for: ${expectedNames.join(", ")})`,
   });
 
   // Check 2: Package manager consistency (2 pts)
@@ -209,14 +218,13 @@ function scoreArchitectureTask(rawResponse: string, task: BenchmarkTask): CheckR
 
   const response = rawResponse.toLowerCase();
   const expectedDir = data.expectedDirectory.toLowerCase().replace(/\/$/, "");
-  const expectedDirName = expectedDir.split("/").filter(Boolean).pop() ?? "";
+  const _expectedDirName = expectedDir.split("/").filter(Boolean).pop() ?? "";
 
   // Check 1: Correct directory (4 pts)
   // Match full path (e.g., "src/hooks/") — not just the last segment
   const exactMatch = response.includes(expectedDir);
-  const altMatch = !exactMatch && data.alternatives?.some(alt =>
-    response.includes(alt.toLowerCase().replace(/\/$/, ""))
-  );
+  const altMatch =
+    !exactMatch && data.alternatives?.some((alt) => response.includes(alt.toLowerCase().replace(/\/$/, "")));
 
   checks.push({
     name: "correct-directory",
@@ -232,7 +240,7 @@ function scoreArchitectureTask(rawResponse: string, task: BenchmarkTask): CheckR
   });
 
   // Check 2: Uses project directory names (2 pts)
-  const mentionedDirs = data.allDirectories.filter(dir => {
+  const mentionedDirs = data.allDirectories.filter((dir) => {
     const dirName = dir.split("/").filter(Boolean).pop()?.toLowerCase() ?? "";
     return dirName.length > 2 && response.includes(dirName);
   });
@@ -242,15 +250,29 @@ function scoreArchitectureTask(rawResponse: string, task: BenchmarkTask): CheckR
     weight: 2,
     score: mentionedDirs.length >= 2 ? 2 : mentionedDirs.length >= 1 ? 1 : 0,
     passed: mentionedDirs.length >= 1,
-    detail: mentionedDirs.length > 0
-      ? `References project directories: ${mentionedDirs.slice(0, 3).join(", ")}`
-      : "Does not reference any project directory names",
+    detail:
+      mentionedDirs.length > 0
+        ? `References project directories: ${mentionedDirs.slice(0, 3).join(", ")}`
+        : "Does not reference any project directory names",
   });
 
   // Check 3: Justification quality (2 pts)
-  const reasoningKeywords = ["because", "since", "convention", "pattern", "layer", "separation",
-    "domain", "cohesion", "existing", "alongside", "consistent", "structure", "organized"];
-  const hasReasoning = reasoningKeywords.some(k => response.includes(k));
+  const reasoningKeywords = [
+    "because",
+    "since",
+    "convention",
+    "pattern",
+    "layer",
+    "separation",
+    "domain",
+    "cohesion",
+    "existing",
+    "alongside",
+    "consistent",
+    "structure",
+    "organized",
+  ];
+  const hasReasoning = reasoningKeywords.some((k) => response.includes(k));
   const hasSubstance = rawResponse.trim().length > 50;
   checks.push({
     name: "justification-quality",
@@ -258,9 +280,7 @@ function scoreArchitectureTask(rawResponse: string, task: BenchmarkTask): CheckR
     weight: 2,
     score: hasReasoning && hasSubstance ? 2 : hasReasoning || hasSubstance ? 1 : 0,
     passed: hasReasoning && hasSubstance,
-    detail: hasReasoning
-      ? "Provides architectural reasoning"
-      : "No architectural justification given",
+    detail: hasReasoning ? "Provides architectural reasoning" : "No architectural justification given",
   });
 
   return checks;
@@ -292,15 +312,13 @@ function checkCommonImports(file: GeneratedFile | undefined, task: BenchmarkTask
   const details: string[] = [];
 
   for (const expected of commonImports) {
-    const hasImport = fileImports.some(imp => imp.specifier === expected.specifier);
+    const hasImport = fileImports.some((imp) => imp.specifier === expected.specifier);
     if (!hasImport) {
       details.push(`Missing import from '${expected.specifier}'`);
       continue;
     }
     // Check at least one symbol is used in the file body (not just imported)
-    const symbolUsed = expected.symbols.some(sym =>
-      new RegExp(`\\b${escapeRegex(sym)}\\b`).test(fileContent)
-    );
+    const symbolUsed = expected.symbols.some((sym) => new RegExp(`\\b${escapeRegex(sym)}\\b`).test(fileContent));
     if (symbolUsed) {
       matched++;
     } else {
@@ -315,9 +333,7 @@ function checkCommonImports(file: GeneratedFile | undefined, task: BenchmarkTask
     weight,
     score,
     passed: score >= weight * 0.5,
-    detail: matched === commonImports.length
-      ? `All ${matched} common imports present and used`
-      : details.join("; "),
+    detail: matched === commonImports.length ? `All ${matched} common imports present and used` : details.join("; "),
   };
 }
 
@@ -335,7 +351,7 @@ function checkExportSuffix(file: GeneratedFile | undefined, task: BenchmarkTask)
   if (!sourceFile) return fail("export-suffix", "convention", weight, "File could not be parsed");
 
   const exports = extractExportNames(sourceFile);
-  const hasSuffix = exports.some(name => name.endsWith(suffix));
+  const hasSuffix = exports.some((name) => name.endsWith(suffix));
 
   return hasSuffix
     ? pass("export-suffix", "convention", weight, `Export found ending with '${suffix}'`)
@@ -351,7 +367,7 @@ function checkFileNaming(file: GeneratedFile | undefined, task: BenchmarkTask): 
 
   const fileName = basename(file.path, file.path.slice(file.path.lastIndexOf(".")));
   // Check if it matches the dominant naming convention from the task's conventions
-  const namingConvention = task.conventions.find(c => c.category === "file-naming");
+  const namingConvention = task.conventions.find((c) => c.category === "file-naming");
 
   if (!namingConvention) {
     return pass("file-naming", "convention", weight, "No naming convention detected");
@@ -362,9 +378,10 @@ function checkFileNaming(file: GeneratedFile | undefined, task: BenchmarkTask): 
   const isPascal = /^[A-Z][a-zA-Z0-9]*$/.test(fileName);
 
   const conventionName = namingConvention.name.toLowerCase();
-  const matches = (conventionName.includes("kebab") && isKebab) ||
-                  (conventionName.includes("camel") && isCamel) ||
-                  (conventionName.includes("pascal") && isPascal);
+  const matches =
+    (conventionName.includes("kebab") && isKebab) ||
+    (conventionName.includes("camel") && isCamel) ||
+    (conventionName.includes("pascal") && isPascal);
 
   return matches
     ? pass("file-naming", "convention", weight, `Filename '${fileName}' follows ${namingConvention.name}`)
@@ -384,8 +401,11 @@ function checkAntiPatterns(file: GeneratedFile | undefined, task: BenchmarkTask)
   // Simple check: file naming anti-patterns
   const fileName = basename(file.path, file.path.slice(file.path.lastIndexOf(".")));
   for (const ap of task.antiPatterns) {
-    if (ap.rule.toLowerCase().includes("camelcase") && /^[a-z][a-zA-Z0-9]*$/.test(fileName) && !ap.rule.toLowerCase().includes("do not")) {
-      continue;
+    if (
+      ap.rule.toLowerCase().includes("camelcase") &&
+      /^[a-z][a-zA-Z0-9]*$/.test(fileName) &&
+      !ap.rule.toLowerCase().includes("do not")
+    ) {
     }
   }
 
@@ -404,9 +424,7 @@ function checkRegistrationUpdate(files: GeneratedFile[], task: BenchmarkTask): C
   if (!regFile) return pass("registration-update", "integration", weight, "No registration file");
 
   // Find the AI's version of the registration file
-  const aiRegFile = files.find(f =>
-    f.path === regFile || f.path.endsWith(basename(regFile))
-  );
+  const aiRegFile = files.find((f) => f.path === regFile || f.path.endsWith(basename(regFile)));
 
   if (!aiRegFile) {
     return fail("registration-update", "integration", weight, `Registration file '${regFile}' not updated`);
@@ -422,23 +440,31 @@ function checkRegistrationUpdate(files: GeneratedFile[], task: BenchmarkTask): C
   const aiImports = extractImportSpecifiers(parseSource(aiRegFile)!);
 
   // Check: AI imports superset of original imports
-  const originalSpecs = new Set(originalImports.map(i => i.specifier));
-  const aiSpecs = new Set(aiImports.map(i => i.specifier));
+  const originalSpecs = new Set(originalImports.map((i) => i.specifier));
+  const aiSpecs = new Set(aiImports.map((i) => i.specifier));
 
-  const missingOriginals = [...originalSpecs].filter(s => !aiSpecs.has(s));
+  const missingOriginals = [...originalSpecs].filter((s) => !aiSpecs.has(s));
   if (missingOriginals.length > 0) {
-    return fail("registration-update", "integration", weight,
-      `Registration file missing ${missingOriginals.length} original imports (lazy output?)`);
+    return fail(
+      "registration-update",
+      "integration",
+      weight,
+      `Registration file missing ${missingOriginals.length} original imports (lazy output?)`,
+    );
   }
 
   // Check: new import was added (any new specifier not in original)
-  const newImports = [...aiSpecs].filter(s => !originalSpecs.has(s));
+  const newImports = [...aiSpecs].filter((s) => !originalSpecs.has(s));
   if (newImports.length === 0) {
     return fail("registration-update", "integration", weight, "No new import added to registration file");
   }
 
-  return pass("registration-update", "integration", weight,
-    `Registration file updated: ${newImports.length} new import(s) added, all originals preserved`);
+  return pass(
+    "registration-update",
+    "integration",
+    weight,
+    `Registration file updated: ${newImports.length} new import(s) added, all originals preserved`,
+  );
 }
 
 /**
@@ -448,9 +474,8 @@ function checkBarrelUpdate(files: GeneratedFile[], task: BenchmarkTask): CheckRe
   const weight = 2;
   if (!task.context.barrelFile) return pass("barrel-update", "integration", weight, "No barrel file");
 
-  const aiBarrel = files.find(f =>
-    f.path === task.context.barrelFile!.path ||
-    f.path.endsWith(basename(task.context.barrelFile!.path))
+  const aiBarrel = files.find(
+    (f) => f.path === task.context.barrelFile!.path || f.path.endsWith(basename(task.context.barrelFile!.path)),
   );
 
   if (!aiBarrel) {
@@ -461,7 +486,7 @@ function checkBarrelUpdate(files: GeneratedFile[], task: BenchmarkTask): CheckRe
   const originalExports = extractExportSpecifiers(task.context.barrelFile.content);
   const aiExports = extractExportSpecifiers(aiBarrel.content);
 
-  const newExports = aiExports.filter(e => !originalExports.includes(e));
+  const newExports = aiExports.filter((e) => !originalExports.includes(e));
   if (newExports.length > 0) {
     return pass("barrel-update", "integration", weight, `Barrel updated with: ${newExports.join(", ")}`);
   }
@@ -474,9 +499,10 @@ function checkBarrelUpdate(files: GeneratedFile[], task: BenchmarkTask): CheckRe
  */
 function checkFileLocation(files: GeneratedFile[], task: BenchmarkTask): CheckResult {
   const weight = 2;
-  const inCorrectDir = files.some(f =>
-    !f.path.includes(".test.") && !f.path.includes(".spec.") &&
-    f.path.startsWith(task.expectedDirectory) || f.path.includes(task.expectedDirectory)
+  const inCorrectDir = files.some(
+    (f) =>
+      (!f.path.includes(".test.") && !f.path.includes(".spec.") && f.path.startsWith(task.expectedDirectory)) ||
+      f.path.includes(task.expectedDirectory),
   );
 
   return inCorrectDir
@@ -496,14 +522,17 @@ function checkFilenamePattern(file: GeneratedFile | undefined, task: BenchmarkTa
   const fileName = basename(file.path);
   // The file pattern from ContributionPattern uses {name} placeholder
   // Convert to a loose regex
-  const patternStr = task.expectedFilePattern
-    .replace(/\{[^}]+\}/g, "[\\w-]+")
-    .replace(/\./g, "\\.");
+  const patternStr = task.expectedFilePattern.replace(/\{[^}]+\}/g, "[\\w-]+").replace(/\./g, "\\.");
   const regex = new RegExp(`^${patternStr}$`, "i");
 
   return regex.test(fileName)
     ? pass("filename-pattern", "structure", weight, `Filename '${fileName}' matches pattern`)
-    : fail("filename-pattern", "structure", weight, `Filename '${fileName}' doesn't match pattern '${task.expectedFilePattern}'`);
+    : fail(
+        "filename-pattern",
+        "structure",
+        weight,
+        `Filename '${fileName}' doesn't match pattern '${task.expectedFilePattern}'`,
+      );
 }
 
 /**
@@ -511,16 +540,15 @@ function checkFilenamePattern(file: GeneratedFile | undefined, task: BenchmarkTa
  */
 function checkTestCoLocation(files: GeneratedFile[], task: BenchmarkTask): CheckResult {
   const weight = 2;
-  const testFile = files.find(f => f.path.includes(".test.") || f.path.includes(".spec."));
+  const testFile = files.find((f) => f.path.includes(".test.") || f.path.includes(".spec."));
 
   if (!testFile) {
     return fail("test-co-location", "structure", weight, "No test file generated");
   }
 
   // Check test is in same directory as implementation
-  const implFile = files.find(f =>
-    !f.path.includes(".test.") && !f.path.includes(".spec.") &&
-    f.path.includes(task.expectedDirectory)
+  const implFile = files.find(
+    (f) => !f.path.includes(".test.") && !f.path.includes(".spec.") && f.path.includes(task.expectedDirectory),
   );
 
   if (!implFile) {
@@ -530,7 +558,12 @@ function checkTestCoLocation(files: GeneratedFile[], task: BenchmarkTask): Check
   const sameDir = dirname(testFile.path) === dirname(implFile.path);
   return sameDir
     ? pass("test-co-location", "structure", weight, "Test file co-located with implementation")
-    : fail("test-co-location", "structure", weight, `Test in ${dirname(testFile.path)}, impl in ${dirname(implFile.path)}`);
+    : fail(
+        "test-co-location",
+        "structure",
+        weight,
+        `Test in ${dirname(testFile.path)}, impl in ${dirname(implFile.path)}`,
+      );
 }
 
 // ─── Quality Checks (3 pts) ──────────────────────────────────────────────────
@@ -549,8 +582,12 @@ function checkCompilability(file: GeneratedFile | undefined): CheckResult {
   // Check for parse diagnostics (syntax errors only)
   const diagnostics = (sourceFile as unknown as { parseDiagnostics?: ts.Diagnostic[] }).parseDiagnostics;
   if (diagnostics && diagnostics.length > 0) {
-    return fail("compilability", "quality", weight,
-      `${diagnostics.length} syntax error(s): ${diagnostics[0].messageText}`);
+    return fail(
+      "compilability",
+      "quality",
+      weight,
+      `${diagnostics.length} syntax error(s): ${diagnostics[0].messageText}`,
+    );
   }
 
   return pass("compilability", "quality", weight, "No syntax errors");
@@ -620,7 +657,7 @@ function extractExportNames(sourceFile: ts.SourceFile): string[] {
 
   ts.forEachChild(sourceFile, (node) => {
     const mods = ts.canHaveModifiers(node) ? ts.getModifiers(node) : undefined;
-    const isExported = mods?.some(m => m.kind === ts.SyntaxKind.ExportKeyword);
+    const isExported = mods?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword);
     if (!isExported) return;
 
     // Skip type-only exports

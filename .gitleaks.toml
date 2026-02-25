@@ -1,0 +1,7 @@
+[allowlist]
+description = "autodocs-engine allowlist"
+paths = [
+  "node_modules",
+  "dist",
+  "test/fixtures",
+]

@@ -2,8 +2,8 @@
 // Detects specific test frameworks from dependencies and config, including Bun test.
 // Fixes "Unknown test framework" in V3 benchmark for midday api-server.
 
-import type { Convention, ConventionDetector, DetectorContext } from "../types.js";
 import { buildConfidence } from "../convention-extractor.js";
+import type { Convention, ConventionDetector } from "../types.js";
 
 const KNOWN_TEST_FRAMEWORKS = ["vitest", "jest", "@jest/core", "mocha", "ava", "tap"];
 
@@ -66,9 +66,7 @@ export const testFrameworkEcosystemDetector: ConventionDetector = (files, _tiers
   // Check for Bun test — no package.json dep needed, just Bun runtime + test files
   if (frameworkName === "Unknown" && hasBunRuntime) {
     // Check if test files use bun:test imports
-    const bunTestFiles = testFiles.filter((f) =>
-      f.imports.some((i) => i.moduleSpecifier === "bun:test"),
-    );
+    const bunTestFiles = testFiles.filter((f) => f.imports.some((i) => i.moduleSpecifier === "bun:test"));
     if (bunTestFiles.length > 0) {
       frameworkName = "Bun test";
       frameworkDetail = "Bun built-in test runner";

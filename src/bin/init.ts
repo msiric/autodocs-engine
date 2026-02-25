@@ -1,8 +1,8 @@
 // src/bin/init.ts — Zero-config init command
 // Auto-detects project structure and generates AGENTS.md on first try.
 
-import { resolve, join, relative, dirname } from "node:path";
-import { existsSync, readFileSync, readdirSync, writeFileSync, mkdirSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join, relative, resolve } from "node:path";
 import { analyze, formatDeterministic, formatHierarchicalDeterministic } from "../index.js";
 import type { OutputFormat } from "../types.js";
 
@@ -116,7 +116,7 @@ export function detectProjectStructure(cwd: string): ProjectStructure {
   if (!existsSync(pkgJsonPath)) {
     throw new Error(
       "No package.json found in current directory.\n" +
-      "Run this command from your project root (where package.json is).",
+        "Run this command from your project root (where package.json is).",
     );
   }
 
@@ -260,7 +260,10 @@ function parsePnpmWorkspaceYaml(filePath: string): string[] {
       if (inPackages) {
         if (trimmed.startsWith("- ")) {
           // Strip "- " prefix and optional quotes
-          const value = trimmed.slice(2).trim().replace(/^['"]|['"]$/g, "");
+          const value = trimmed
+            .slice(2)
+            .trim()
+            .replace(/^['"]|['"]$/g, "");
           if (value && !value.startsWith("!")) {
             globs.push(value);
           }
@@ -287,7 +290,7 @@ function detectPM(dir: string): string {
 }
 
 function stderr(msg: string): void {
-  process.stderr.write(msg + "\n");
+  process.stderr.write(`${msg}\n`);
 }
 
 function writeFileSafe(filePath: string, content: string): void {

@@ -2,35 +2,27 @@
 // Validates that monorepo scope leakage, name resolution, framework detection,
 // output validation, and template density issues are all fixed.
 
-import { describe, it, expect } from "vitest";
-import { resolve, join } from "node:path";
-import { mkdtempSync, writeFileSync, mkdirSync } from "node:fs";
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { analyzeDependencies } from "../src/dependency-analyzer.js";
-import { validateOutput } from "../src/output-validator.js";
-import { analyzeConfig } from "../src/config-analyzer.js";
-import { testFrameworkEcosystemDetector } from "../src/detectors/test-framework-ecosystem.js";
-import { fileNamingDetector } from "../src/detectors/file-naming.js";
-import { serializePackageToMarkdown } from "../src/llm/serializer.js";
+import { join, resolve } from "node:path";
+import { describe, expect, it } from "vitest";
 import { buildPackageAnalysis, buildPublicAPI } from "../src/analysis-builder.js";
-import { buildSymbolGraph } from "../src/symbol-graph.js";
-import { classifyTiers } from "../src/tier-classifier.js";
 import { parseFile } from "../src/ast-parser.js";
+import { analyzeConfig } from "../src/config-analyzer.js";
+import { analyzeDependencies } from "../src/dependency-analyzer.js";
+import { fileNamingDetector } from "../src/detectors/file-naming.js";
+import { testFrameworkEcosystemDetector } from "../src/detectors/test-framework-ecosystem.js";
 import { discoverFiles } from "../src/file-discovery.js";
+import { serializePackageToMarkdown } from "../src/llm/serializer.js";
+import { validateOutput } from "../src/output-validator.js";
+import { buildSymbolGraph } from "../src/symbol-graph.js";
 import {
-  agentsMdSingleTemplate,
   agentsMdMultiRootTemplate,
   agentsMdPackageDetailTemplate,
+  agentsMdSingleTemplate,
 } from "../src/templates/agents-md.js";
-import type {
-  PackageAnalysis,
-  StructuredAnalysis,
-  DependencyInsights,
-  ParsedFile,
-  TierInfo,
-  Convention,
-  Warning,
-} from "../src/types.js";
+import { classifyTiers } from "../src/tier-classifier.js";
+import type { DependencyInsights, PackageAnalysis, ParsedFile, TierInfo, Warning } from "../src/types.js";
 
 const FIXTURES = resolve(__dirname, "fixtures");
 const MONOREPO = resolve(FIXTURES, "monorepo-scope/root");
@@ -38,7 +30,10 @@ const SRC_ANALYSIS = resolve(FIXTURES, "src-analysis/my-project");
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-function makeMinimalParsedFile(path: string, imports: { moduleSpecifier: string; importedNames: string[] }[] = []): ParsedFile {
+function makeMinimalParsedFile(
+  path: string,
+  imports: { moduleSpecifier: string; importedNames: string[] }[] = [],
+): ParsedFile {
   return {
     absolutePath: path,
     relativePath: path,
@@ -58,7 +53,10 @@ function makeMinimalParsedFile(path: string, imports: { moduleSpecifier: string;
   };
 }
 
-function makeMinimalTestFile(path: string, imports: { moduleSpecifier: string; importedNames: string[] }[] = []): ParsedFile {
+function makeMinimalTestFile(
+  path: string,
+  imports: { moduleSpecifier: string; importedNames: string[] }[] = [],
+): ParsedFile {
   return {
     ...makeMinimalParsedFile(path, imports),
     isTestFile: true,
@@ -106,11 +104,7 @@ function makePackageAnalysis(overrides: Partial<PackageAnalysis> = {}): PackageA
 describe("Bug 1.1: Root deps not merged", () => {
   it("does not include root package.json deps in package analysis", () => {
     const warnings: Warning[] = [];
-    const insights = analyzeDependencies(
-      resolve(MONOREPO, "packages/cli"),
-      MONOREPO,
-      warnings,
-    );
+    const insights = analyzeDependencies(resolve(MONOREPO, "packages/cli"), MONOREPO, warnings);
 
     // Root has React but CLI package does not
     const reactFw = insights.frameworks.find((f) => f.name === "react");
@@ -119,11 +113,7 @@ describe("Bug 1.1: Root deps not merged", () => {
 
   it("still detects package-level frameworks", () => {
     const warnings: Warning[] = [];
-    const insights = analyzeDependencies(
-      resolve(MONOREPO, "packages/cli"),
-      MONOREPO,
-      warnings,
-    );
+    const insights = analyzeDependencies(resolve(MONOREPO, "packages/cli"), MONOREPO, warnings);
 
     // CLI has typescript in its own deps
     const tsFw = insights.frameworks.find((f) => f.name === "typescript");
@@ -136,11 +126,7 @@ describe("Bug 1.1: Root deps not merged", () => {
 describe("Bug 1.2: Root runtime isolation", () => {
   it("does NOT add bun from root packageManager to package runtime", () => {
     const warnings: Warning[] = [];
-    const insights = analyzeDependencies(
-      resolve(MONOREPO, "packages/cli"),
-      MONOREPO,
-      warnings,
-    );
+    const insights = analyzeDependencies(resolve(MONOREPO, "packages/cli"), MONOREPO, warnings);
 
     // Root has packageManager: "bun@1.3.8" but CLI has no Bun signals
     const bun = insights.runtime.find((r) => r.name === "bun");
@@ -151,11 +137,7 @@ describe("Bug 1.2: Root runtime isolation", () => {
     // The config-pkg fixture has its own bun detection via devDeps
     // Using the existing fixture that has no bun
     const warnings: Warning[] = [];
-    const insights = analyzeDependencies(
-      resolve(MONOREPO, "packages/cli"),
-      MONOREPO,
-      warnings,
-    );
+    const insights = analyzeDependencies(resolve(MONOREPO, "packages/cli"), MONOREPO, warnings);
     // Just verify no crash and empty runtime is valid
     expect(Array.isArray(insights.runtime)).toBe(true);
   });
@@ -202,21 +184,14 @@ describe("Bug 3.1: Import-verified frameworks", () => {
 
     // Simulate: package.json has "react" but no source file imports from react
     const sourceImports = new Set(["commander"]); // Only commander is imported
-    const insights = analyzeDependencies(
-      resolve(MONOREPO, "packages/web"),
-      MONOREPO,
-      warnings,
-      sourceImports,
-    );
+    const insights = analyzeDependencies(resolve(MONOREPO, "packages/web"), MONOREPO, warnings, sourceImports);
 
     // React is in web's deps but not in sourceImports → should be filtered
     const reactFw = insights.frameworks.find((f) => f.name === "react");
     expect(reactFw).toBeUndefined();
 
     // Should have an info warning about it
-    const filterWarning = warnings.find((w) =>
-      w.message.includes("not imported by source files"),
-    );
+    const filterWarning = warnings.find((w) => w.message.includes("not imported by source files"));
     expect(filterWarning).toBeDefined();
   });
 
@@ -224,12 +199,7 @@ describe("Bug 3.1: Import-verified frameworks", () => {
     const warnings: Warning[] = [];
 
     const sourceImports = new Set(["react", "react-dom"]);
-    const insights = analyzeDependencies(
-      resolve(MONOREPO, "packages/web"),
-      MONOREPO,
-      warnings,
-      sourceImports,
-    );
+    const insights = analyzeDependencies(resolve(MONOREPO, "packages/web"), MONOREPO, warnings, sourceImports);
 
     const reactFw = insights.frameworks.find((f) => f.name === "react");
     expect(reactFw).toBeDefined();
@@ -240,9 +210,7 @@ describe("Bug 3.1: Import-verified frameworks", () => {
 
 describe("Bug 3.3: Test framework from root devDeps", () => {
   it("detects test framework from root devDeps in monorepo", () => {
-    const testFiles: ParsedFile[] = [
-      makeMinimalTestFile("src/utils.test.ts"),
-    ];
+    const testFiles: ParsedFile[] = [makeMinimalTestFile("src/utils.test.ts")];
     const tiers = new Map<string, TierInfo>();
     const warnings: Warning[] = [];
 
@@ -256,12 +224,7 @@ describe("Bug 3.3: Test framework from root devDeps", () => {
     // Root devDeps have vitest
     const rootDevDeps = { vitest: "^1.0.0", turbo: "^2.0.0" };
 
-    const conventions = testFrameworkEcosystemDetector(
-      testFiles,
-      tiers,
-      warnings,
-      { dependencies: deps, rootDevDeps },
-    );
+    const conventions = testFrameworkEcosystemDetector(testFiles, tiers, warnings, { dependencies: deps, rootDevDeps });
 
     expect(conventions.length).toBeGreaterThan(0);
     const tfConv = conventions.find((c) => c.name.includes("Vitest"));
@@ -357,9 +320,7 @@ describe("Bug 6.2: workspace:* deps skipped", () => {
     const insights = analyzeDependencies(tmpDir, undefined, warnings);
 
     // workspace:* deps should NOT appear as frameworks
-    const internalFw = insights.frameworks.find(
-      (f) => f.name.startsWith("@internal/"),
-    );
+    const internalFw = insights.frameworks.find((f) => f.name.startsWith("@internal/"));
     expect(internalFw).toBeUndefined();
 
     // TypeScript (not workspace:*) should still be detected

@@ -1,7 +1,7 @@
-import { describe, it, expect, afterAll } from "vitest";
-import { detectProjectStructure } from "../src/bin/init.js";
-import { mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { afterAll, describe, expect, it } from "vitest";
+import { detectProjectStructure } from "../src/bin/init.js";
 
 const FIXTURES_BASE = join(import.meta.dirname, "fixtures", "init-test");
 

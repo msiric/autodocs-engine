@@ -1,11 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  classifyConventionImpact,
   classifyAntiPatternImpact,
+  classifyConventionImpact,
   classifyImpacts,
   isStyleRule,
 } from "../src/impact-classifier.js";
-import type { Convention, AntiPattern, ConventionConfidence } from "../src/types.js";
+import type { AntiPattern, Convention, ConventionConfidence } from "../src/types.js";
 
 function makeConvention(
   overrides: Partial<Convention> & { category: Convention["category"]; name: string; description?: string },
@@ -113,9 +113,7 @@ describe("impact-classifier", () => {
         makeConvention({ category: "file-naming", name: "kebab-case" }),
         makeConvention({ category: "testing", name: "co-located tests" }),
       ];
-      const antiPatterns = [
-        makeAntiPattern({ rule: "No default exports" }),
-      ];
+      const antiPatterns = [makeAntiPattern({ rule: "No default exports" })];
 
       const result = classifyImpacts(conventions, antiPatterns);
 

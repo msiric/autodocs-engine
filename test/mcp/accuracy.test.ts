@@ -2,12 +2,12 @@
 // Calls each tool on autodocs-engine itself and verifies responses
 // against known ground truth (we KNOW what our own codebase contains).
 
-import { describe, it, expect, beforeAll } from "vitest";
 import { resolve } from "node:path";
+import { beforeAll, describe, expect, it } from "vitest";
 import { analyze } from "../../src/index.js";
-import type { StructuredAnalysis } from "../../src/types.js";
-import * as tools from "../../src/mcp/tools.js";
 import * as Q from "../../src/mcp/queries.js";
+import * as tools from "../../src/mcp/tools.js";
+import type { StructuredAnalysis } from "../../src/types.js";
 
 // ─── Setup: analyze autodocs-engine itself ───────────────────────────────────
 
@@ -80,9 +80,9 @@ describe("MCP accuracy: analyze_impact", () => {
       scope: "imports",
     });
     const text = result.content[0].text;
-    // pipeline.ts and analysis-builder.ts are known heavy importers
-    expect(text).toContain("pipeline.ts");
+    // analysis-builder.ts and queries.ts are known heavy importers of types.ts
     expect(text).toContain("analysis-builder.ts");
+    expect(text).toContain("queries.ts");
     // Should show symbol counts
     expect(text).toMatch(/\d+ symbols/);
   });
@@ -106,7 +106,7 @@ describe("MCP accuracy: analyze_impact", () => {
     });
     const text = result.content[0].text;
     // Count bullet points (each importer is a "- `file`" line)
-    const importerLines = text.split("\n").filter(l => l.startsWith("- `"));
+    const importerLines = text.split("\n").filter((l) => l.startsWith("- `"));
     expect(importerLines.length).toBeLessThanOrEqual(3);
   });
 
@@ -219,8 +219,8 @@ describe("MCP accuracy: diagnose", () => {
     });
     const text = result.content[0].text;
     expect(text).toContain("## Diagnosis");
-    // test/mcp/tools.test.ts imports from src/mcp/tools.ts — should appear
-    expect(text).toContain("tools.ts");
+    // test/mcp/tools.test.ts imports from src/mcp/ modules — should resolve them
+    expect(text).toContain("queries.ts");
   });
 
   it("diagnoses from realistic V8 error text", () => {
@@ -300,9 +300,7 @@ describe("MCP accuracy: data consistency", () => {
   it("import chain edges reference files that exist in the analysis", () => {
     const pkg = analysis.packages[0];
     const chain = pkg.importChain ?? [];
-    const knownFiles = new Set(
-      pkg.files.byTier.tier1.files.concat(pkg.files.byTier.tier2.files),
-    );
+    const knownFiles = new Set(pkg.files.byTier.tier1.files.concat(pkg.files.byTier.tier2.files));
 
     for (const edge of chain.slice(0, 10)) {
       // At least the source OR importer should be a known file

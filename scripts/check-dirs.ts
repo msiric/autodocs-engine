@@ -13,7 +13,10 @@ for (const repo of repos) {
   try {
     const analysis = await analyze({ packages: [repo.path] });
     const pkg = analysis.packages[0];
-    if (!pkg) { console.log(`${repo.name}: NO PACKAGE`); continue; }
+    if (!pkg) {
+      console.log(`${repo.name}: NO PACKAGE`);
+      continue;
+    }
 
     console.log(`\n=== ${repo.name} ===`);
     console.log(`Directories (${pkg.architecture.directories.length}):`);
@@ -23,11 +26,13 @@ for (const repo of repos) {
 
     console.log(`Contribution patterns (${(pkg.contributionPatterns ?? []).length}):`);
     for (const cp of pkg.contributionPatterns ?? []) {
-      console.log(`  ${cp.directory} — type=${cp.type} suffix=${cp.exportSuffix ?? "none"} reg=${cp.registrationFile ?? "none"} imports=${(cp.commonImports ?? []).length}`);
+      console.log(
+        `  ${cp.directory} — type=${cp.type} suffix=${cp.exportSuffix ?? "none"} reg=${cp.registrationFile ?? "none"} imports=${(cp.commonImports ?? []).length}`,
+      );
     }
 
     // Count how many pattern task directories are in the contribution patterns
-    const patternDirs = (pkg.contributionPatterns ?? []).map(cp => cp.directory);
+    const patternDirs = (pkg.contributionPatterns ?? []).map((cp) => cp.directory);
     console.log(`Pattern directories: ${patternDirs.join(", ") || "none"}`);
   } catch (e: any) {
     console.log(`${repo.name}: ERROR ${e.message?.slice(0, 100)}`);

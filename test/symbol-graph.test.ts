@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
 import { resolve } from "node:path";
-import { discoverFiles } from "../src/file-discovery.js";
+import { describe, expect, it } from "vitest";
 import { parseFile } from "../src/ast-parser.js";
+import { discoverFiles } from "../src/file-discovery.js";
 import { buildSymbolGraph } from "../src/symbol-graph.js";
 import type { Warning } from "../src/types.js";
 
@@ -45,9 +45,7 @@ describe("buildSymbolGraph", () => {
     expect(exportNames).toContain("FetchResult");
 
     // Check resolved definitions
-    const useCounter = graph.barrelExports.find(
-      (e) => e.name === "useCounter",
-    );
+    const useCounter = graph.barrelExports.find((e) => e.name === "useCounter");
     expect(useCounter?.definedIn).toBe("src/hooks/use-counter.ts");
     expect(useCounter?.kind).toBe("hook");
   });
@@ -67,9 +65,7 @@ describe("buildSymbolGraph", () => {
 
     expect(graph.barrelFile).toBeUndefined();
     expect(graph.barrelExports).toHaveLength(0);
-    expect(warnings.some((w) => w.message.includes("No barrel file"))).toBe(
-      true,
-    );
+    expect(warnings.some((w) => w.message.includes("No barrel file"))).toBe(true);
   });
 
   it("handles circular re-exports without hanging (E-40)", () => {
@@ -80,10 +76,7 @@ describe("buildSymbolGraph", () => {
     expect(graph.barrelFile).toBe("index.ts");
 
     // Should detect the circular dependency
-    const circularWarning = warnings.some(
-      (w) =>
-        w.message.includes("Circular") || w.message.includes("circular"),
-    );
+    const circularWarning = warnings.some((w) => w.message.includes("Circular") || w.message.includes("circular"));
     expect(circularWarning).toBe(true);
   });
 
@@ -96,9 +89,7 @@ describe("buildSymbolGraph", () => {
     expect(exportNames).toContain("createClient");
     expect(exportNames).toContain("ClientOptions");
 
-    const createClient = graph.barrelExports.find(
-      (e) => e.name === "createClient",
-    );
+    const createClient = graph.barrelExports.find((e) => e.name === "createClient");
     expect(createClient?.definedIn).toBe("src/client.ts");
     expect(createClient?.kind).toBe("function");
   });

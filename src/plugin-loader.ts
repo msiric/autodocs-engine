@@ -2,8 +2,8 @@
 // Allows organizations to add custom convention detectors without modifying the core engine.
 // Plugin discovery: package.json "autodocs.plugins", .autodocs/plugins/ directory, --plugin CLI flag.
 
-import { readFileSync, existsSync, readdirSync } from "node:fs";
-import { resolve, relative, isAbsolute, extname } from "node:path";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { extname, isAbsolute, relative, resolve } from "node:path";
 import type { ConventionDetector, Warning } from "./types.js";
 
 /**
@@ -24,11 +24,7 @@ export interface DetectorPlugin {
  * 2. package.json "autodocs.plugins" field
  * 3. .autodocs/plugins/ directory
  */
-export function loadPlugins(
-  rootDir: string,
-  explicitPaths: string[] = [],
-  warnings: Warning[] = [],
-): DetectorPlugin[] {
+export function loadPlugins(rootDir: string, explicitPaths: string[] = [], warnings: Warning[] = []): DetectorPlugin[] {
   const plugins: DetectorPlugin[] = [];
   const loaded = new Set<string>();
 

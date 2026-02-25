@@ -1,18 +1,14 @@
-import { describe, it, expect } from "vitest";
 import { resolve } from "node:path";
+import { describe, expect, it } from "vitest";
 import { parseFile } from "../src/ast-parser.js";
 import { FileNotFoundError } from "../src/types.js";
-import type { Warning } from "../src/types.js";
 
 const FIXTURES = resolve(import.meta.dirname, "fixtures");
 
 describe("parseFile", () => {
   describe("export extraction", () => {
     it("extracts named export function", () => {
-      const pf = parseFile(
-        resolve(FIXTURES, "minimal-pkg/src/greet.ts"),
-        resolve(FIXTURES, "minimal-pkg"),
-      );
+      const pf = parseFile(resolve(FIXTURES, "minimal-pkg/src/greet.ts"), resolve(FIXTURES, "minimal-pkg"));
       expect(pf.exports).toHaveLength(1);
       expect(pf.exports[0].name).toBe("greet");
       expect(pf.exports[0].kind).toBe("function");
@@ -21,10 +17,7 @@ describe("parseFile", () => {
     });
 
     it("extracts re-exports from barrel", () => {
-      const pf = parseFile(
-        resolve(FIXTURES, "minimal-pkg/index.ts"),
-        resolve(FIXTURES, "minimal-pkg"),
-      );
+      const pf = parseFile(resolve(FIXTURES, "minimal-pkg/index.ts"), resolve(FIXTURES, "minimal-pkg"));
       expect(pf.exports).toHaveLength(1);
       expect(pf.exports[0].name).toBe("greet");
       expect(pf.exports[0].isReExport).toBe(true);
@@ -32,10 +25,7 @@ describe("parseFile", () => {
     });
 
     it("extracts named and type re-exports", () => {
-      const pf = parseFile(
-        resolve(FIXTURES, "hooks-pkg/index.ts"),
-        resolve(FIXTURES, "hooks-pkg"),
-      );
+      const pf = parseFile(resolve(FIXTURES, "hooks-pkg/index.ts"), resolve(FIXTURES, "hooks-pkg"));
       const names = pf.exports.map((e) => e.name);
       expect(names).toContain("useCounter");
       expect(names).toContain("useToggle");
@@ -48,43 +38,29 @@ describe("parseFile", () => {
     });
 
     it("extracts hook kind from arrow function name", () => {
-      const pf = parseFile(
-        resolve(FIXTURES, "hooks-pkg/src/hooks/use-counter.ts"),
-        resolve(FIXTURES, "hooks-pkg"),
-      );
+      const pf = parseFile(resolve(FIXTURES, "hooks-pkg/src/hooks/use-counter.ts"), resolve(FIXTURES, "hooks-pkg"));
       const hookExport = pf.exports.find((e) => e.name === "useCounter");
       expect(hookExport?.kind).toBe("hook");
       expect(hookExport?.signature).toBeDefined();
     });
 
     it("extracts interface export", () => {
-      const pf = parseFile(
-        resolve(FIXTURES, "hooks-pkg/src/hooks/use-counter.ts"),
-        resolve(FIXTURES, "hooks-pkg"),
-      );
+      const pf = parseFile(resolve(FIXTURES, "hooks-pkg/src/hooks/use-counter.ts"), resolve(FIXTURES, "hooks-pkg"));
       const iface = pf.exports.find((e) => e.name === "CounterOptions");
       expect(iface?.kind).toBe("interface");
       expect(iface?.isTypeOnly).toBe(true);
     });
 
     it("extracts JSDoc comment", () => {
-      const pf = parseFile(
-        resolve(FIXTURES, "minimal-pkg/src/greet.ts"),
-        resolve(FIXTURES, "minimal-pkg"),
-      );
+      const pf = parseFile(resolve(FIXTURES, "minimal-pkg/src/greet.ts"), resolve(FIXTURES, "minimal-pkg"));
       expect(pf.exports[0].jsDocComment).toContain("Greets a person");
     });
   });
 
   describe("import extraction", () => {
     it("extracts static imports", () => {
-      const pf = parseFile(
-        resolve(FIXTURES, "hooks-pkg/src/hooks/use-counter.ts"),
-        resolve(FIXTURES, "hooks-pkg"),
-      );
-      const reactImport = pf.imports.find(
-        (i) => i.moduleSpecifier === "react",
-      );
+      const pf = parseFile(resolve(FIXTURES, "hooks-pkg/src/hooks/use-counter.ts"), resolve(FIXTURES, "hooks-pkg"));
+      const reactImport = pf.imports.find((i) => i.moduleSpecifier === "react");
       expect(reactImport).toBeDefined();
       expect(reactImport?.importedNames).toContain("useState");
       expect(reactImport?.importedNames).toContain("useCallback");
@@ -110,10 +86,7 @@ describe("parseFile", () => {
     });
 
     it("does not flag normal files as generated", () => {
-      const pf = parseFile(
-        resolve(FIXTURES, "hooks-pkg/src/hooks/use-counter.ts"),
-        resolve(FIXTURES, "hooks-pkg"),
-      );
+      const pf = parseFile(resolve(FIXTURES, "hooks-pkg/src/hooks/use-counter.ts"), resolve(FIXTURES, "hooks-pkg"));
       expect(pf.isGeneratedFile).toBe(false);
       expect(pf.isTestFile).toBe(false);
     });
@@ -121,10 +94,7 @@ describe("parseFile", () => {
 
   describe("content signals (E-17: hybrid AST/regex)", () => {
     it("counts React hooks via AST", () => {
-      const pf = parseFile(
-        resolve(FIXTURES, "hooks-pkg/src/hooks/use-counter.ts"),
-        resolve(FIXTURES, "hooks-pkg"),
-      );
+      const pf = parseFile(resolve(FIXTURES, "hooks-pkg/src/hooks/use-counter.ts"), resolve(FIXTURES, "hooks-pkg"));
       expect(pf.contentSignals.useStateCount).toBe(1);
       expect(pf.contentSignals.useCallbackCount).toBe(3);
       expect(pf.contentSignals.useMemoCount).toBe(1);
@@ -150,10 +120,7 @@ describe("parseFile", () => {
 
   describe("CJS detection (E-18)", () => {
     it("detects CommonJS patterns", () => {
-      const pf = parseFile(
-        resolve(FIXTURES, "cjs-pkg/index.js"),
-        resolve(FIXTURES, "cjs-pkg"),
-      );
+      const pf = parseFile(resolve(FIXTURES, "cjs-pkg/index.js"), resolve(FIXTURES, "cjs-pkg"));
       expect(pf.hasCJS).toBe(true);
       // Should have mapped module.exports and exports.helper
       const exportNames = pf.exports.map((e) => e.name);
@@ -162,21 +129,13 @@ describe("parseFile", () => {
     });
 
     it("detects require() as import", () => {
-      const pf = parseFile(
-        resolve(FIXTURES, "cjs-pkg/index.js"),
-        resolve(FIXTURES, "cjs-pkg"),
-      );
-      const barImport = pf.imports.find(
-        (i) => i.moduleSpecifier === "./bar",
-      );
+      const pf = parseFile(resolve(FIXTURES, "cjs-pkg/index.js"), resolve(FIXTURES, "cjs-pkg"));
+      const barImport = pf.imports.find((i) => i.moduleSpecifier === "./bar");
       expect(barImport).toBeDefined();
     });
 
     it("does not flag ESM files as CJS", () => {
-      const pf = parseFile(
-        resolve(FIXTURES, "minimal-pkg/src/greet.ts"),
-        resolve(FIXTURES, "minimal-pkg"),
-      );
+      const pf = parseFile(resolve(FIXTURES, "minimal-pkg/src/greet.ts"), resolve(FIXTURES, "minimal-pkg"));
       expect(pf.hasCJS).toBe(false);
     });
   });
@@ -184,10 +143,7 @@ describe("parseFile", () => {
   describe("error handling", () => {
     it("throws FileNotFoundError for missing files", () => {
       expect(() =>
-        parseFile(
-          resolve(FIXTURES, "minimal-pkg/nonexistent.ts"),
-          resolve(FIXTURES, "minimal-pkg"),
-        ),
+        parseFile(resolve(FIXTURES, "minimal-pkg/nonexistent.ts"), resolve(FIXTURES, "minimal-pkg")),
       ).toThrow(FileNotFoundError);
     });
   });

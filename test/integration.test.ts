@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
 import { resolve } from "node:path";
+import { describe, expect, it } from "vitest";
 import { analyze } from "../src/index.js";
 
 const FIXTURES = resolve(import.meta.dirname, "fixtures");
@@ -38,9 +38,7 @@ describe("integration: analyze()", () => {
     expect(pkg.name).toBe("@test/hooks-pkg");
 
     // Public API includes hooks
-    const hookNames = pkg.publicAPI
-      .filter((e) => e.kind === "hook")
-      .map((e) => e.name);
+    const hookNames = pkg.publicAPI.filter((e) => e.kind === "hook").map((e) => e.name);
     expect(hookNames).toContain("useCounter");
     expect(hookNames).toContain("useToggle");
     expect(hookNames).toContain("useLocalStorage");
@@ -82,9 +80,7 @@ describe("integration: analyze()", () => {
 
     expect(result.packages).toHaveLength(1);
     // Should complete and have warnings about circular
-    const circularWarning = result.warnings.some(
-      (w) => w.message.toLowerCase().includes("circular"),
-    );
+    const circularWarning = result.warnings.some((w) => w.message.toLowerCase().includes("circular"));
     expect(circularWarning).toBe(true);
   });
 
@@ -95,9 +91,7 @@ describe("integration: analyze()", () => {
 
     const pkg = result.packages[0];
     expect(pkg.publicAPI).toHaveLength(0); // no barrel → no public API
-    expect(result.warnings.some((w) => w.message.includes("No barrel"))).toBe(
-      true,
-    );
+    expect(result.warnings.some((w) => w.message.includes("No barrel"))).toBe(true);
   });
 
   it("analyzes no-package-json directory", async () => {
@@ -121,10 +115,7 @@ describe("integration: analyze()", () => {
 
   it("analyzes multiple packages with cross-package analysis", async () => {
     const result = await analyze({
-      packages: [
-        resolve(FIXTURES, "minimal-pkg"),
-        resolve(FIXTURES, "hooks-pkg"),
-      ],
+      packages: [resolve(FIXTURES, "minimal-pkg"), resolve(FIXTURES, "hooks-pkg")],
     });
 
     expect(result.packages).toHaveLength(2);

@@ -2,25 +2,25 @@
 // Errata applied: E-31 (publicAPI computed before arch detector),
 //                 E-32 (importCount per public symbol), E-13 (cap publicAPI)
 
-import { readFileSync, existsSync } from "node:fs";
-import { resolve, join, basename, dirname, extname, relative } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { basename, dirname, extname, join, relative, resolve } from "node:path";
 import type {
+  AnalysisMeta,
+  CommandSet,
+  Convention,
+  CrossPackageAnalysis,
+  DependencySummary,
+  FileInventory,
+  PackageAnalysis,
+  PackageArchitecture,
   ParsedFile,
+  PublicAPIEntry,
+  PublicConfig,
+  ResolvedConfig,
+  StructuredAnalysis,
   SymbolGraph,
   TierInfo,
-  Convention,
-  CommandSet,
-  PackageArchitecture,
-  PackageAnalysis,
-  PublicAPIEntry,
-  FileInventory,
-  DependencySummary,
-  StructuredAnalysis,
-  CrossPackageAnalysis,
-  ResolvedConfig,
-  PublicConfig,
   Warning,
-  AnalysisMeta,
 } from "./types.js";
 import { ENGINE_VERSION } from "./types.js";
 
@@ -50,9 +50,7 @@ export function buildPublicAPI(
       exp.name[3] === exp.name[3].toUpperCase()
     ) {
       const sourceFile = fileMap.get(exp.definedIn);
-      const hasReactImport = sourceFile?.imports.some(
-        (imp) => REACT_MODULES.has(imp.moduleSpecifier),
-      ) ?? false;
+      const hasReactImport = sourceFile?.imports.some((imp) => REACT_MODULES.has(imp.moduleSpecifier)) ?? false;
       kind = hasReactImport ? "hook" : "function";
     }
 
@@ -180,7 +178,7 @@ export function buildPackageAnalysis(
   packageDir: string,
   rootDir: string | undefined,
   parsedFiles: ParsedFile[],
-  symbolGraph: SymbolGraph,
+  _symbolGraph: SymbolGraph,
   tiers: Map<string, TierInfo>,
   conventions: Convention[],
   commands: CommandSet,
@@ -193,9 +191,9 @@ export function buildPackageAnalysis(
 
   // Resolve package metadata by walking up to nearest package.json with a name
   const meta = resolvePackageMetadata(packageDir, rootDir);
-  let name = meta.name;
-  let version = meta.version;
-  let description = meta.description;
+  const name = meta.name;
+  const version = meta.version;
+  const description = meta.description;
 
   // Build FileInventory
   const files = buildFileInventory(parsedFiles, tiers);
@@ -229,13 +227,13 @@ export function buildPackageAnalysis(
   };
 }
 
-function buildFileInventory(
-  parsedFiles: ParsedFile[],
-  tiers: Map<string, TierInfo>,
-): FileInventory {
+function buildFileInventory(parsedFiles: ParsedFile[], tiers: Map<string, TierInfo>): FileInventory {
   const tier1Files: string[] = [];
   const tier2Files: string[] = [];
-  let t1Lines = 0, t2Lines = 0, t3Lines = 0, t3Count = 0;
+  let t1Lines = 0,
+    t2Lines = 0,
+    t3Lines = 0,
+    t3Count = 0;
   const byExtension: Record<string, number> = {};
 
   for (const pf of parsedFiles) {
@@ -266,24 +264,19 @@ function buildFileInventory(
   };
 }
 
-function buildDependencies(
-  parsedFiles: ParsedFile[],
-  packageName: string,
-): DependencySummary {
+function buildDependencies(parsedFiles: ParsedFile[], packageName: string): DependencySummary {
   const internal = new Set<string>();
   const externalCounts = new Map<string, number>();
 
   // Detect org scope from package name
-  const scope = packageName.startsWith("@")
-    ? packageName.split("/")[0]
-    : null;
+  const scope = packageName.startsWith("@") ? packageName.split("/")[0] : null;
 
   for (const pf of parsedFiles) {
     for (const imp of pf.imports) {
       if (imp.moduleSpecifier.startsWith(".")) continue; // relative
       if (imp.isDynamic) continue;
 
-      if (scope && imp.moduleSpecifier.startsWith(scope + "/")) {
+      if (scope && imp.moduleSpecifier.startsWith(`${scope}/`)) {
         internal.add(imp.moduleSpecifier);
       } else if (imp.moduleSpecifier.startsWith("@")) {
         const pkg = imp.moduleSpecifier.split("/").slice(0, 2).join("/");

@@ -1,22 +1,13 @@
 // src/cross-package.ts — Module 8: Cross-Package Analyzer
 
-import type {
-  PackageAnalysis,
-  CrossPackageAnalysis,
-  CommandSet,
-  Convention,
-  PackageDependency,
-} from "./types.js";
 import { deriveSharedAntiPatterns } from "./anti-pattern-detector.js";
 import { classifyImpacts } from "./impact-classifier.js";
+import type { CommandSet, Convention, CrossPackageAnalysis, PackageAnalysis, PackageDependency } from "./types.js";
 
 /**
  * Combine multiple per-package analyses into a cross-package view.
  */
-export function analyzeCrossPackage(
-  packages: PackageAnalysis[],
-  rootCommands?: CommandSet,
-): CrossPackageAnalysis {
+export function analyzeCrossPackage(packages: PackageAnalysis[], rootCommands?: CommandSet): CrossPackageAnalysis {
   const dependencyGraph = buildDependencyGraph(packages);
   const { shared, divergent } = analyzeConventions(packages);
   const rawSharedAntiPatterns = deriveSharedAntiPatterns(shared);
@@ -33,9 +24,7 @@ export function analyzeCrossPackage(
   };
 }
 
-function buildDependencyGraph(
-  packages: PackageAnalysis[],
-): PackageDependency[] {
+function buildDependencyGraph(packages: PackageAnalysis[]): PackageDependency[] {
   const packageNames = new Set(packages.map((p) => p.name));
   const edges: PackageDependency[] = [];
 
@@ -63,10 +52,7 @@ function analyzeConventions(packages: PackageAnalysis[]): {
   }
 
   // Group conventions by name across all packages
-  const conventionByName = new Map<
-    string,
-    { convention: Convention; packages: string[] }[]
-  >();
+  const conventionByName = new Map<string, { convention: Convention; packages: string[] }[]>();
 
   for (const pkg of packages) {
     for (const conv of pkg.conventions) {

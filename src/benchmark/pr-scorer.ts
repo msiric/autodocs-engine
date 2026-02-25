@@ -2,10 +2,9 @@
 // Phase 0: File placement accuracy as the primary metric.
 // Designed to be extended with naming, imports, exports in later phases.
 
-import ts from "typescript";
-import { dirname, basename, extname } from "node:path";
-import type { GeneratedFile } from "./types.js";
+import { basename, dirname, extname } from "node:path";
 import type { MinedTask } from "./pr-miner.js";
+import type { GeneratedFile } from "./types.js";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -27,7 +26,7 @@ export interface PRScoreResult {
 }
 
 export interface DimensionScore {
-  score: number;     // 0-100
+  score: number; // 0-100
   detail: string;
   passed: boolean;
 }
@@ -61,11 +60,12 @@ export function scorePROutput(
   }
 
   // Filter to implementation files (not test, not barrel, not response wrapper)
-  const implFiles = files.filter(f =>
-    !f.path.includes(".test.") &&
-    !f.path.includes(".spec.") &&
-    !f.path.includes("__response__") &&
-    !isBarrelFile(f.path)
+  const implFiles = files.filter(
+    (f) =>
+      !f.path.includes(".test.") &&
+      !f.path.includes(".spec.") &&
+      !f.path.includes("__response__") &&
+      !isBarrelFile(f.path),
   );
 
   const filePlacement = scoreFilePlacement(implFiles, task);
@@ -79,7 +79,7 @@ export function scorePROutput(
   return {
     score,
     dimensions: { filePlacement, namingConvention, barrelUpdate },
-    filesCreated: files.map(f => f.path),
+    filesCreated: files.map((f) => f.path),
     tokensUsed,
     latencyMs,
   };
@@ -91,10 +91,7 @@ export function scorePROutput(
  * Score whether the AI placed its files in the correct directory.
  * Uses path distance: exact match = 100%, parent = 60%, shared prefix scaled.
  */
-export function scoreFilePlacement(
-  implFiles: GeneratedFile[],
-  task: MinedTask,
-): DimensionScore {
+export function scoreFilePlacement(implFiles: GeneratedFile[], task: MinedTask): DimensionScore {
   if (implFiles.length === 0) {
     return { score: 0, detail: "No implementation files generated", passed: false };
   }
@@ -147,7 +144,7 @@ export function pathSimilarity(a: string, b: string): number {
     lcp++;
   }
 
-  const distance = (aParts.length - lcp) + (bParts.length - lcp);
+  const distance = aParts.length - lcp + (bParts.length - lcp);
   if (distance === 0) return 1.0;
 
   // Exponential decay with distance
@@ -177,10 +174,7 @@ function getPackage(parts: string[]): string | null {
  * Score whether the AI's filename follows the same naming convention
  * as the ground truth file.
  */
-export function scoreNamingConvention(
-  implFiles: GeneratedFile[],
-  task: MinedTask,
-): DimensionScore {
+export function scoreNamingConvention(implFiles: GeneratedFile[], task: MinedTask): DimensionScore {
   if (implFiles.length === 0) {
     return { score: 0, detail: "No files", passed: false };
   }
@@ -239,10 +233,7 @@ function detectConvention(name: string): NamingConvention {
  * Score whether the AI updated the barrel/index file when one exists.
  * Binary: did the AI produce a modified barrel that includes a new export?
  */
-export function scoreBarrelUpdate(
-  allFiles: GeneratedFile[],
-  task: MinedTask,
-): DimensionScore {
+export function scoreBarrelUpdate(allFiles: GeneratedFile[], task: MinedTask): DimensionScore {
   // Only score if the directory had a barrel file
   if (!task.context.barrelFile) {
     return { score: 100, detail: "No barrel file — N/A", passed: true };
@@ -251,10 +242,8 @@ export function scoreBarrelUpdate(
   // Find the AI's barrel file
   const barrelPath = task.context.barrelFile.path;
   const barrelName = basename(barrelPath);
-  const aiBarrel = allFiles.find(f =>
-    f.path === barrelPath ||
-    f.path.endsWith("/" + barrelName) ||
-    basename(f.path) === barrelName
+  const aiBarrel = allFiles.find(
+    (f) => f.path === barrelPath || f.path.endsWith(`/${barrelName}`) || basename(f.path) === barrelName,
   );
 
   if (!aiBarrel) {
@@ -264,7 +253,7 @@ export function scoreBarrelUpdate(
   // Check if the AI added a new export
   const originalExports = extractReExports(task.context.barrelFile.content);
   const aiExports = extractReExports(aiBarrel.content);
-  const newExports = aiExports.filter(e => !originalExports.includes(e));
+  const newExports = aiExports.filter((e) => !originalExports.includes(e));
 
   if (newExports.length > 0) {
     return {

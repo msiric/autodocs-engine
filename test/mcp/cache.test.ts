@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AnalysisCache } from "../../src/mcp/cache.js";
 
 // Mock analyze() to avoid running the real pipeline
@@ -62,7 +62,7 @@ describe("AnalysisCache", () => {
     });
 
     // Force TTL expiry
-    await new Promise(r => setTimeout(r, 350));
+    await new Promise((r) => setTimeout(r, 350));
     await cache.get();
     expect(mockAnalyze).toHaveBeenCalledTimes(2);
   });
@@ -78,7 +78,7 @@ describe("AnalysisCache", () => {
       return "";
     });
 
-    await new Promise(r => setTimeout(r, 350));
+    await new Promise((r) => setTimeout(r, 350));
     await cache.get();
     expect(mockAnalyze).toHaveBeenCalledTimes(2);
   });
@@ -101,7 +101,7 @@ describe("AnalysisCache", () => {
       return "";
     });
 
-    await new Promise(r => setTimeout(r, 350));
+    await new Promise((r) => setTimeout(r, 350));
     await cache.get();
     expect(mockAnalyze).toHaveBeenCalledTimes(2);
   });
@@ -117,14 +117,16 @@ describe("AnalysisCache", () => {
       return "";
     });
 
-    await new Promise(r => setTimeout(r, 350));
+    await new Promise((r) => setTimeout(r, 350));
     await cache.get();
     expect(mockAnalyze).toHaveBeenCalledTimes(2);
   });
 
   it("handles non-git repos with TTL fallback", async () => {
     // Git fails
-    mockExec.mockImplementation(() => { throw new Error("not a git repo"); });
+    mockExec.mockImplementation(() => {
+      throw new Error("not a git repo");
+    });
 
     const cache = new AnalysisCache("/tmp/test");
     await cache.get();
@@ -139,11 +141,7 @@ describe("AnalysisCache", () => {
     const cache = new AnalysisCache("/tmp/test");
 
     // Fire 3 concurrent calls
-    const [r1, r2, r3] = await Promise.all([
-      cache.get(),
-      cache.get(),
-      cache.get(),
-    ]);
+    const [r1, r2, r3] = await Promise.all([cache.get(), cache.get(), cache.get()]);
 
     // All return same result, but analyze only called once
     expect(r1).toBe(r2);

@@ -1,7 +1,7 @@
 // test/benchmark/pr-task-gen.test.ts
-import { describe, it, expect } from "vitest";
-import { generateTaskPrompt, cleanCommitMessage } from "../../src/benchmark/pr-task-gen.js";
+import { describe, expect, it } from "vitest";
 import type { MinedTask } from "../../src/benchmark/pr-miner.js";
+import { cleanCommitMessage, generateTaskPrompt } from "../../src/benchmark/pr-task-gen.js";
 
 function makeTask(overrides: Partial<MinedTask> = {}): MinedTask {
   return {
@@ -11,7 +11,8 @@ function makeTask(overrides: Partial<MinedTask> = {}): MinedTask {
     commitDate: "2024-06-15T10:00:00Z",
     groundTruth: {
       path: "src/middleware/cache.ts",
-      content: overrides.groundTruth?.content ?? `export function createCache(maxSize: number) {\n  return new Map();\n}\n`,
+      content:
+        overrides.groundTruth?.content ?? `export function createCache(maxSize: number) {\n  return new Map();\n}\n`,
       directory: "src/middleware",
       filename: "cache.ts",
       lineCount: 30,
@@ -52,7 +53,7 @@ describe("cleanCommitMessage", () => {
 
   it("handles already clean messages", () => {
     expect(cleanCommitMessage("Add Redis-based caching for API responses")).toBe(
-      "Add Redis-based caching for API responses"
+      "Add Redis-based caching for API responses",
     );
   });
 

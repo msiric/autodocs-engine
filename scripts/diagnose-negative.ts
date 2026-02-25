@@ -13,7 +13,10 @@ for (const repo of repos) {
   try {
     const analysis = await analyze({ packages: [repo.path] });
     const pkg = analysis.packages[0];
-    if (!pkg) { console.log(`${repo.name}: NO PACKAGE`); continue; }
+    if (!pkg) {
+      console.log(`${repo.name}: NO PACKAGE`);
+      continue;
+    }
 
     const score = computeInferabilityScore(pkg);
 
@@ -21,7 +24,9 @@ for (const repo of repos) {
     console.log(`${repo.name} (benchmark delta: ${repo.preDelta}%)`);
     console.log(`${"=".repeat(60)}`);
     console.log(`Inferability: score=${score.score} rec=${score.recommendation}`);
-    console.log(`Factors: dirObv=${score.factors.directoryObviousness} naming=${score.factors.namingConsistency} patUniq=${score.factors.patternUniqueness} regComp=${score.factors.registrationComplexity}`);
+    console.log(
+      `Factors: dirObv=${score.factors.directoryObviousness} naming=${score.factors.namingConsistency} patUniq=${score.factors.patternUniqueness} regComp=${score.factors.registrationComplexity}`,
+    );
 
     console.log(`\nContribution patterns (${(pkg.contributionPatterns ?? []).length}):`);
     for (const cp of pkg.contributionPatterns ?? []) {

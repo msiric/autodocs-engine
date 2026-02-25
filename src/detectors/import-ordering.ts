@@ -1,13 +1,44 @@
+import { buildConfidence, sourceParsedFiles } from "../convention-extractor.js";
 import type { Convention, ConventionDetector } from "../types.js";
-import { sourceParsedFiles, buildConfidence } from "../convention-extractor.js";
 
 // Node.js built-in modules (with and without node: prefix)
 const NODE_BUILTINS = new Set([
-  "assert", "buffer", "child_process", "cluster", "console", "constants",
-  "crypto", "dgram", "dns", "domain", "events", "fs", "http", "https",
-  "module", "net", "os", "path", "perf_hooks", "process", "punycode",
-  "querystring", "readline", "repl", "stream", "string_decoder", "sys",
-  "timers", "tls", "tty", "url", "util", "v8", "vm", "worker_threads", "zlib",
+  "assert",
+  "buffer",
+  "child_process",
+  "cluster",
+  "console",
+  "constants",
+  "crypto",
+  "dgram",
+  "dns",
+  "domain",
+  "events",
+  "fs",
+  "http",
+  "https",
+  "module",
+  "net",
+  "os",
+  "path",
+  "perf_hooks",
+  "process",
+  "punycode",
+  "querystring",
+  "readline",
+  "repl",
+  "stream",
+  "string_decoder",
+  "sys",
+  "timers",
+  "tls",
+  "tty",
+  "url",
+  "util",
+  "v8",
+  "vm",
+  "worker_threads",
+  "zlib",
 ]);
 
 type ImportGroup = "builtin" | "external" | "local";
@@ -28,9 +59,7 @@ export const importOrderingDetector: ConventionDetector = (files, tiers, _warnin
   const sourceFiles = sourceParsedFiles(files, tiers);
 
   // Only analyze files with ≥3 imports (need enough to detect ordering)
-  const filesWithImports = sourceFiles.filter(f =>
-    f.imports.filter(i => !i.isDynamic).length >= 3,
-  );
+  const filesWithImports = sourceFiles.filter((f) => f.imports.filter((i) => !i.isDynamic).length >= 3);
   if (filesWithImports.length < 5) return conventions;
 
   let builtinFirstCount = 0;
@@ -38,9 +67,7 @@ export const importOrderingDetector: ConventionDetector = (files, tiers, _warnin
   let totalWithMixedGroups = 0;
 
   for (const file of filesWithImports) {
-    const groups = file.imports
-      .filter(i => !i.isDynamic)
-      .map(i => classifyImport(i.moduleSpecifier));
+    const groups = file.imports.filter((i) => !i.isDynamic).map((i) => classifyImport(i.moduleSpecifier));
 
     // Skip files with only one import group
     const uniqueGroups = new Set(groups);
@@ -77,7 +104,7 @@ export const importOrderingDetector: ConventionDetector = (files, tiers, _warnin
       name: "Import ordering: external before local",
       description: "External/package imports appear before local relative imports",
       confidence: buildConfidence(externalBeforeLocalCount, totalWithMixedGroups),
-      examples: ["import { x } from \"pkg\"; // before", "import { y } from \"./local\"; // after"],
+      examples: ['import { x } from "pkg"; // before', 'import { y } from "./local"; // after'],
     });
   }
 
@@ -89,7 +116,7 @@ export const importOrderingDetector: ConventionDetector = (files, tiers, _warnin
       name: "Import ordering: Node builtins first",
       description: "Node.js built-in imports (node:fs, node:path) appear before all other imports",
       confidence: buildConfidence(builtinFirstCount, totalWithMixedGroups),
-      examples: ["import { resolve } from \"node:path\"; // first", "import { z } from \"zod\"; // after"],
+      examples: ['import { resolve } from "node:path"; // first', 'import { z } from "zod"; // after'],
     });
   }
 

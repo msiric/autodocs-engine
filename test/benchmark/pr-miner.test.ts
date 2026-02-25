@@ -1,8 +1,9 @@
 // test/benchmark/pr-miner.test.ts
-import { describe, it, expect } from "vitest";
-import { mineCommits, readFileAtCommit, listDirAtCommit } from "../../src/benchmark/pr-miner.js";
-import { resolve } from "node:path";
+
 import { execSync } from "node:child_process";
+import { resolve } from "node:path";
+import { describe, expect, it } from "vitest";
+import { listDirAtCommit, mineCommits, readFileAtCommit } from "../../src/benchmark/pr-miner.js";
 
 const REPO_ROOT = resolve(import.meta.dirname, "../..");
 
@@ -35,7 +36,7 @@ describe("pr-miner", () => {
       const gitRoot = getGitRoot();
       const files = listDirAtCommit(gitRoot, "HEAD", "src");
       expect(files.length).toBeGreaterThan(0);
-      expect(files.some(f => f.endsWith(".ts"))).toBe(true);
+      expect(files.some((f) => f.endsWith(".ts"))).toBe(true);
     });
 
     it("returns empty for non-existent directory", () => {
@@ -51,7 +52,7 @@ describe("pr-miner", () => {
         maxTasks: 5,
         maxCommits: 100,
         sinceDays: 365,
-        minSiblings: 1,     // lower threshold for our own repo
+        minSiblings: 1, // lower threshold for our own repo
         minFileLines: 10,
         verbose: false,
       });

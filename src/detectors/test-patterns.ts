@@ -1,5 +1,5 @@
-import type { Convention, ConventionDetector, ParsedFile } from "../types.js";
 import { buildConfidence } from "../convention-extractor.js";
+import type { Convention, ConventionDetector } from "../types.js";
 
 export const testPatternDetector: ConventionDetector = (files, _tiers, _warnings) => {
   const conventions: Convention[] = [];
@@ -7,7 +7,9 @@ export const testPatternDetector: ConventionDetector = (files, _tiers, _warnings
   if (testFiles.length === 0) return conventions;
 
   // Framework detection
-  let jest = 0, vitest = 0, rtl = 0;
+  let jest = 0,
+    vitest = 0,
+    rtl = 0;
   for (const f of testFiles) {
     const imports = f.imports.map((i) => i.moduleSpecifier);
     if (imports.some((m) => m === "vitest")) vitest++;
@@ -25,15 +27,11 @@ export const testPatternDetector: ConventionDetector = (files, _tiers, _warnings
   });
 
   // Co-location
-  const sourceFiles = new Set(
-    files.filter((f) => !f.isTestFile && !f.isGeneratedFile).map((f) => f.relativePath),
-  );
+  const sourceFiles = new Set(files.filter((f) => !f.isTestFile && !f.isGeneratedFile).map((f) => f.relativePath));
   let coLocated = 0;
   for (const tf of testFiles) {
     const base = tf.relativePath.replace(/\.(test|spec)\.[^.]+$/, "");
-    const sourceExists = [".ts", ".tsx", ".js", ".jsx"].some((ext) =>
-      sourceFiles.has(`${base}${ext}`),
-    );
+    const sourceExists = [".ts", ".tsx", ".js", ".jsx"].some((ext) => sourceFiles.has(`${base}${ext}`));
     if (sourceExists) coLocated++;
   }
 

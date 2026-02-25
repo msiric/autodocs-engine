@@ -6,19 +6,19 @@ import { join } from "node:path";
 import { analyze, formatDeterministic } from "../index.js";
 import type { ResolvedConfig } from "../types.js";
 import { ENGINE_VERSION } from "../types.js";
-import { generateTasksFromAnalysis } from "./task-generator.js";
 import { generateCode } from "./code-generator.js";
+import { generateJsonReport, generateMarkdownReport } from "./report.js";
 import { scoreGeneratedOutput } from "./scorer.js";
 import { shuffleAgentsMd } from "./shuffler.js";
-import { pairedTTest, cohensD, bootstrapCI, wilcoxonSignedRank } from "./statistics.js";
-import { generateMarkdownReport, generateJsonReport } from "./report.js";
+import { bootstrapCI, cohensD, pairedTTest } from "./statistics.js";
+import { generateTasksFromAnalysis } from "./task-generator.js";
 import type {
+  BenchmarkCondition,
   BenchmarkOptions,
   BenchmarkResults,
-  BenchmarkCondition,
-  TaskResult,
   ConditionSummary,
   RunResult,
+  TaskResult,
 } from "./types.js";
 
 // ─── Public API ──────────────────────────────────────────────────────────────
@@ -50,23 +50,23 @@ export async function orchestrateBenchmark(
 
   // Phase 2: Generate tasks
   log("Phase 2: Generating benchmark tasks...");
-  const maxTasks = options.mode === "quick"
-    ? Math.min(options.maxTasks ?? 5, 5)
-    : options.maxTasks ?? 20;
+  const maxTasks = options.mode === "quick" ? Math.min(options.maxTasks ?? 5, 5) : (options.maxTasks ?? 20);
 
   const tasks = generateTasksFromAnalysis(analysis, options.repoPath, maxTasks);
 
   if (tasks.length === 0) {
     throw new Error(
-      "No benchmark tasks could be generated. This repo may lack contribution patterns.\n"
-      + "Try a repo with structured patterns (e.g., directories with 3+ similar files)."
+      "No benchmark tasks could be generated. This repo may lack contribution patterns.\n" +
+        "Try a repo with structured patterns (e.g., directories with 3+ similar files).",
     );
   }
 
-  const patternCount = tasks.filter(t => t.taskType === "pattern").length;
-  const commandCount = tasks.filter(t => t.taskType === "command").length;
-  const archCount = tasks.filter(t => t.taskType === "architecture").length;
-  log(`  ${tasks.length} tasks generated: ${patternCount} pattern, ${commandCount} command, ${archCount} architecture (${tasks.filter(t => t.tier === "A").length} Tier A, ${tasks.filter(t => t.tier === "B").length} Tier B, ${tasks.filter(t => t.tier === "C").length} Tier C)`);
+  const patternCount = tasks.filter((t) => t.taskType === "pattern").length;
+  const commandCount = tasks.filter((t) => t.taskType === "command").length;
+  const archCount = tasks.filter((t) => t.taskType === "architecture").length;
+  log(
+    `  ${tasks.length} tasks generated: ${patternCount} pattern, ${commandCount} command, ${archCount} architecture (${tasks.filter((t) => t.tier === "A").length} Tier A, ${tasks.filter((t) => t.tier === "B").length} Tier B, ${tasks.filter((t) => t.tier === "C").length} Tier C)`,
+  );
 
   // Dry run: show tasks and exit
   if (options.dryRun) {
@@ -75,7 +75,7 @@ export async function orchestrateBenchmark(
       process.stderr.write(`Prompt: ${task.prompt}\n`);
       process.stderr.write(`Directory: ${task.expectedDirectory}\n`);
       process.stderr.write(`Pattern: ${task.expectedFilePattern}\n`);
-      process.stderr.write(`Siblings: ${task.context.siblingFiles.map(s => s.path).join(", ")}\n`);
+      process.stderr.write(`Siblings: ${task.context.siblingFiles.map((s) => s.path).join(", ")}\n`);
       process.stderr.write(`Registration: ${task.context.registrationFile?.path ?? "none"}\n`);
       process.stderr.write(`Barrel: ${task.context.barrelFile?.path ?? "none"}\n`);
       process.stderr.write(`Max points: ${task.maxScoringPoints}\n`);
@@ -123,9 +123,7 @@ export async function orchestrateBenchmark(
 
     for (const condition of conditions) {
       log(`    Condition: ${condition}...`);
-      const codeResult = await generateCode(
-        task, condition, agentsMd, shuffledAgentsMd, llmConfig,
-      );
+      const codeResult = await generateCode(task, condition, agentsMd, shuffledAgentsMd, llmConfig);
 
       const runResult = scoreGeneratedOutput(
         codeResult.files,
@@ -136,7 +134,9 @@ export async function orchestrateBenchmark(
       );
 
       results[condition] = runResult;
-      log(`    → ${runResult.score}% (${runResult.rawScore}/${runResult.maxPoints}) ${runResult.passed ? "PASS" : "FAIL"}`);
+      log(
+        `    → ${runResult.score}% (${runResult.rawScore}/${runResult.maxPoints}) ${runResult.passed ? "PASS" : "FAIL"}`,
+      );
     }
 
     taskResults.push({
@@ -187,9 +187,9 @@ function computeSummary(
   const conditionData: ConditionSummary["conditions"] = {} as ConditionSummary["conditions"];
 
   for (const cond of conditions) {
-    const scores = tasks.map(t => t.results[cond]?.score ?? 0);
-    const tokens = tasks.map(t => t.results[cond]?.tokensUsed ?? 0);
-    const passCount = tasks.filter(t => t.results[cond]?.passed).length;
+    const scores = tasks.map((t) => t.results[cond]?.score ?? 0);
+    const tokens = tasks.map((t) => t.results[cond]?.tokensUsed ?? 0);
+    const passCount = tasks.filter((t) => t.results[cond]?.passed).length;
 
     conditionData[cond] = {
       meanScore: scores.reduce((s, v) => s + v, 0) / n,
@@ -199,14 +199,14 @@ function computeSummary(
     };
   }
 
-  const aScores = conditionData["treatment"]?.scores ?? [];
+  const aScores = conditionData.treatment?.scores ?? [];
   const bScores = conditionData["realistic-control"]?.scores ?? [];
-  const cScores = conditionData["impoverished-control"]?.scores ?? [];
+  const _cScores = conditionData["impoverished-control"]?.scores ?? [];
 
-  const headlineDelta = (conditionData["treatment"]?.meanScore ?? 0)
-    - (conditionData["realistic-control"]?.meanScore ?? 0);
-  const upperBoundDelta = (conditionData["treatment"]?.meanScore ?? 0)
-    - (conditionData["impoverished-control"]?.meanScore ?? 0);
+  const headlineDelta =
+    (conditionData.treatment?.meanScore ?? 0) - (conditionData["realistic-control"]?.meanScore ?? 0);
+  const upperBoundDelta =
+    (conditionData.treatment?.meanScore ?? 0) - (conditionData["impoverished-control"]?.meanScore ?? 0);
 
   const summary: ConditionSummary = {
     tasksRun: n,

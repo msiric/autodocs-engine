@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
 import { resolve } from "node:path";
-import { discoverFiles } from "../src/file-discovery.js";
+import { describe, expect, it } from "vitest";
 import { parseFile } from "../src/ast-parser.js";
+import { discoverFiles } from "../src/file-discovery.js";
 import { buildSymbolGraph } from "../src/symbol-graph.js";
 import { classifyTiers } from "../src/tier-classifier.js";
 import type { Warning } from "../src/types.js";
@@ -46,12 +46,8 @@ describe("classifyTiers", () => {
     expect(tiers.get("src/hooks/use-toggle.test.ts")?.tier).toBe(3);
 
     // Generated files → Tier 3
-    expect(
-      tiers.get("src/graphql/get-data.generated.ts")?.tier,
-    ).toBe(3);
-    expect(
-      tiers.get("src/graphql/update-data.generated.ts")?.tier,
-    ).toBe(3);
+    expect(tiers.get("src/graphql/get-data.generated.ts")?.tier).toBe(3);
+    expect(tiers.get("src/graphql/update-data.generated.ts")?.tier).toBe(3);
   });
 
   it("classifies no-barrel-pkg files as Tier 2", () => {
@@ -65,17 +61,17 @@ describe("classifyTiers", () => {
     // Test rule wins over barrel rule (ordering)
     const { tiers } = analyzePackage("hooks-pkg");
     expect(tiers.get("src/hooks/use-counter.test.ts")?.tier).toBe(3);
-    expect(tiers.get("src/hooks/use-counter.test.ts")?.reason).toBe(
-      "Test file",
-    );
+    expect(tiers.get("src/hooks/use-counter.test.ts")?.reason).toBe("Test file");
   });
 
   it("counts match expected distribution for hooks-pkg", () => {
     const { tiers } = analyzePackage("hooks-pkg");
-    let t1 = 0, t2 = 0, t3 = 0;
+    let t1 = 0,
+      _t2 = 0,
+      t3 = 0;
     for (const [, info] of tiers) {
       if (info.tier === 1) t1++;
-      else if (info.tier === 2) t2++;
+      else if (info.tier === 2) _t2++;
       else t3++;
     }
     // 5 hook files + barrel = 5 T1 files (barrel is T1)

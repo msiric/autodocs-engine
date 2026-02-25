@@ -1,17 +1,17 @@
 // src/benchmark/pr-runner.ts — Orchestrate PR-based benchmark runs
 // Wires together: miner → task-gen → code-gen → scorer → stats → report
 
-import { resolve, basename as pathBasename } from "node:path";
 import { readFileSync } from "node:fs";
-import type { ResolvedConfig } from "../types.js";
+import { basename as pathBasename, resolve } from "node:path";
 import { callLLMWithRetry } from "../llm/client.js";
+import type { ResolvedConfig } from "../types.js";
 import { parseCodeBlocks } from "./code-generator.js";
-import { mineCommits, readFileAtCommit } from "./pr-miner.js";
 import type { MinedTask, MinerOptions } from "./pr-miner.js";
-import { generateTaskPrompt } from "./pr-task-gen.js";
-import { scorePROutput } from "./pr-scorer.js";
+import { mineCommits } from "./pr-miner.js";
 import type { PRScoreResult } from "./pr-scorer.js";
-import { wilcoxonSignedRank, bootstrapCI, cohensD } from "./statistics.js";
+import { scorePROutput } from "./pr-scorer.js";
+import { generateTaskPrompt } from "./pr-task-gen.js";
+import { bootstrapCI, cohensD, wilcoxonSignedRank } from "./statistics.js";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -22,7 +22,7 @@ export interface PRBenchmarkOptions {
   mode: "quick" | "full";
   model?: string;
   maxTasks?: number;
-  agentsMd: string;          // pre-generated AGENTS.md for this repo
+  agentsMd: string; // pre-generated AGENTS.md for this repo
   verbose?: boolean;
   dryRun?: boolean;
 }
@@ -42,15 +42,18 @@ export interface PRBenchmarkResults {
 }
 
 export interface PRSummary {
-  headlineDelta: number;        // A - B on file placement
-  upperBoundDelta: number;      // A - C on file placement
-  aWinRate: number;             // % of tasks where A > B
-  conditions: Record<PRCondition, {
-    meanPlacement: number;
-    meanNaming: number;
-    meanBarrel: number;
-    meanTokens: number;
-  }>;
+  headlineDelta: number; // A - B on file placement
+  upperBoundDelta: number; // A - C on file placement
+  aWinRate: number; // % of tasks where A > B
+  conditions: Record<
+    PRCondition,
+    {
+      meanPlacement: number;
+      meanNaming: number;
+      meanBarrel: number;
+      meanTokens: number;
+    }
+  >;
   stats: {
     pWilcoxon?: number;
     pPermutation?: number;
@@ -70,11 +73,7 @@ export interface PRTaskResult {
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
-const CONDITIONS: PRCondition[] = [
-  "treatment",
-  "realistic-control",
-  "impoverished-control",
-];
+const CONDITIONS: PRCondition[] = ["treatment", "realistic-control", "impoverished-control"];
 
 // ─── Public API ─────────────────────────────────────────────────────────────
 
@@ -85,9 +84,7 @@ export async function runPRBenchmark(
   options: PRBenchmarkOptions,
   llmConfig: ResolvedConfig["llm"],
 ): Promise<PRBenchmarkResults> {
-  const {
-    repoPath, mode, agentsMd, verbose, dryRun,
-  } = options;
+  const { repoPath, mode, agentsMd, verbose, dryRun } = options;
   const maxTasks = options.maxTasks ?? (mode === "quick" ? 30 : 50);
 
   // Phase 1: Mine commits
@@ -101,7 +98,9 @@ export async function runPRBenchmark(
   const { tasks: minedTasks, stats: minerStats } = mineCommits(repoPath, minerOpts);
 
   if (minedTasks.length === 0) {
-    throw new Error(`No qualifying commits found in ${repoPath}. Need commits that added 20-500 line TS files with >= 3 siblings.`);
+    throw new Error(
+      `No qualifying commits found in ${repoPath}. Need commits that added 20-500 line TS files with >= 3 siblings.`,
+    );
   }
 
   if (verbose) {
@@ -138,9 +137,7 @@ export async function runPRBenchmark(
         const response = await callLLMWithRetry(systemPrompt, userPrompt, llmConfig);
         const latencyMs = Math.round(performance.now() - start);
         const files = parseCodeBlocks(response);
-        const tokensUsed = Math.round(
-          (systemPrompt.length + userPrompt.length + response.length) / 4,
-        );
+        const tokensUsed = Math.round((systemPrompt.length + userPrompt.length + response.length) / 4);
 
         results[condition] = scorePROutput(files, task, tokensUsed, latencyMs);
       } catch (err: unknown) {
@@ -201,12 +198,7 @@ function buildPRSystemPrompt(packageName: string): string {
   ].join("\n");
 }
 
-function buildPRUserPrompt(
-  task: MinedTask,
-  condition: PRCondition,
-  agentsMd: string,
-  taskPrompt: string,
-): string {
+function buildPRUserPrompt(task: MinedTask, condition: PRCondition, agentsMd: string, taskPrompt: string): string {
   const parts: string[] = [];
 
   // Barrel file (all conditions)
@@ -270,12 +262,15 @@ function computeSummary(tasks: PRTaskResult[]): PRSummary {
   const n = tasks.length;
 
   // Per-condition aggregates
-  const conditionData: Record<string, {
-    placements: number[];
-    namings: number[];
-    barrels: number[];
-    tokens: number[];
-  }> = {};
+  const conditionData: Record<
+    string,
+    {
+      placements: number[];
+      namings: number[];
+      barrels: number[];
+      tokens: number[];
+    }
+  > = {};
 
   for (const c of CONDITIONS) {
     conditionData[c] = { placements: [], namings: [], barrels: [], tokens: [] };
@@ -291,7 +286,7 @@ function computeSummary(tasks: PRTaskResult[]): PRSummary {
     }
   }
 
-  const mean = (arr: number[]) => arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+  const mean = (arr: number[]) => (arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
 
   const conditions = {} as PRSummary["conditions"];
   for (const c of CONDITIONS) {
@@ -304,7 +299,7 @@ function computeSummary(tasks: PRTaskResult[]): PRSummary {
   }
 
   // Headline: A - B on file placement
-  const aScores = conditionData["treatment"].placements;
+  const aScores = conditionData.treatment.placements;
   const bScores = conditionData["realistic-control"].placements;
   const cScores = conditionData["impoverished-control"].placements;
 
@@ -324,16 +319,22 @@ function computeSummary(tasks: PRTaskResult[]): PRSummary {
     try {
       const wilcoxon = wilcoxonSignedRank(aScores, bScores);
       stats.pWilcoxon = Math.round(wilcoxon.p * 10000) / 10000;
-    } catch { /* not enough data */ }
+    } catch {
+      /* not enough data */
+    }
 
     try {
       stats.effectSize = Math.round(cohensD(aScores, bScores) * 100) / 100;
-    } catch { /* not enough data */ }
+    } catch {
+      /* not enough data */
+    }
 
     try {
       const ci = bootstrapCI(aScores, bScores, 0.05, 10000);
       stats.ci95 = [Math.round(ci[0] * 10) / 10, Math.round(ci[1] * 10) / 10];
-    } catch { /* not enough data */ }
+    } catch {
+      /* not enough data */
+    }
   }
 
   return {
@@ -408,9 +409,12 @@ export function generatePRReport(results: PRBenchmarkResults): string {
   lines.push("| Condition | Mean Placement | Mean Naming | Mean Barrel | Mean Tokens |");
   lines.push("|-----------|:---:|:---:|:---:|:---:|");
   for (const c of ["treatment", "realistic-control", "impoverished-control"] as const) {
-    const label = c === "treatment" ? "A: AGENTS.md + source"
-      : c === "realistic-control" ? "B: Source only"
-      : "C: Dir listing only";
+    const label =
+      c === "treatment"
+        ? "A: AGENTS.md + source"
+        : c === "realistic-control"
+          ? "B: Source only"
+          : "C: Dir listing only";
     const d = summary.conditions[c];
     lines.push(`| ${label} | ${d.meanPlacement}% | ${d.meanNaming}% | ${d.meanBarrel}% | ${d.meanTokens} |`);
   }
@@ -424,7 +428,7 @@ export function generatePRReport(results: PRBenchmarkResults): string {
 
   for (let i = 0; i < tasks.length; i++) {
     const t = tasks[i];
-    const a = t.results["treatment"].dimensions.filePlacement.score;
+    const a = t.results.treatment.dimensions.filePlacement.score;
     const b = t.results["realistic-control"].dimensions.filePlacement.score;
     const c = t.results["impoverished-control"].dimensions.filePlacement.score;
     const delta = a - b;

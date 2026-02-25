@@ -27,3 +27,6 @@ examples/
 
 # Benchmark results (large, repo-specific data — regenerate with `benchmark` command)
 benchmark-results/
+
+# Telemetry
+.autodocs/

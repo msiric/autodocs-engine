@@ -12,7 +12,10 @@ for (const repo of repos) {
   try {
     const analysis = await analyze({ packages: [repo.path] });
     const pkg = analysis.packages[0];
-    if (!pkg) { console.log(`${repo.name}: NO PACKAGE`); continue; }
+    if (!pkg) {
+      console.log(`${repo.name}: NO PACKAGE`);
+      continue;
+    }
 
     const patterns = pkg.contributionPatterns ?? [];
     console.log(`${repo.name}: ${patterns.length} patterns`);

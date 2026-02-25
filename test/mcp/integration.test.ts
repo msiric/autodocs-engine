@@ -3,9 +3,9 @@
 // sends JSON-RPC over stdio, verifies every tool responds without error.
 // This catches silent ESM failures like the require("typescript") bug.
 
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { spawn, type ChildProcess } from "node:child_process";
+import { type ChildProcess, spawn } from "node:child_process";
 import { resolve } from "node:path";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 let serverProcess: ChildProcess;
 let requestId = 0;
@@ -15,7 +15,7 @@ const pending = new Map<number, { resolve: (v: any) => void; reject: (e: Error) 
 
 function sendRequest(method: string, params: Record<string, unknown> = {}): Promise<any> {
   const id = ++requestId;
-  const msg = JSON.stringify({ jsonrpc: "2.0", id, method, params }) + "\n";
+  const msg = `${JSON.stringify({ jsonrpc: "2.0", id, method, params })}\n`;
   serverProcess.stdin!.write(msg);
   return new Promise((res, rej) => {
     pending.set(id, { resolve: res, reject: rej });
@@ -23,7 +23,7 @@ function sendRequest(method: string, params: Record<string, unknown> = {}): Prom
 }
 
 function sendNotification(method: string, params: Record<string, unknown> = {}): void {
-  const msg = JSON.stringify({ jsonrpc: "2.0", method, params }) + "\n";
+  const msg = `${JSON.stringify({ jsonrpc: "2.0", method, params })}\n`;
   serverProcess.stdin!.write(msg);
 }
 
@@ -50,7 +50,9 @@ beforeAll(async () => {
           pending.get(msg.id)!.resolve(msg);
           pending.delete(msg.id);
         }
-      } catch { /* ignore non-JSON lines */ }
+      } catch {
+        /* ignore non-JSON lines */
+      }
     }
   });
 
@@ -70,7 +72,7 @@ beforeAll(async () => {
   sendNotification("notifications/initialized");
 
   // Wait for cache warmup (server analyzes the project in background)
-  await new Promise(r => setTimeout(r, 3000));
+  await new Promise((r) => setTimeout(r, 3000));
 }, 30_000);
 
 afterAll(() => {
@@ -210,7 +212,7 @@ describe("MCP server integration", () => {
 
   it("prints session summary on stderr after shutdown", async () => {
     // Kill the server and wait for exit
-    const exitPromise = new Promise<void>(resolve => {
+    const exitPromise = new Promise<void>((resolve) => {
       serverProcess.on("close", () => resolve());
     });
     serverProcess.kill("SIGTERM");

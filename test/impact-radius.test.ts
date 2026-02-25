@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { computeImpactRadius, impactLabel, complexityLabel } from "../src/impact-radius.js";
+import { describe, expect, it } from "vitest";
+import { complexityLabel, computeImpactRadius, impactLabel } from "../src/impact-radius.js";
 import type { CallGraphEdge } from "../src/types.js";
 
 function edge(from: string, to: string, fromFile = "a.ts", toFile = "b.ts"): CallGraphEdge {
@@ -23,8 +23,16 @@ describe("computeImpactRadius", () => {
   it("computes direct callers (in-degree)", () => {
     // X is called by A, B, C, D, E — plus filler edges to reach minimum
     const edges = [
-      edge("A", "X"), edge("B", "X"), edge("C", "X"), edge("D", "X"), edge("E", "X"),
-      edge("F", "G"), edge("H", "I"), edge("J", "K"), edge("L", "M"), edge("N", "O"),
+      edge("A", "X"),
+      edge("B", "X"),
+      edge("C", "X"),
+      edge("D", "X"),
+      edge("E", "X"),
+      edge("F", "G"),
+      edge("H", "I"),
+      edge("J", "K"),
+      edge("L", "M"),
+      edge("N", "O"),
     ];
     const result = computeImpactRadius(edges);
     const xEntry = result.highImpact.find((e) => e.functionName === "X");
@@ -35,9 +43,17 @@ describe("computeImpactRadius", () => {
   it("computes transitive callers via BFS", () => {
     // Chain: A→B→C→X, D→X, E→B (so X has 2 direct callers: C, D; transitive: A, B, C, D, E = 5)
     const edges = [
-      edge("A", "B"), edge("B", "C"), edge("C", "X"), edge("D", "X"), edge("E", "B"),
+      edge("A", "B"),
+      edge("B", "C"),
+      edge("C", "X"),
+      edge("D", "X"),
+      edge("E", "B"),
       // Filler to reach minimum
-      edge("F", "G"), edge("H", "I"), edge("J", "K"), edge("L", "M"), edge("N", "O"),
+      edge("F", "G"),
+      edge("H", "I"),
+      edge("J", "K"),
+      edge("L", "M"),
+      edge("N", "O"),
     ];
     const result = computeImpactRadius(edges);
     const xEntry = result.highImpact.find((e) => e.functionName === "X");
@@ -49,9 +65,17 @@ describe("computeImpactRadius", () => {
   it("computes diamond pattern correctly", () => {
     // A→B, A→C, B→D, C→D — D has 2 direct callers, 3 transitive (A, B, C)
     const edges = [
-      edge("A", "B"), edge("A", "C"), edge("B", "D"), edge("C", "D"),
+      edge("A", "B"),
+      edge("A", "C"),
+      edge("B", "D"),
+      edge("C", "D"),
       // Filler
-      edge("E", "F"), edge("G", "H"), edge("I", "J"), edge("K", "L"), edge("M", "N"), edge("O", "P"),
+      edge("E", "F"),
+      edge("G", "H"),
+      edge("I", "J"),
+      edge("K", "L"),
+      edge("M", "N"),
+      edge("O", "P"),
     ];
     const result = computeImpactRadius(edges);
     const dEntry = result.highImpact.find((e) => e.functionName === "D");
@@ -63,9 +87,17 @@ describe("computeImpactRadius", () => {
   it("identifies complex functions (high out-degree)", () => {
     // A calls B, C, D, E, F — high out-degree
     const edges = [
-      edge("A", "B"), edge("A", "C"), edge("A", "D"), edge("A", "E"), edge("A", "F"),
+      edge("A", "B"),
+      edge("A", "C"),
+      edge("A", "D"),
+      edge("A", "E"),
+      edge("A", "F"),
       // Some other edges for minimum + to give B callers so it appears in highImpact
-      edge("G", "B"), edge("H", "B"), edge("I", "B"), edge("J", "B"), edge("K", "B"),
+      edge("G", "B"),
+      edge("H", "B"),
+      edge("I", "B"),
+      edge("J", "B"),
+      edge("K", "B"),
     ];
     const result = computeImpactRadius(edges);
 
@@ -78,9 +110,16 @@ describe("computeImpactRadius", () => {
   it("separates high-impact from complex (no duplicates)", () => {
     // X is both heavily called AND calls many things
     const edges = [
-      edge("A", "X"), edge("B", "X"), edge("C", "X"), edge("D", "X"), edge("E", "X"),
-      edge("X", "Y"), edge("X", "Z"), edge("X", "W"),
-      edge("F", "G"), edge("H", "I"),
+      edge("A", "X"),
+      edge("B", "X"),
+      edge("C", "X"),
+      edge("D", "X"),
+      edge("E", "X"),
+      edge("X", "Y"),
+      edge("X", "Z"),
+      edge("X", "W"),
+      edge("F", "G"),
+      edge("H", "I"),
     ];
     const result = computeImpactRadius(edges);
 
@@ -100,7 +139,11 @@ describe("computeImpactRadius", () => {
       edge("C", "X", "src/c.ts", "src/x.ts"),
       edge("D", "Y", "src/d.ts", "src/y.ts"),
       edge("E", "Y", "src/e.ts", "src/y.ts"),
-      edge("F", "G"), edge("H", "I"), edge("J", "K"), edge("L", "M"), edge("N", "O"),
+      edge("F", "G"),
+      edge("H", "I"),
+      edge("J", "K"),
+      edge("L", "M"),
+      edge("N", "O"),
     ];
     const result = computeImpactRadius(edges);
     const xEntry = result.highImpact.find((e) => e.functionName === "X");

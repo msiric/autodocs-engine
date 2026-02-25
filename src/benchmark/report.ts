@@ -1,7 +1,7 @@
 // src/benchmark/report.ts — Generate benchmark reports (Markdown + JSON)
 
-import type { BenchmarkResults, BenchmarkCondition, TaskResult } from "./types.js";
 import { effectSizeLabel } from "./statistics.js";
+import type { BenchmarkCondition, BenchmarkResults } from "./types.js";
 
 // ─── Markdown Report ─────────────────────────────────────────────────────────
 
@@ -29,7 +29,7 @@ export function generateMarkdownReport(results: BenchmarkResults): string {
   lines.push("|-----------|-----------|-----------|------------|");
 
   const conditionLabels: Record<BenchmarkCondition, string> = {
-    "treatment": "A: AGENTS.md + source",
+    treatment: "A: AGENTS.md + source",
     "realistic-control": "B: Source only",
     "impoverished-control": "C: Dir listing only",
     "negative-control": "N: Shuffled AGENTS.md",
@@ -39,7 +39,7 @@ export function generateMarkdownReport(results: BenchmarkResults): string {
     const data = summary.conditions[cond];
     if (!data) continue;
     const label = conditionLabels[cond];
-    const score = data.meanScore.toFixed(1) + "%";
+    const score = `${data.meanScore.toFixed(1)}%`;
     const pass = `${Math.round(data.passRate * summary.tasksRun)}/${summary.tasksRun}`;
     const tokens = Math.round(data.meanTokens).toLocaleString();
     lines.push(`| ${label} | ${score} | ${pass} | ${tokens} |`);
@@ -47,10 +47,12 @@ export function generateMarkdownReport(results: BenchmarkResults): string {
 
   lines.push("");
   lines.push(`**Headline (A - B):** ${summary.headlineDelta >= 0 ? "+" : ""}${summary.headlineDelta.toFixed(1)}%`);
-  lines.push(`**Upper bound (A - C):** ${summary.upperBoundDelta >= 0 ? "+" : ""}${summary.upperBoundDelta.toFixed(1)}%`);
+  lines.push(
+    `**Upper bound (A - C):** ${summary.upperBoundDelta >= 0 ? "+" : ""}${summary.upperBoundDelta.toFixed(1)}%`,
+  );
 
   // Per-task-type breakdown
-  const taskTypes = [...new Set(tasks.map(t => t.taskType))];
+  const taskTypes = [...new Set(tasks.map((t) => t.taskType))];
   if (taskTypes.length > 1) {
     lines.push("");
     lines.push("## Results by Task Type");
@@ -59,13 +61,15 @@ export function generateMarkdownReport(results: BenchmarkResults): string {
     lines.push("|------|-------|--------|--------|-----------|");
 
     for (const type of taskTypes) {
-      const typeTasks = tasks.filter(t => t.taskType === type);
-      const aScores = typeTasks.map(t => t.results["treatment"]?.score ?? 0);
-      const bScores = typeTasks.map(t => t.results["realistic-control"]?.score ?? 0);
+      const typeTasks = tasks.filter((t) => t.taskType === type);
+      const aScores = typeTasks.map((t) => t.results.treatment?.score ?? 0);
+      const bScores = typeTasks.map((t) => t.results["realistic-control"]?.score ?? 0);
       const aMean = aScores.reduce((s, v) => s + v, 0) / aScores.length;
       const bMean = bScores.reduce((s, v) => s + v, 0) / bScores.length;
       const delta = aMean - bMean;
-      lines.push(`| ${type} | ${typeTasks.length} | ${aMean.toFixed(1)}% | ${bMean.toFixed(1)}% | ${delta >= 0 ? "+" : ""}${delta.toFixed(1)}% |`);
+      lines.push(
+        `| ${type} | ${typeTasks.length} | ${aMean.toFixed(1)}% | ${bMean.toFixed(1)}% | ${delta >= 0 ? "+" : ""}${delta.toFixed(1)}% |`,
+      );
     }
   }
 
@@ -124,10 +128,14 @@ export function generateMarkdownReport(results: BenchmarkResults): string {
   for (const cond of meta.conditions) {
     const data = summary.conditions[cond];
     if (!data) continue;
-    const note = cond === "treatment" ? "Includes AGENTS.md context" :
-                 cond === "realistic-control" ? "Sibling files only" :
-                 cond === "impoverished-control" ? "Minimal context" :
-                 "Shuffled context";
+    const note =
+      cond === "treatment"
+        ? "Includes AGENTS.md context"
+        : cond === "realistic-control"
+          ? "Sibling files only"
+          : cond === "impoverished-control"
+            ? "Minimal context"
+            : "Shuffled context";
     lines.push(`| ${conditionLabels[cond]} | ${Math.round(data.meanTokens).toLocaleString()} | ${note} |`);
   }
   lines.push("");

@@ -44,7 +44,15 @@
     "dev": "tsc --watch",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "dead-code": "knip",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,json}": "biome check --write --no-errors-on-unmatched"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.26.0",
@@ -54,8 +62,12 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.4.4",
     "@types/node": "^22.0.0",
     "@types/picomatch": "^3.0.0",
+    "husky": "^9.1.7",
+    "knip": "^5.85.0",
+    "lint-staged": "^16.2.7",
     "tsx": "^4.21.0",
     "vitest": "^2.0.0"
   }
