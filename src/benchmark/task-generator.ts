@@ -185,7 +185,7 @@ function buildTaskPrompt(pattern: ContributionPattern, taskName: string, package
  * Collect context files for benchmark conditions.
  * Deterministic sibling selection: exampleFile + most recent + median-dated.
  */
-export function collectContext(pattern: ContributionPattern, pkgPath: string, absDir: string): TaskContext {
+function collectContext(pattern: ContributionPattern, pkgPath: string, absDir: string): TaskContext {
   const siblingFiles = selectSiblings(pattern, pkgPath, absDir);
   const directoryListing = listDirectory(absDir);
 
