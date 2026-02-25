@@ -2,9 +2,9 @@
 // Creates an McpServer with all registered tools.
 // Tools query cached StructuredAnalysis via the queries layer.
 
+import { createHash } from "node:crypto";
 import { appendFileSync, mkdirSync } from "node:fs";
 import { homedir } from "node:os";
-import { createHash } from "node:crypto";
 import { join } from "node:path";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
@@ -49,7 +49,7 @@ function writeTelemetryEvent(session: SessionTelemetry, event: Record<string, un
   if (!session.telemetryPath) return;
   try {
     mkdirSync(join(homedir(), ".autodocs", "telemetry"), { recursive: true });
-    appendFileSync(session.telemetryPath, JSON.stringify(event) + "\n");
+    appendFileSync(session.telemetryPath, `${JSON.stringify(event)}\n`);
   } catch {
     // Disable file telemetry on failure (read-only FS, disk full, etc.)
     session.telemetryPath = null;
@@ -101,7 +101,7 @@ export function createAutodocsServer(
     const start = performance.now();
     const estInputTokens = args ? estimateTokens(JSON.stringify(args)) : 0;
 
-    return safeToolHandler(fn).then(result => {
+    return safeToolHandler(fn).then((result) => {
       const latencyMs = Math.round(performance.now() - start);
       const cacheStatus = cache.lastWasCacheHit ? "hit" : "miss";
       const isError = Boolean(result.isError);
@@ -110,7 +110,7 @@ export function createAutodocsServer(
       const estOutputTokens = estimateTokens(
         (result.content ?? [])
           .filter((c): c is { type: "text"; text: string } => c.type === "text")
-          .map(c => c.text)
+          .map((c) => c.text)
           .join(""),
       );
 
@@ -167,9 +167,8 @@ DO NOT CALL:
 - User asks about architecture or where to put code (use get_architecture)
 - User asks about dependencies or what frameworks are used`,
     { packagePath: z.string().optional().describe("Package path or name. Omit for single-package repos.") },
-    async (args) => withTelemetry("get_commands", () =>
-      cache.get().then(a => tools.handleGetCommands(a, args)), args,
-    ),
+    async (args) =>
+      withTelemetry("get_commands", () => cache.get().then((a) => tools.handleGetCommands(a, args)), args),
   );
 
   // ─── P0: get_architecture ────────────────────────────────────────────
@@ -186,9 +185,8 @@ DO NOT CALL:
 - User asks about specific file contents or imports (use analyze_impact)
 - User asks about build/test commands (use get_commands)`,
     { packagePath: z.string().optional().describe("Package path or name.") },
-    async (args) => withTelemetry("get_architecture", () =>
-      cache.get().then(a => tools.handleGetArchitecture(a, args)), args,
-    ),
+    async (args) =>
+      withTelemetry("get_architecture", () => cache.get().then((a) => tools.handleGetArchitecture(a, args)), args),
   );
 
   // ─── P0: analyze_impact ──────────────────────────────────────────────
@@ -209,13 +207,16 @@ DO NOT CALL:
       filePath: z.string().optional().describe("File to analyze (e.g., 'src/types.ts')"),
       functionName: z.string().optional().describe("Function to find callers for"),
       packagePath: z.string().optional().describe("Package path or name"),
-      scope: z.enum(["all", "imports", "callers", "cochanges"]).optional()
-        .describe("Narrow analysis: 'imports' for file importers only, 'callers' for function callers only, 'cochanges' for git history only. Default: all."),
+      scope: z
+        .enum(["all", "imports", "callers", "cochanges"])
+        .optional()
+        .describe(
+          "Narrow analysis: 'imports' for file importers only, 'callers' for function callers only, 'cochanges' for git history only. Default: all.",
+        ),
       limit: z.number().min(1).max(50).optional().describe("Max results per section. Default: 20."),
     },
-    async (args) => withTelemetry("analyze_impact", () =>
-      cache.get().then(a => tools.handleAnalyzeImpact(a, args)), args,
-    ),
+    async (args) =>
+      withTelemetry("analyze_impact", () => cache.get().then((a) => tools.handleAnalyzeImpact(a, args)), args),
   );
 
   // ─── P0: get_workflow_rules ──────────────────────────────────────────
@@ -235,9 +236,8 @@ DO NOT CALL:
       filePath: z.string().optional().describe("Filter to rules mentioning this file (e.g., 'src/types.ts')"),
       packagePath: z.string().optional().describe("Package path or name."),
     },
-    async (args) => withTelemetry("get_workflow_rules", () =>
-      cache.get().then(a => tools.handleGetWorkflowRules(a, args)), args,
-    ),
+    async (args) =>
+      withTelemetry("get_workflow_rules", () => cache.get().then((a) => tools.handleGetWorkflowRules(a, args)), args),
   );
 
   // ─── P0: list_packages ──────────────────────────────────────────────
@@ -253,9 +253,7 @@ WHEN TO CALL:
 DO NOT CALL:
 - Single-package repos (will return one item, which is fine but unnecessary)`,
     {},
-    async () => withTelemetry("list_packages", () =>
-      cache.get().then(a => tools.handleListPackages(a)),
-    ),
+    async () => withTelemetry("list_packages", () => cache.get().then((a) => tools.handleListPackages(a))),
   );
 
   // ─── P1: get_contribution_guide ──────────────────────────────────────
@@ -270,9 +268,12 @@ WHEN TO CALL:
       directory: z.string().optional().describe("Filter to patterns in this directory (e.g., 'src/detectors/')"),
       packagePath: z.string().optional().describe("Package path or name."),
     },
-    async (args) => withTelemetry("get_contribution_guide", () =>
-      cache.get().then(a => tools.handleGetContributionGuide(a, args)), args,
-    ),
+    async (args) =>
+      withTelemetry(
+        "get_contribution_guide",
+        () => cache.get().then((a) => tools.handleGetContributionGuide(a, args)),
+        args,
+      ),
   );
 
   // ─── P1: get_exports ─────────────────────────────────────────────────
@@ -288,9 +289,7 @@ WHEN TO CALL:
       query: z.string().optional().describe("Filter exports by name (substring match)"),
       limit: z.number().min(1).max(100).optional().describe("Max results. Default: 20."),
     },
-    async (args) => withTelemetry("get_exports", () =>
-      cache.get().then(a => tools.handleGetExports(a, args)), args,
-    ),
+    async (args) => withTelemetry("get_exports", () => cache.get().then((a) => tools.handleGetExports(a, args)), args),
   );
 
   // ─── P2: get_conventions ─────────────────────────────────────────────
@@ -301,12 +300,14 @@ WHEN TO CALL:
 WHEN TO CALL:
 - User asks "what patterns does this project follow?", "are there naming conventions?"`,
     {
-      category: z.string().optional().describe("Filter by convention category (e.g., 'file-naming', 'hooks', 'testing', 'ecosystem')"),
+      category: z
+        .string()
+        .optional()
+        .describe("Filter by convention category (e.g., 'file-naming', 'hooks', 'testing', 'ecosystem')"),
       packagePath: z.string().optional().describe("Package path or name."),
     },
-    async (args) => withTelemetry("get_conventions", () =>
-      cache.get().then(a => tools.handleGetConventions(a, args)), args,
-    ),
+    async (args) =>
+      withTelemetry("get_conventions", () => cache.get().then((a) => tools.handleGetConventions(a, args)), args),
   );
 
   // ─── New: plan_change ──────────────────────────────────────────────
@@ -323,12 +324,12 @@ DO NOT CALL:
 - For single-line changes in isolated utility files
 - When you just need test commands (use get_test_info instead)`,
     {
-      files: z.array(z.string()).describe("Files being edited (repo-relative paths, e.g. ['src/types.ts', 'src/pipeline.ts'])"),
+      files: z
+        .array(z.string())
+        .describe("Files being edited (repo-relative paths, e.g. ['src/types.ts', 'src/pipeline.ts'])"),
       packagePath: z.string().optional().describe("Package path or name"),
     },
-    async (args) => withTelemetry("plan_change", () =>
-      cache.get().then(a => tools.handlePlanChange(a, args)), args,
-    ),
+    async (args) => withTelemetry("plan_change", () => cache.get().then((a) => tools.handlePlanChange(a, args)), args),
   );
 
   // ─── New: get_test_info ───────────────────────────────────────────
@@ -347,9 +348,8 @@ DO NOT CALL:
       filePath: z.string().describe("Source file path (e.g., 'src/detectors/file-naming.ts')"),
       packagePath: z.string().optional().describe("Package path or name"),
     },
-    async (args) => withTelemetry("get_test_info", () =>
-      cache.get().then(a => tools.handleGetTestInfo(a, args)), args,
-    ),
+    async (args) =>
+      withTelemetry("get_test_info", () => cache.get().then((a) => tools.handleGetTestInfo(a, args)), args),
   );
 
   // ─── New: auto_register ─────────────────────────────────────────
@@ -368,9 +368,8 @@ DO NOT CALL:
       newFilePath: z.string().describe("Path of the newly created file (e.g., 'src/detectors/graphql.ts')"),
       packagePath: z.string().optional().describe("Package path or name"),
     },
-    async (args) => withTelemetry("auto_register", () =>
-      cache.get().then(a => tools.handleAutoRegister(a, args)), args,
-    ),
+    async (args) =>
+      withTelemetry("auto_register", () => cache.get().then((a) => tools.handleAutoRegister(a, args)), args),
   );
 
   // ─── New: review_changes ──────────────────────────────────────────
@@ -386,15 +385,18 @@ DO NOT CALL:
 - For style/formatting issues (use linters instead)
 - For type checking (use TypeScript compiler instead)`,
     {
-      files: z.array(z.object({
-        path: z.string().describe("File path"),
-        content: z.string().describe("File content"),
-      })).describe("Files to review"),
+      files: z
+        .array(
+          z.object({
+            path: z.string().describe("File path"),
+            content: z.string().describe("File content"),
+          }),
+        )
+        .describe("Files to review"),
       packagePath: z.string().optional().describe("Package path or name"),
     },
-    async (args) => withTelemetry("review_changes", () =>
-      cache.get().then(a => tools.handleReviewChanges(a, args)), args,
-    ),
+    async (args) =>
+      withTelemetry("review_changes", () => cache.get().then((a) => tools.handleReviewChanges(a, args)), args),
   );
 
   // ─── New: diagnose ──────────────────────────────────────────────
@@ -417,9 +419,7 @@ DO NOT CALL:
       testFile: z.string().optional().describe("Failing test file (e.g., 'test/pipeline.test.ts')"),
       packagePath: z.string().optional().describe("Package path or name"),
     },
-    async (args) => withTelemetry("diagnose", () =>
-      cache.get().then(a => tools.handleDiagnose(a, args)), args,
-    ),
+    async (args) => withTelemetry("diagnose", () => cache.get().then((a) => tools.handleDiagnose(a, args)), args),
   );
 
   return { server, cache, session };
@@ -436,7 +436,7 @@ export function formatSessionSummary(session: SessionTelemetry): string {
     .map(([name, count]) => `${name} (${count})`)
     .join(", ");
 
-  const fmtTokens = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n);
+  const fmtTokens = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n));
 
   return [
     `[autodocs] Session: ${totalCalls} calls, ~${fmtTokens(session.totalInputTokens)} input tokens, ~${fmtTokens(session.totalOutputTokens)} output tokens, ${durationSec}s`,

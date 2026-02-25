@@ -2,12 +2,12 @@
 // Composes specific workflow rules from detected technology + discovered commands.
 
 import type {
-  WorkflowRule,
-  WorkspaceCommand,
   CommandSet,
   ConfigAnalysis,
-  DependencyInsights,
   Convention,
+  DependencyInsights,
+  WorkflowRule,
+  WorkspaceCommand,
 } from "./types.js";
 
 interface WorkflowContext {
@@ -52,8 +52,8 @@ export function generateWorkflowRules(ctx: WorkflowContext): WorkflowRule[] {
 
   // --- Drizzle ORM ---
   if (allFrameworks.has("drizzle-orm")) {
-    const dbGenerate = findCmd(ctx.workspaceCommands, /^db[:\-]generate/);
-    const dbMigrate = findCmd(ctx.workspaceCommands, /^db[:\-]migrate/);
+    const dbGenerate = findCmd(ctx.workspaceCommands, /^db[:-]generate/);
+    const dbMigrate = findCmd(ctx.workspaceCommands, /^db[:-]migrate/);
     if (dbGenerate && dbMigrate) {
       rules.push({
         trigger: "After modifying database schema files",
@@ -62,7 +62,7 @@ export function generateWorkflowRules(ctx: WorkflowContext): WorkflowRule[] {
         impact: "high",
       });
     }
-    const dbPush = findCmd(ctx.workspaceCommands, /^db[:\-]push/);
+    const dbPush = findCmd(ctx.workspaceCommands, /^db[:-]push/);
     if (dbPush) {
       rules.push({
         trigger: "For rapid prototyping (no migration file needed)",
@@ -75,8 +75,8 @@ export function generateWorkflowRules(ctx: WorkflowContext): WorkflowRule[] {
 
   // --- Prisma ---
   if (allFrameworks.has("prisma") || allFrameworks.has("@prisma/client")) {
-    const prismaGenerate = findCmd(ctx.workspaceCommands, /^(prisma[:\-])?generate/);
-    const prismaMigrate = findCmd(ctx.workspaceCommands, /^(prisma[:\-])?migrate/);
+    const prismaGenerate = findCmd(ctx.workspaceCommands, /^(prisma[:-])?generate/);
+    const prismaMigrate = findCmd(ctx.workspaceCommands, /^(prisma[:-])?migrate/);
     if (prismaGenerate && prismaMigrate) {
       rules.push({
         trigger: "After modifying schema.prisma",
@@ -89,7 +89,7 @@ export function generateWorkflowRules(ctx: WorkflowContext): WorkflowRule[] {
 
   // --- GraphQL codegen ---
   if (allFrameworks.has("graphql") || allFrameworks.has("@graphql-codegen/cli")) {
-    const codegen = findCmd(ctx.workspaceCommands, /^(codegen|generate[:\-]?(interfaces|types)?)/);
+    const codegen = findCmd(ctx.workspaceCommands, /^(codegen|generate[:-]?(interfaces|types)?)/);
     if (codegen) {
       rules.push({
         trigger: "After modifying .graphql files",

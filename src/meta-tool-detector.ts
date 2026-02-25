@@ -90,10 +90,7 @@ const DOMINANT_MARGIN = 3;
  * Detect if a package is a meta-tool (analyzer/plugin system) using a 3-signal cascade.
  * Returns which frameworks are "supported" vs "core" for format-time reclassification.
  */
-export function detectMetaTool(
-  input: MetaToolDetectionInput,
-  warnings: Warning[] = [],
-): MetaToolResult {
+export function detectMetaTool(input: MetaToolDetectionInput, warnings: Warning[] = []): MetaToolResult {
   const threshold = input.threshold ?? DEFAULT_THRESHOLD;
   const sourceFamilyCounts = collectSourceFamilyCounts(input.parsedFiles, input.tiers);
 
@@ -103,15 +100,13 @@ export function detectMetaTool(
 
   // Signal 1: peerDependencies (≥3 peer families also imported in source)
   const peerFamilies = mapToFamilies(Object.keys(input.peerDeps));
-  const peerFamiliesInSource = peerFamilies.filter(f => sourceFamilyCounts.has(f));
+  const peerFamiliesInSource = peerFamilies.filter((f) => sourceFamilyCounts.has(f));
   if (peerFamiliesInSource.length >= PEER_FAMILY_THRESHOLD) {
     return buildResult("peer-dependencies", sourceFamilyCounts, input.dependencies, warnings);
   }
 
   // Signal 2: dependency placement (≥4 devDep-only families imported in source)
-  const devOnlyFamilies = findDevOnlyFamilies(
-    input.dependencies, input.devDependencies, sourceFamilyCounts,
-  );
+  const devOnlyFamilies = findDevOnlyFamilies(input.dependencies, input.devDependencies, sourceFamilyCounts);
   if (devOnlyFamilies.length >= DEV_ONLY_FAMILY_THRESHOLD) {
     return buildResult("dep-placement", sourceFamilyCounts, input.dependencies, warnings);
   }
@@ -127,10 +122,7 @@ export function detectMetaTool(
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 /** Count distinct framework families from value imports in T1/T2 files. */
-function collectSourceFamilyCounts(
-  parsedFiles: ParsedFile[],
-  tiers: Map<string, TierInfo>,
-): Map<string, number> {
+function collectSourceFamilyCounts(parsedFiles: ParsedFile[], tiers: Map<string, TierInfo>): Map<string, number> {
   const counts = new Map<string, number>();
   for (const pf of parsedFiles) {
     const tier = tiers.get(pf.relativePath);
@@ -215,10 +207,7 @@ function buildResult(
  * Find framework families that are "core" (the host framework the tool is built with).
  * Must pass two gates: in production dependencies AND ≥3x the second-highest import count.
  */
-function findCoreFamilies(
-  sourceFamilyCounts: Map<string, number>,
-  dependencies: Record<string, string>,
-): string[] {
+function findCoreFamilies(sourceFamilyCounts: Map<string, number>, dependencies: Record<string, string>): string[] {
   const sorted = [...sourceFamilyCounts.entries()].sort((a, b) => b[1] - a[1]);
   if (sorted.length < 1) return [];
 
@@ -227,7 +216,7 @@ function findCoreFamilies(
 
   // Gate 1: at least one package from this family is in production dependencies
   const familyPackages = FRAMEWORK_FAMILIES[topFamily] ?? [];
-  const inProductionDeps = familyPackages.some(pkg => pkg in dependencies);
+  const inProductionDeps = familyPackages.some((pkg) => pkg in dependencies);
   if (!inProductionDeps) return [];
 
   // Gate 2: import count ≥3x the second-highest family

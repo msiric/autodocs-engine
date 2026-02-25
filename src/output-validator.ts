@@ -3,12 +3,7 @@
 // hallucinated technologies, version mismatches, unknown symbols, budget overruns,
 // and command mismatches. Composes a correction prompt for one retry if issues found.
 
-import type {
-  ValidationResult,
-  ValidationIssue,
-  PackageAnalysis,
-  StructuredAnalysis,
-} from "./types.js";
+import type { PackageAnalysis, StructuredAnalysis, ValidationIssue, ValidationResult } from "./types.js";
 
 // ─── Technology keywords → NPM package names ────────────────────────────────
 
@@ -174,11 +169,7 @@ export function validateOutput(
 
 // ─── Check 1: Technology Cross-Reference ────────────────────────────────────
 
-function checkTechnologyCrossRef(
-  output: string,
-  allDeps: Set<string>,
-  issues: ValidationIssue[],
-): void {
+function checkTechnologyCrossRef(output: string, allDeps: Set<string>, issues: ValidationIssue[]): void {
   const outputLower = output.toLowerCase();
 
   for (const [keyword, packageNames] of Object.entries(TECH_KEYWORDS)) {
@@ -240,7 +231,7 @@ function checkVersionConsistency(
       const mentionedMajor = parseInt(mentionedVersion.split(".")[0], 10);
       const actualMajor = parseInt(actualVersion.split(".")[0], 10);
 
-      if (isNaN(mentionedMajor) || isNaN(actualMajor)) continue;
+      if (Number.isNaN(mentionedMajor) || Number.isNaN(actualMajor)) continue;
 
       if (mentionedMajor !== actualMajor) {
         issues.push({
@@ -256,11 +247,7 @@ function checkVersionConsistency(
 
 // ─── Check 3: Symbol Verification ───────────────────────────────────────────
 
-function checkSymbolVerification(
-  output: string,
-  allPublicAPI: Set<string>,
-  issues: ValidationIssue[],
-): void {
+function checkSymbolVerification(output: string, allPublicAPI: Set<string>, issues: ValidationIssue[]): void {
   // Extract backtick-quoted identifiers that look like function/hook names
   const symbolRegex = /`(use[A-Z]\w+|[a-z]\w+(?:Handler|Manager|Service|Controller|Provider|Factory))`/g;
   let match: RegExpExecArray | null;
@@ -272,8 +259,8 @@ function checkSymbolVerification(
     checked.add(symbol);
 
     // Allow partial matches — output might abbreviate
-    const hasMatch = allPublicAPI.has(symbol) ||
-      [...allPublicAPI].some((api) => api.includes(symbol) || symbol.includes(api));
+    const hasMatch =
+      allPublicAPI.has(symbol) || [...allPublicAPI].some((api) => api.includes(symbol) || symbol.includes(api));
 
     if (!hasMatch && allPublicAPI.size > 5) {
       issues.push({
@@ -288,10 +275,7 @@ function checkSymbolVerification(
 
 // ─── Check 4: Budget ─────────────────────────────────────────────────────────
 
-function checkBudget(
-  output: string,
-  issues: ValidationIssue[],
-): void {
+function checkBudget(output: string, issues: ValidationIssue[]): void {
   const lineCount = output.split("\n").length;
   if (lineCount > 180) {
     issues.push({
@@ -305,11 +289,7 @@ function checkBudget(
 
 // ─── Check 5: Command Verification ──────────────────────────────────────────
 
-function checkCommandVerification(
-  output: string,
-  allCommands: string[],
-  issues: ValidationIssue[],
-): void {
+function checkCommandVerification(output: string, allCommands: string[], issues: ValidationIssue[]): void {
   if (allCommands.length === 0) return;
 
   // Extract command-like patterns from output
@@ -323,16 +303,17 @@ function checkCommandVerification(
     checked.add(cmd);
 
     // Check if this command is in the known commands
-    const isKnown = allCommands.some((known) =>
-      known === cmd || cmd.includes(known) || known.includes(cmd),
-    );
+    const isKnown = allCommands.some((known) => known === cmd || cmd.includes(known) || known.includes(cmd));
 
     if (!isKnown) {
       issues.push({
         severity: "warning",
         type: "command_mismatch",
         message: `Output includes command \`${cmd}\` which doesn't match any analyzed command`,
-        suggestion: `Known commands: ${allCommands.slice(0, 5).map((c) => `\`${c}\``).join(", ")}`,
+        suggestion: `Known commands: ${allCommands
+          .slice(0, 5)
+          .map((c) => `\`${c}\``)
+          .join(", ")}`,
       });
     }
   }
@@ -355,11 +336,7 @@ function checkTitle(output: string, issues: ValidationIssue[]): void {
 
 // ─── Check 7: Framework Relevance ───────────────────────────────────────────
 
-function checkFrameworkRelevance(
-  output: string,
-  packages: PackageAnalysis[],
-  issues: ValidationIssue[],
-): void {
+function checkFrameworkRelevance(output: string, packages: PackageAnalysis[], issues: ValidationIssue[]): void {
   for (const pkg of packages) {
     if (!pkg.dependencyInsights?.frameworks) continue;
 
@@ -368,9 +345,7 @@ function checkFrameworkRelevance(
       if (!regex.test(output)) continue;
 
       // Check if any source file actually imports from this framework
-      const hasImports = pkg.dependencies.external.some(
-        (d) => d.name === fw.name && d.importCount > 0,
-      );
+      const hasImports = pkg.dependencies.external.some((d) => d.name === fw.name && d.importCount > 0);
 
       if (!hasImports) {
         issues.push({
@@ -416,11 +391,7 @@ const WHITELIST_TECH_PATTERNS: Array<{ name: string; regex: RegExp }> = [
   { name: "eslint", regex: /\beslint\b/gi },
 ];
 
-function checkTechnologyWhitelist(
-  output: string,
-  packages: PackageAnalysis[],
-  issues: ValidationIssue[],
-): void {
+function checkTechnologyWhitelist(output: string, packages: PackageAnalysis[], issues: ValidationIssue[]): void {
   // Build the complete whitelist from analysis data
   const allowed = new Set<string>();
 
@@ -487,7 +458,10 @@ function checkTechnologyWhitelist(
     if (allowed.has(name.replace(/\./g, ""))) continue;
 
     // Skip negation context
-    const negationRegex = new RegExp(`(not|no|without|instead of|rather than|don't use|do not use|does not use|doesn't use)\\s+${escapeRegex(name)}`, "gi");
+    const negationRegex = new RegExp(
+      `(not|no|without|instead of|rather than|don't use|do not use|does not use|doesn't use)\\s+${escapeRegex(name)}`,
+      "gi",
+    );
     if (negationRegex.test(output)) continue;
 
     // Skip "bun" when it's part of "bundle" or "bundler"
@@ -523,11 +497,7 @@ function checkTechnologyWhitelist(
 
 // ─── Check 9: Minimum Length Validation ──────────────────────────────────────
 
-function checkMinimumLength(
-  output: string,
-  minWords: number,
-  issues: ValidationIssue[],
-): void {
+function checkMinimumLength(output: string, minWords: number, issues: ValidationIssue[]): void {
   const wordCount = output.split(/\s+/).filter((w) => w.length > 0).length;
   if (wordCount < minWords) {
     issues.push({
@@ -541,13 +511,10 @@ function checkMinimumLength(
 
 // ─── Correction Prompt Composition ───────────────────────────────────────────
 
-function composeCorrectionPrompt(
-  output: string,
-  errors: ValidationIssue[],
-): string {
-  const corrections = errors.map((e, i) =>
-    `${i + 1}. [${e.type}] ${e.message}${e.suggestion ? `\n   Fix: ${e.suggestion}` : ""}`,
-  ).join("\n");
+function composeCorrectionPrompt(output: string, errors: ValidationIssue[]): string {
+  const corrections = errors
+    .map((e, i) => `${i + 1}. [${e.type}] ${e.message}${e.suggestion ? `\n   Fix: ${e.suggestion}` : ""}`)
+    .join("\n");
 
   return `The following AGENTS.md output has ${errors.length} issue(s) that need correction:
 
@@ -561,9 +528,7 @@ Please output the CORRECTED version. Fix ONLY the flagged issues — preserve ev
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function isStructuredAnalysis(
-  a: StructuredAnalysis | PackageAnalysis,
-): a is StructuredAnalysis {
+function isStructuredAnalysis(a: StructuredAnalysis | PackageAnalysis): a is StructuredAnalysis {
   return "packages" in a && Array.isArray((a as any).packages);
 }
 

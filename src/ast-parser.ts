@@ -3,14 +3,14 @@
 //                 E-20 (.js→.ts mapping), E-21 (path traversal boundary)
 
 import { readFileSync } from "node:fs";
-import { relative, extname } from "node:path";
+import { extname, relative } from "node:path";
 import ts from "typescript";
 import type {
-  ParsedFile,
+  CallReference,
+  ContentSignals,
   ExportEntry,
   ImportEntry,
-  ContentSignals,
-  CallReference,
+  ParsedFile,
   SymbolKind,
   Warning,
 } from "./types.js";
@@ -19,21 +19,13 @@ import { FileNotFoundError } from "./types.js";
 /**
  * Parse a single file into a structured representation of its exports, imports, and signals.
  */
-export function parseFile(
-  filePath: string,
-  packageDir: string,
-  warnings: Warning[] = [],
-): ParsedFile {
+export function parseFile(filePath: string, packageDir: string, warnings: Warning[] = []): ParsedFile {
   const relPath = relative(packageDir, filePath);
   let content: string;
   try {
     content = readFileSync(filePath, "utf-8");
   } catch (err: unknown) {
-    if (
-      err instanceof Error &&
-      "code" in err &&
-      (err as NodeJS.ErrnoException).code === "ENOENT"
-    ) {
+    if (err instanceof Error && "code" in err && (err as NodeJS.ErrnoException).code === "ENOENT") {
       throw new FileNotFoundError(filePath, err);
     }
     throw err;
@@ -59,21 +51,13 @@ export function parseFile(
           ? ts.ScriptKind.JS
           : ts.ScriptKind.TS;
 
-  const sourceFile = ts.createSourceFile(
-    filePath,
-    content,
-    ts.ScriptTarget.Latest,
-    true,
-    scriptKind,
-  );
+  const sourceFile = ts.createSourceFile(filePath, content, ts.ScriptTarget.Latest, true, scriptKind);
 
   // E-19: Syntax error detection
   let hasSyntaxErrors = false;
   const diagnostics = (sourceFile as any).parseDiagnostics;
   if (diagnostics?.length > 0) {
-    const errors = diagnostics.filter(
-      (d: any) => d.category === ts.DiagnosticCategory.Error,
-    );
+    const errors = diagnostics.filter((d: any) => d.category === ts.DiagnosticCategory.Error);
     if (errors.length > 0) {
       hasSyntaxErrors = true;
       warnings.push({
@@ -85,9 +69,7 @@ export function parseFile(
     }
   }
 
-  const isTestFile =
-    /\.(test|spec)\.(ts|tsx|js|jsx)$/.test(relPath) ||
-    relPath.includes("__tests__/");
+  const isTestFile = /\.(test|spec)\.(ts|tsx|js|jsx)$/.test(relPath) || relPath.includes("__tests__/");
   const isGeneratedFile = detectGeneratedFile(relPath, content);
   const hasJSX = ext === ".tsx" || ext === ".jsx";
 
@@ -95,12 +77,13 @@ export function parseFile(
   const imports = extractImports(sourceFile);
 
   // Fix B: Determine if this file imports from React (for hook classification)
-  const hasReactImport = imports.some((imp) =>
-    imp.moduleSpecifier === "react" ||
-    imp.moduleSpecifier === "react-dom" ||
-    imp.moduleSpecifier === "preact" ||
-    imp.moduleSpecifier === "preact/hooks" ||
-    imp.moduleSpecifier === "preact/compat"
+  const hasReactImport = imports.some(
+    (imp) =>
+      imp.moduleSpecifier === "react" ||
+      imp.moduleSpecifier === "react-dom" ||
+      imp.moduleSpecifier === "preact" ||
+      imp.moduleSpecifier === "preact/hooks" ||
+      imp.moduleSpecifier === "preact/compat",
   );
 
   // Extract exports and content signals via AST walk
@@ -161,10 +144,7 @@ function extractExports(sourceFile: ts.SourceFile, hasReactImport: boolean = fal
   for (const stmt of sourceFile.statements) {
     // export { X } from "./other" or export { X }
     if (ts.isExportDeclaration(stmt)) {
-      if (
-        stmt.exportClause &&
-        ts.isNamedExports(stmt.exportClause)
-      ) {
+      if (stmt.exportClause && ts.isNamedExports(stmt.exportClause)) {
         for (const spec of stmt.exportClause.elements) {
           const exportedName = spec.name.text;
           const localName = spec.propertyName?.text; // E-10: aliased exports
@@ -173,11 +153,8 @@ function extractExports(sourceFile: ts.SourceFile, hasReactImport: boolean = fal
             localName: localName !== exportedName ? localName : undefined,
             kind: "unknown",
             isReExport: !!stmt.moduleSpecifier,
-            isTypeOnly:
-              stmt.isTypeOnly || spec.isTypeOnly,
-            reExportSource: stmt.moduleSpecifier
-              ? (stmt.moduleSpecifier as ts.StringLiteral).text
-              : undefined,
+            isTypeOnly: stmt.isTypeOnly || spec.isTypeOnly,
+            reExportSource: stmt.moduleSpecifier ? (stmt.moduleSpecifier as ts.StringLiteral).text : undefined,
           });
         }
       } else if (!stmt.exportClause && stmt.moduleSpecifier) {
@@ -189,19 +166,14 @@ function extractExports(sourceFile: ts.SourceFile, hasReactImport: boolean = fal
           isTypeOnly: stmt.isTypeOnly,
           reExportSource: (stmt.moduleSpecifier as ts.StringLiteral).text,
         });
-      } else if (
-        stmt.exportClause &&
-        ts.isNamespaceExport(stmt.exportClause)
-      ) {
+      } else if (stmt.exportClause && ts.isNamespaceExport(stmt.exportClause)) {
         // export * as ns from "./mod"
         exports.push({
           name: stmt.exportClause.name.text,
           kind: "namespace",
           isReExport: true,
           isTypeOnly: stmt.isTypeOnly,
-          reExportSource: stmt.moduleSpecifier
-            ? (stmt.moduleSpecifier as ts.StringLiteral).text
-            : undefined,
+          reExportSource: stmt.moduleSpecifier ? (stmt.moduleSpecifier as ts.StringLiteral).text : undefined,
         });
       }
       continue;
@@ -221,16 +193,12 @@ function extractExports(sourceFile: ts.SourceFile, hasReactImport: boolean = fal
     // Statements with export modifier
     if (!ts.canHaveModifiers(stmt)) continue;
     const modifiers = ts.getModifiers(stmt);
-    const hasExport = modifiers?.some(
-      (m) => m.kind === ts.SyntaxKind.ExportKeyword,
-    );
-    const hasDefault = modifiers?.some(
-      (m) => m.kind === ts.SyntaxKind.DefaultKeyword,
-    );
+    const hasExport = modifiers?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword);
+    const hasDefault = modifiers?.some((m) => m.kind === ts.SyntaxKind.DefaultKeyword);
     if (!hasExport) continue;
 
     if (ts.isFunctionDeclaration(stmt)) {
-      const name = hasDefault ? "default" : stmt.name?.text ?? "default";
+      const name = hasDefault ? "default" : (stmt.name?.text ?? "default");
       exports.push({
         name,
         kind: classifyFunctionKind(name, hasReactImport),
@@ -240,7 +208,7 @@ function extractExports(sourceFile: ts.SourceFile, hasReactImport: boolean = fal
         jsDocComment: extractJSDoc(stmt),
       });
     } else if (ts.isClassDeclaration(stmt)) {
-      const name = hasDefault ? "default" : stmt.name?.text ?? "default";
+      const name = hasDefault ? "default" : (stmt.name?.text ?? "default");
       exports.push({
         name,
         kind: "class",
@@ -278,9 +246,7 @@ function extractExports(sourceFile: ts.SourceFile, hasReactImport: boolean = fal
         const name = decl.name.text;
         const kind = classifyVariableKind(name, decl, hasReactImport);
         const sig =
-          kind === "function" || kind === "hook" || kind === "component"
-            ? extractArrowSignature(decl)
-            : undefined;
+          kind === "function" || kind === "hook" || kind === "component" ? extractArrowSignature(decl) : undefined;
         exports.push({
           name,
           kind,
@@ -307,11 +273,7 @@ function classifyFunctionKind(name: string, hasReactImport: boolean = false): Sy
   return "function";
 }
 
-function classifyVariableKind(
-  name: string,
-  decl: ts.VariableDeclaration,
-  hasReactImport: boolean = false,
-): SymbolKind {
+function classifyVariableKind(name: string, decl: ts.VariableDeclaration, hasReactImport: boolean = false): SymbolKind {
   if (!decl.initializer) return "const";
 
   // Check for React.memo, memo, forwardRef
@@ -328,19 +290,14 @@ function classifyVariableKind(
   }
 
   // Arrow function or function expression
-  if (
-    ts.isArrowFunction(decl.initializer) ||
-    ts.isFunctionExpression(decl.initializer)
-  ) {
+  if (ts.isArrowFunction(decl.initializer) || ts.isFunctionExpression(decl.initializer)) {
     return classifyFunctionKind(name, hasReactImport);
   }
 
   return "const";
 }
 
-function extractFunctionSignature(
-  decl: ts.FunctionDeclaration | ts.MethodDeclaration,
-): string {
+function extractFunctionSignature(decl: ts.FunctionDeclaration | ts.MethodDeclaration): string {
   const params = decl.parameters
     .map((p) => {
       const name = p.name.getText();
@@ -384,9 +341,7 @@ function extractArrowSignature(decl: ts.VariableDeclaration): string | undefined
   return `(${params}) => ${returnType}`;
 }
 
-function extractJSDoc(
-  node: ts.Node,
-): string | undefined {
+function extractJSDoc(node: ts.Node): string | undefined {
   const jsDocNodes = (node as any).jsDoc;
   if (!jsDocNodes || jsDocNodes.length === 0) return undefined;
   const comment = jsDocNodes[0].comment;
@@ -405,8 +360,7 @@ function extractImports(sourceFile: ts.SourceFile): ImportEntry[] {
 
   for (const stmt of sourceFile.statements) {
     if (!ts.isImportDeclaration(stmt)) continue;
-    if (!stmt.moduleSpecifier || !ts.isStringLiteral(stmt.moduleSpecifier))
-      continue;
+    if (!stmt.moduleSpecifier || !ts.isStringLiteral(stmt.moduleSpecifier)) continue;
 
     const moduleSpecifier = stmt.moduleSpecifier.text;
     const importedNames: string[] = [];
@@ -418,23 +372,15 @@ function extractImports(sourceFile: ts.SourceFile): ImportEntry[] {
         importedNames.push(stmt.importClause.name.text);
       }
       // Named imports
-      if (
-        stmt.importClause.namedBindings &&
-        ts.isNamedImports(stmt.importClause.namedBindings)
-      ) {
+      if (stmt.importClause.namedBindings && ts.isNamedImports(stmt.importClause.namedBindings)) {
         for (const spec of stmt.importClause.namedBindings.elements) {
           importedNames.push(spec.name.text);
           if (spec.isTypeOnly) isTypeOnly = true;
         }
       }
       // Namespace import
-      if (
-        stmt.importClause.namedBindings &&
-        ts.isNamespaceImport(stmt.importClause.namedBindings)
-      ) {
-        importedNames.push(
-          `* as ${stmt.importClause.namedBindings.name.text}`,
-        );
+      if (stmt.importClause.namedBindings && ts.isNamespaceImport(stmt.importClause.namedBindings)) {
+        importedNames.push(`* as ${stmt.importClause.namedBindings.name.text}`);
       }
     }
 
@@ -447,10 +393,7 @@ function extractImports(sourceFile: ts.SourceFile): ImportEntry[] {
   return imports;
 }
 
-function walkForDynamicImports(
-  node: ts.Node,
-  imports: ImportEntry[],
-): void {
+function walkForDynamicImports(node: ts.Node, imports: ImportEntry[]): void {
   if (
     ts.isCallExpression(node) &&
     node.expression.kind === ts.SyntaxKind.ImportKeyword &&
@@ -469,10 +412,7 @@ function walkForDynamicImports(
 
 // ─── Content Signals (E-17: Hybrid AST/regex) ───────────────────────────────
 
-function computeContentSignals(
-  content: string,
-  sourceFile: ts.SourceFile,
-): ContentSignals {
+function computeContentSignals(content: string, sourceFile: ts.SourceFile): ContentSignals {
   // AST-based signals (E-17)
   let tryCatchCount = 0;
   const hookCounts: Record<string, number> = {
@@ -530,11 +470,7 @@ function countMatches(s: string, re: RegExp): number {
 
 function detectCJS(sourceFile: ts.SourceFile, content: string): boolean {
   // Quick regex check first for performance
-  if (
-    !content.includes("module.exports") &&
-    !content.includes("exports.") &&
-    !content.includes("require(")
-  ) {
+  if (!content.includes("module.exports") && !content.includes("exports.") && !content.includes("require(")) {
     return false;
   }
 
@@ -546,18 +482,11 @@ function detectCJS(sourceFile: ts.SourceFile, content: string): boolean {
     if (ts.isExpressionStatement(node) && ts.isBinaryExpression(node.expression)) {
       const left = node.expression.left;
       if (ts.isPropertyAccessExpression(left)) {
-        if (
-          ts.isIdentifier(left.expression) &&
-          left.expression.text === "module" &&
-          left.name.text === "exports"
-        ) {
+        if (ts.isIdentifier(left.expression) && left.expression.text === "module" && left.name.text === "exports") {
           found = true;
           return;
         }
-        if (
-          ts.isIdentifier(left.expression) &&
-          left.expression.text === "exports"
-        ) {
+        if (ts.isIdentifier(left.expression) && left.expression.text === "exports") {
           found = true;
           return;
         }
@@ -565,11 +494,7 @@ function detectCJS(sourceFile: ts.SourceFile, content: string): boolean {
     }
 
     // require(...)
-    if (
-      ts.isCallExpression(node) &&
-      ts.isIdentifier(node.expression) &&
-      node.expression.text === "require"
-    ) {
+    if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === "require") {
       found = true;
       return;
     }
@@ -588,7 +513,7 @@ function mergeCJSPatterns(
   sourceFile: ts.SourceFile,
   exports: ExportEntry[],
   imports: ImportEntry[],
-  content: string,
+  _content: string,
 ): void {
   // If file already has ESM exports, skip CJS export mapping
   const hasESMExports = exports.length > 0;
@@ -596,27 +521,17 @@ function mergeCJSPatterns(
   if (!hasESMExports) {
     // Walk for module.exports and exports.X patterns
     function walkExports(node: ts.Node): void {
-      if (
-        ts.isExpressionStatement(node) &&
-        ts.isBinaryExpression(node.expression)
-      ) {
+      if (ts.isExpressionStatement(node) && ts.isBinaryExpression(node.expression)) {
         const left = node.expression.left;
         if (ts.isPropertyAccessExpression(left)) {
-          if (
-            ts.isIdentifier(left.expression) &&
-            left.expression.text === "module" &&
-            left.name.text === "exports"
-          ) {
+          if (ts.isIdentifier(left.expression) && left.expression.text === "module" && left.name.text === "exports") {
             exports.push({
               name: "default",
               kind: "unknown",
               isReExport: false,
               isTypeOnly: false,
             });
-          } else if (
-            ts.isIdentifier(left.expression) &&
-            left.expression.text === "exports"
-          ) {
+          } else if (ts.isIdentifier(left.expression) && left.expression.text === "exports") {
             exports.push({
               name: left.name.text,
               kind: "unknown",
@@ -682,9 +597,7 @@ function extractCallReferences(
 
   // Build a set of exported function names
   const exportedNames = new Set(
-    exports
-      .filter((e) => !e.isTypeOnly && e.name !== "*" && e.name !== "default")
-      .map((e) => e.name),
+    exports.filter((e) => !e.isTypeOnly && e.name !== "*" && e.name !== "default").map((e) => e.name),
   );
 
   if (exportedNames.size === 0) return [];
@@ -695,9 +608,7 @@ function extractCallReferences(
   for (const stmt of sourceFile.statements) {
     if (!ts.canHaveModifiers(stmt)) continue;
     const modifiers = ts.getModifiers(stmt);
-    const hasExport = modifiers?.some(
-      (m) => m.kind === ts.SyntaxKind.ExportKeyword,
-    );
+    const hasExport = modifiers?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword);
     if (!hasExport) continue;
 
     if (ts.isFunctionDeclaration(stmt) && stmt.name && exportedNames.has(stmt.name.text)) {

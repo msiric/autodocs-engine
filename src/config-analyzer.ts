@@ -9,11 +9,7 @@ import type { ConfigAnalysis, Warning } from "./types.js";
 /**
  * Analyze config files in a package directory (and optionally its monorepo root).
  */
-export function analyzeConfig(
-  packageDir: string,
-  rootDir?: string,
-  warnings: Warning[] = [],
-): ConfigAnalysis {
+export function analyzeConfig(packageDir: string, rootDir?: string, warnings: Warning[] = []): ConfigAnalysis {
   const result: ConfigAnalysis = {};
 
   // TypeScript config (package-level first, then root)
@@ -45,10 +41,7 @@ function parseTypeScriptConfig(
   warnings: Warning[] = [],
 ): ConfigAnalysis["typescript"] | undefined {
   // Try package-level first, then root
-  const candidates = [
-    join(packageDir, "tsconfig.json"),
-    ...(rootDir ? [join(rootDir, "tsconfig.json")] : []),
-  ];
+  const candidates = [join(packageDir, "tsconfig.json"), ...(rootDir ? [join(rootDir, "tsconfig.json")] : [])];
 
   for (const configPath of candidates) {
     if (!existsSync(configPath)) continue;
@@ -88,10 +81,7 @@ function detectBuildTool(
   warnings: Warning[] = [],
 ): ConfigAnalysis["buildTool"] | undefined {
   // Check turbo.json (root or package)
-  const turboLocations = [
-    ...(rootDir ? [join(rootDir, "turbo.json")] : []),
-    join(packageDir, "turbo.json"),
-  ];
+  const turboLocations = [...(rootDir ? [join(rootDir, "turbo.json")] : []), join(packageDir, "turbo.json")];
   for (const turboPath of turboLocations) {
     if (!existsSync(turboPath)) continue;
     try {
@@ -102,7 +92,9 @@ function detectBuildTool(
       // Turbo v2: tasks is top-level object with task names as keys
       // Turbo v1: pipeline is top-level object with task names as keys
       const tasksObj = config.tasks ?? config.pipeline ?? {};
-      const taskNames = Object.keys(tasksObj).map((t) => t.replace(/^\/\/.*/, "").trim()).filter(Boolean);
+      const taskNames = Object.keys(tasksObj)
+        .map((t) => t.replace(/^\/\/.*/, "").trim())
+        .filter(Boolean);
 
       return {
         name: "turbo",
@@ -119,10 +111,7 @@ function detectBuildTool(
   }
 
   // Check nx.json
-  const nxLocations = [
-    ...(rootDir ? [join(rootDir, "nx.json")] : []),
-    join(packageDir, "nx.json"),
-  ];
+  const nxLocations = [...(rootDir ? [join(rootDir, "nx.json")] : []), join(packageDir, "nx.json")];
   for (const nxPath of nxLocations) {
     if (!existsSync(nxPath)) continue;
     try {
@@ -154,10 +143,7 @@ function detectBuildTool(
   }
 
   // Check for lerna.json
-  const lernaLocations = [
-    ...(rootDir ? [join(rootDir, "lerna.json")] : []),
-    join(packageDir, "lerna.json"),
-  ];
+  const lernaLocations = [...(rootDir ? [join(rootDir, "lerna.json")] : []), join(packageDir, "lerna.json")];
   for (const lernaPath of lernaLocations) {
     if (existsSync(lernaPath)) {
       return {
@@ -173,9 +159,7 @@ function detectBuildTool(
 
 // ─── Linter ─────────────────────────────────────────────────────────────────
 
-function detectLinterIn(
-  dir: string,
-): NonNullable<ConfigAnalysis["linter"]> | undefined {
+function detectLinterIn(dir: string): NonNullable<ConfigAnalysis["linter"]> | undefined {
   // Biome
   for (const name of ["biome.json", "biome.jsonc"]) {
     if (existsSync(join(dir, name))) {
@@ -184,8 +168,16 @@ function detectLinterIn(
   }
   // ESLint
   const eslintFiles = [
-    "eslint.config.js", "eslint.config.mjs", "eslint.config.cjs", "eslint.config.ts",
-    ".eslintrc.json", ".eslintrc.js", ".eslintrc.cjs", ".eslintrc.yaml", ".eslintrc.yml", ".eslintrc",
+    "eslint.config.js",
+    "eslint.config.mjs",
+    "eslint.config.cjs",
+    "eslint.config.ts",
+    ".eslintrc.json",
+    ".eslintrc.js",
+    ".eslintrc.cjs",
+    ".eslintrc.yaml",
+    ".eslintrc.yml",
+    ".eslintrc",
   ];
   for (const name of eslintFiles) {
     if (existsSync(join(dir, name))) {
@@ -214,9 +206,7 @@ function detectLinter(
 
 // ─── Formatter ──────────────────────────────────────────────────────────────
 
-function detectFormatterIn(
-  dir: string,
-): NonNullable<ConfigAnalysis["formatter"]> | undefined {
+function detectFormatterIn(dir: string): NonNullable<ConfigAnalysis["formatter"]> | undefined {
   // Biome
   for (const name of ["biome.json", "biome.jsonc"]) {
     if (existsSync(join(dir, name))) {
@@ -234,9 +224,17 @@ function detectFormatterIn(
   }
   // Prettier
   const prettierFiles = [
-    ".prettierrc", ".prettierrc.json", ".prettierrc.js", ".prettierrc.cjs", ".prettierrc.mjs",
-    ".prettierrc.yaml", ".prettierrc.yml", ".prettierrc.toml",
-    "prettier.config.js", "prettier.config.mjs", "prettier.config.cjs",
+    ".prettierrc",
+    ".prettierrc.json",
+    ".prettierrc.js",
+    ".prettierrc.cjs",
+    ".prettierrc.mjs",
+    ".prettierrc.yaml",
+    ".prettierrc.yml",
+    ".prettierrc.toml",
+    "prettier.config.js",
+    "prettier.config.mjs",
+    "prettier.config.cjs",
   ];
   for (const name of prettierFiles) {
     if (existsSync(join(dir, name))) {

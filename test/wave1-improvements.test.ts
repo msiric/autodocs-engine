@@ -1,12 +1,11 @@
-import { describe, it, expect } from "vitest";
 import { resolve } from "node:path";
+import { describe, expect, it } from "vitest";
+import { parseFile } from "../src/ast-parser.js";
 import { analyzeConfig } from "../src/config-analyzer.js";
 import { analyzeDependencies } from "../src/dependency-analyzer.js";
-import { detectExistingDocs } from "../src/existing-docs.js";
-import { wrapWithDelimiters, mergeWithExisting } from "../src/existing-docs.js";
-import { parseFile } from "../src/ast-parser.js";
-import { buildSymbolGraph } from "../src/symbol-graph.js";
+import { detectExistingDocs, mergeWithExisting, wrapWithDelimiters } from "../src/existing-docs.js";
 import { discoverFiles } from "../src/file-discovery.js";
+import { buildSymbolGraph } from "../src/symbol-graph.js";
 import type { Warning } from "../src/types.js";
 
 const FIXTURES = resolve(import.meta.dirname, "fixtures");
@@ -160,10 +159,7 @@ describe("call-graph", () => {
   });
 
   it("produces empty call references for leaf functions", () => {
-    const pf = parseFile(
-      resolve(FIXTURES, "callgraph-pkg/src/validator.ts"),
-      resolve(FIXTURES, "callgraph-pkg"),
-    );
+    const pf = parseFile(resolve(FIXTURES, "callgraph-pkg/src/validator.ts"), resolve(FIXTURES, "callgraph-pkg"));
     // validateInput doesn't call any imported symbols
     expect(pf.callReferences).toEqual([]);
   });
@@ -178,14 +174,10 @@ describe("call-graph", () => {
     expect(graph.callGraph).toBeDefined();
     expect(graph.callGraph.length).toBeGreaterThanOrEqual(2);
 
-    const validateEdge = graph.callGraph.find(
-      (e) => e.from === "processData" && e.to === "validateInput",
-    );
+    const validateEdge = graph.callGraph.find((e) => e.from === "processData" && e.to === "validateInput");
     expect(validateEdge).toBeDefined();
 
-    const formatEdge = graph.callGraph.find(
-      (e) => e.from === "processData" && e.to === "formatOutput",
-    );
+    const formatEdge = graph.callGraph.find((e) => e.from === "processData" && e.to === "formatOutput");
     expect(formatEdge).toBeDefined();
   });
 });

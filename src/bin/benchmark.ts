@@ -2,12 +2,12 @@
 // Usage: autodocs-engine benchmark [repo-path] [options]
 // Modes: --mode synthetic (v1, default) or --mode pr (v2, PR-based ground truth)
 
+import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
-import type { ResolvedConfig } from "../types.js";
+import { generatePRReport, runPRBenchmark } from "../benchmark/pr-runner.js";
 import { orchestrateBenchmark } from "../benchmark/runner.js";
-import { runPRBenchmark, generatePRReport } from "../benchmark/pr-runner.js";
 import type { BenchmarkOptions } from "../benchmark/types.js";
+import type { ResolvedConfig } from "../types.js";
 
 interface BenchmarkArgs {
   repoPath?: string;
@@ -46,9 +46,9 @@ export async function runBenchmark(args: BenchmarkArgs): Promise<void> {
   const apiKey = process.env.ANTHROPIC_API_KEY ?? process.env.OPENAI_API_KEY;
   if (!apiKey && !args.dryRun) {
     process.stderr.write(
-      "Error: ANTHROPIC_API_KEY is required for benchmark (LLM generates code for scoring).\n"
-      + "Set it: export ANTHROPIC_API_KEY=sk-...\n"
-      + "Or use --dry-run to preview tasks without LLM calls.\n"
+      "Error: ANTHROPIC_API_KEY is required for benchmark (LLM generates code for scoring).\n" +
+        "Set it: export ANTHROPIC_API_KEY=sk-...\n" +
+        "Or use --dry-run to preview tasks without LLM calls.\n",
     );
     process.exit(1);
   }
@@ -81,7 +81,7 @@ export async function runBenchmark(args: BenchmarkArgs): Promise<void> {
     process.stderr.write(`  ─────────────────────  ──────────  ─────────\n`);
 
     const condLabels: Record<string, string> = {
-      "treatment": "A: AGENTS.md + source",
+      treatment: "A: AGENTS.md + source",
       "realistic-control": "B: Source only",
       "impoverished-control": "C: Dir listing only",
       "negative-control": "N: Shuffled AGENTS.md",
@@ -91,7 +91,7 @@ export async function runBenchmark(args: BenchmarkArgs): Promise<void> {
       const data = s.conditions[cond];
       if (!data) continue;
       const label = (condLabels[cond] ?? cond).padEnd(23);
-      const score = (data.meanScore.toFixed(1) + "%").padStart(10);
+      const score = `${data.meanScore.toFixed(1)}%`.padStart(10);
       const pass = `${Math.round(data.passRate * s.tasksRun)}/${s.tasksRun}`.padStart(9);
       process.stderr.write(`  ${label}${score}${pass}\n`);
     }
@@ -106,7 +106,6 @@ export async function runBenchmark(args: BenchmarkArgs): Promise<void> {
     process.stderr.write(`\n`);
     process.stderr.write(`  Results: ${outputDir}/results.json\n`);
     process.stderr.write(`  Report:  ${outputDir}/REPORT.md\n`);
-
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     process.stderr.write(`Benchmark failed: ${msg}\n`);
@@ -120,9 +119,9 @@ async function runPRBenchmarkCLI(repoPath: string, args: BenchmarkArgs): Promise
   const apiKey = process.env.ANTHROPIC_API_KEY ?? process.env.OPENAI_API_KEY;
   if (!apiKey && !args.dryRun) {
     process.stderr.write(
-      "Error: ANTHROPIC_API_KEY is required for PR benchmark.\n"
-      + "Set it: export ANTHROPIC_API_KEY=sk-...\n"
-      + "Or use --dry-run to preview mined tasks without LLM calls.\n"
+      "Error: ANTHROPIC_API_KEY is required for PR benchmark.\n" +
+        "Set it: export ANTHROPIC_API_KEY=sk-...\n" +
+        "Or use --dry-run to preview mined tasks without LLM calls.\n",
     );
     process.exit(1);
   }
@@ -137,7 +136,6 @@ async function runPRBenchmarkCLI(repoPath: string, args: BenchmarkArgs): Promise
   // Step 1: Generate AGENTS.md for this repo
   process.stderr.write(`\n[PR Benchmark] Analyzing ${repoPath}...\n`);
   const { analyze, formatDeterministic } = await import("../index.js");
-  const { resolveConfig } = await import("../config.js");
 
   const analysisConfig = {
     packages: [repoPath],
@@ -175,7 +173,7 @@ async function runPRBenchmarkCLI(repoPath: string, args: BenchmarkArgs): Promise
     process.stderr.write(`  ─────────────────────    ──────────────  ───────────\n`);
 
     const condLabels: Record<string, string> = {
-      "treatment": "A: AGENTS.md + source",
+      treatment: "A: AGENTS.md + source",
       "realistic-control": "B: Source only",
       "impoverished-control": "C: Dir listing only",
     };
@@ -184,17 +182,21 @@ async function runPRBenchmarkCLI(repoPath: string, args: BenchmarkArgs): Promise
       const d = s.conditions[c];
       if (!d) continue;
       const label = condLabels[c].padEnd(25);
-      const placement = (d.meanPlacement.toFixed(1) + "%").padStart(14);
+      const placement = `${d.meanPlacement.toFixed(1)}%`.padStart(14);
       const tokens = String(d.meanTokens).padStart(11);
       process.stderr.write(`  ${label}${placement}${tokens}\n`);
     }
 
     process.stderr.write(`\n`);
-    process.stderr.write(`  Headline (A-B): ${s.headlineDelta >= 0 ? "+" : ""}${s.headlineDelta.toFixed(1)}% file placement\n`);
+    process.stderr.write(
+      `  Headline (A-B): ${s.headlineDelta >= 0 ? "+" : ""}${s.headlineDelta.toFixed(1)}% file placement\n`,
+    );
     process.stderr.write(`  A win rate: ${s.aWinRate}%\n`);
 
     if (s.stats.ci95) {
-      process.stderr.write(`  95% CI: [${s.stats.ci95[0] >= 0 ? "+" : ""}${s.stats.ci95[0]}%, ${s.stats.ci95[1] >= 0 ? "+" : ""}${s.stats.ci95[1]}%]\n`);
+      process.stderr.write(
+        `  95% CI: [${s.stats.ci95[0] >= 0 ? "+" : ""}${s.stats.ci95[0]}%, ${s.stats.ci95[1] >= 0 ? "+" : ""}${s.stats.ci95[1]}%]\n`,
+      );
     }
     if (s.stats.effectSize != null) {
       process.stderr.write(`  Effect size (d): ${s.stats.effectSize}\n`);
@@ -207,19 +209,12 @@ async function runPRBenchmarkCLI(repoPath: string, args: BenchmarkArgs): Promise
     const outputDir = resolve(args.output ?? "./benchmark-results/pr");
     mkdirSync(outputDir, { recursive: true });
 
-    writeFileSync(
-      resolve(outputDir, "results.json"),
-      JSON.stringify(results, null, 2),
-    );
-    writeFileSync(
-      resolve(outputDir, "REPORT.md"),
-      generatePRReport(results),
-    );
+    writeFileSync(resolve(outputDir, "results.json"), JSON.stringify(results, null, 2));
+    writeFileSync(resolve(outputDir, "REPORT.md"), generatePRReport(results));
 
     process.stderr.write(`\n`);
     process.stderr.write(`  Results: ${outputDir}/results.json\n`);
     process.stderr.write(`  Report:  ${outputDir}/REPORT.md\n`);
-
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     process.stderr.write(`PR Benchmark failed: ${msg}\n`);

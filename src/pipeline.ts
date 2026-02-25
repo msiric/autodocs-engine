@@ -3,36 +3,30 @@
 
 import { readFileSync } from "node:fs";
 import { basename, join } from "node:path";
-import type {
-  ResolvedConfig,
-  StructuredAnalysis,
-  PackageAnalysis,
-  Warning,
-  TierInfo,
-} from "./types.js";
-import { discoverFiles } from "./file-discovery.js";
-import { parseFile } from "./ast-parser.js";
-import { buildSymbolGraph } from "./symbol-graph.js";
-import { classifyTiers } from "./tier-classifier.js";
-import { extractConventions } from "./convention-extractor.js";
-import { extractCommands, scanWorkspaceCommands } from "./command-extractor.js";
-import { detectArchitecture } from "./architecture-detector.js";
-import { buildPublicAPI, buildPackageAnalysis, buildStructuredAnalysis } from "./analysis-builder.js";
-import { analyzeCrossPackage } from "./cross-package.js";
-import { inferRole } from "./role-inferrer.js";
+import { buildPackageAnalysis, buildPublicAPI, buildStructuredAnalysis } from "./analysis-builder.js";
 import { deriveAntiPatterns } from "./anti-pattern-detector.js";
-import { detectContributionPatterns } from "./contribution-patterns.js";
-import { classifyImpacts } from "./impact-classifier.js";
+import { detectArchitecture } from "./architecture-detector.js";
+import { parseFile } from "./ast-parser.js";
+import { extractCommands, scanWorkspaceCommands } from "./command-extractor.js";
 import { analyzeConfig } from "./config-analyzer.js";
-import { generateWorkflowRules } from "./workflow-rules.js";
-import { fingerprintTopExports } from "./pattern-fingerprinter.js";
+import { detectContributionPatterns } from "./contribution-patterns.js";
+import { extractConventions } from "./convention-extractor.js";
+import { analyzeCrossPackage } from "./cross-package.js";
 import { analyzeDependencies } from "./dependency-analyzer.js";
-import { detectExistingDocs } from "./existing-docs.js";
 import { extractExamples } from "./example-extractor.js";
+import { detectExistingDocs } from "./existing-docs.js";
+import { discoverFiles } from "./file-discovery.js";
+import { generateCoChangeRules, mineGitHistory } from "./git-history.js";
+import { classifyImpacts } from "./impact-classifier.js";
+import { computeImportChain, generateImportChainRules } from "./import-chain.js";
 import { generateDependencyDiagram } from "./mermaid-generator.js";
 import { detectMetaTool } from "./meta-tool-detector.js";
-import { computeImportChain, generateImportChainRules } from "./import-chain.js";
-import { mineGitHistory, generateCoChangeRules } from "./git-history.js";
+import { fingerprintTopExports } from "./pattern-fingerprinter.js";
+import { inferRole } from "./role-inferrer.js";
+import { buildSymbolGraph } from "./symbol-graph.js";
+import { classifyTiers } from "./tier-classifier.js";
+import type { PackageAnalysis, ResolvedConfig, StructuredAnalysis, Warning } from "./types.js";
+import { generateWorkflowRules } from "./workflow-rules.js";
 
 /** Verbose logger — writes to stderr only when verbose is enabled. */
 function vlog(verbose: boolean, msg: string): void {
@@ -42,20 +36,14 @@ function vlog(verbose: boolean, msg: string): void {
 /**
  * Run the full analysis pipeline for all packages.
  */
-export async function runPipeline(
-  config: ResolvedConfig,
-): Promise<StructuredAnalysis> {
+export async function runPipeline(config: ResolvedConfig): Promise<StructuredAnalysis> {
   const warnings: Warning[] = [];
   const startTime = performance.now();
   const packageAnalyses: PackageAnalysis[] = [];
   const verbose = config.verbose;
 
   // Git history mining — run once at repo level, distribute to packages
-  const gitHistoryMap = mineGitHistory(
-    config.rootDir ?? config.packages[0],
-    config.packages,
-    warnings,
-  );
+  const gitHistoryMap = mineGitHistory(config.rootDir ?? config.packages[0], config.packages, warnings);
   if (gitHistoryMap) {
     vlog(verbose, `Git history: mined for ${gitHistoryMap.size} package(s)`);
   }
@@ -67,7 +55,10 @@ export async function runPipeline(
       const pkgGitHistory = gitHistoryMap?.get(pkgPath);
       if (pkgGitHistory) {
         analysis.gitHistory = pkgGitHistory;
-        vlog(verbose, `  Git co-change: ${pkgGitHistory.coChangeEdges.length} edges (${pkgGitHistory.totalCommitsAnalyzed} commits analyzed)`);
+        vlog(
+          verbose,
+          `  Git co-change: ${pkgGitHistory.coChangeEdges.length} edges (${pkgGitHistory.totalCommitsAnalyzed} commits analyzed)`,
+        );
       }
       packageAnalyses.push(analysis);
     } catch (err: unknown) {
@@ -87,9 +78,7 @@ export async function runPipeline(
 
   if (packageAnalyses.length > 1) {
     vlog(verbose, `Running cross-package analysis for ${packageAnalyses.length} packages...`);
-    rootCommands = config.rootDir
-      ? extractCommands(config.rootDir, undefined, warnings)
-      : undefined;
+    rootCommands = config.rootDir ? extractCommands(config.rootDir, undefined, warnings) : undefined;
     crossPackage = analyzeCrossPackage(packageAnalyses, rootCommands);
     if (crossPackage) {
       vlog(verbose, `  Dependency edges: ${crossPackage.dependencyGraph.length}`);
@@ -172,20 +161,10 @@ export async function runPipeline(
   const totalMs = Math.round(performance.now() - startTime);
   vlog(verbose, `Total analysis time: ${totalMs}ms`);
 
-  return buildStructuredAnalysis(
-    packageAnalyses,
-    crossPackage,
-    config,
-    warnings,
-    startTime,
-  );
+  return buildStructuredAnalysis(packageAnalyses, crossPackage, config, warnings, startTime);
 }
 
-function analyzePackage(
-  pkgPath: string,
-  config: ResolvedConfig,
-  warnings: Warning[],
-): PackageAnalysis {
+function analyzePackage(pkgPath: string, config: ResolvedConfig, warnings: Warning[]): PackageAnalysis {
   const verbose = config.verbose;
   const pkgStart = performance.now();
   vlog(verbose, `Analyzing ${basename(pkgPath)}...`);
@@ -225,7 +204,9 @@ function analyzePackage(
 
   // Verbose: tier counts
   if (verbose) {
-    let t1 = 0, t2 = 0, t3 = 0;
+    let t1 = 0,
+      t2 = 0,
+      t3 = 0;
     for (const [, info] of tiers) {
       if (info.tier === 1) t1++;
       else if (info.tier === 2) t2++;
@@ -235,19 +216,17 @@ function analyzePackage(
   }
 
   // E-31: Compute publicAPI BEFORE Architecture Detector
-  const publicAPI = buildPublicAPI(
-    symbolGraph,
-    parsed,
-    config.maxPublicAPIEntries,
-    warnings,
-  );
+  const publicAPI = buildPublicAPI(symbolGraph, parsed, config.maxPublicAPIEntries, warnings);
   vlog(verbose, `  Public API: ${publicAPI.length} exports`);
 
   // Steps 5-7: Run analysis modules (E-39: pass warnings)
   // Improvement 1 & 2: Config and dependency analysis needed before convention extraction
   // (moved up so detectors can use context)
   const configAnalysis = analyzeConfig(pkgPath, config.rootDir, warnings);
-  vlog(verbose, `  Config: build=${configAnalysis.buildTool?.name ?? "none"}, linter=${configAnalysis.linter?.name ?? "none"}, formatter=${configAnalysis.formatter?.name ?? "none"}`);
+  vlog(
+    verbose,
+    `  Config: build=${configAnalysis.buildTool?.name ?? "none"}, linter=${configAnalysis.linter?.name ?? "none"}, formatter=${configAnalysis.formatter?.name ?? "none"}`,
+  );
 
   // Collect all imported module specifiers from source files for import-verified framework detection
   // Excludes type-only imports — they don't indicate runtime framework usage
@@ -264,27 +243,39 @@ function analyzePackage(
   }
 
   const dependencyInsights = analyzeDependencies(pkgPath, config.rootDir, warnings, allImportedModules);
-  vlog(verbose, `  Dependencies: ${dependencyInsights.frameworks.length} frameworks, runtime=${dependencyInsights.runtime.map((r) => r.name).join("+") || "node"}`);
+  vlog(
+    verbose,
+    `  Dependencies: ${dependencyInsights.frameworks.length} frameworks, runtime=${dependencyInsights.runtime.map((r) => r.name).join("+") || "node"}`,
+  );
 
   // Meta-tool detection (before conventions — informs format-time reclassification)
   let pkgJsonRaw: Record<string, unknown> | null = null;
   try {
     pkgJsonRaw = JSON.parse(readFileSync(join(pkgPath, "package.json"), "utf-8"));
-  } catch { /* no package.json */ }
+  } catch {
+    /* no package.json */
+  }
 
-  const metaToolResult = (!config.noMetaTool && pkgJsonRaw)
-    ? detectMetaTool({
-        parsedFiles: parsed,
-        tiers,
-        dependencies: (pkgJsonRaw.dependencies ?? {}) as Record<string, string>,
-        devDependencies: (pkgJsonRaw.devDependencies ?? {}) as Record<string, string>,
-        peerDeps: (pkgJsonRaw.peerDependencies ?? {}) as Record<string, string>,
-        threshold: config.metaToolThreshold,
-      }, warnings)
-    : { isMetaTool: false, signal: "none" as const, supportedFamilies: [] as string[], coreFamilies: [] as string[] };
+  const metaToolResult =
+    !config.noMetaTool && pkgJsonRaw
+      ? detectMetaTool(
+          {
+            parsedFiles: parsed,
+            tiers,
+            dependencies: (pkgJsonRaw.dependencies ?? {}) as Record<string, string>,
+            devDependencies: (pkgJsonRaw.devDependencies ?? {}) as Record<string, string>,
+            peerDeps: (pkgJsonRaw.peerDependencies ?? {}) as Record<string, string>,
+            threshold: config.metaToolThreshold,
+          },
+          warnings,
+        )
+      : { isMetaTool: false, signal: "none" as const, supportedFamilies: [] as string[], coreFamilies: [] as string[] };
 
   if (metaToolResult.isMetaTool) {
-    vlog(verbose, `  Meta-tool: ${metaToolResult.signal} (${metaToolResult.supportedFamilies.length} families, core: ${metaToolResult.coreFamilies.join(", ") || "none"})`);
+    vlog(
+      verbose,
+      `  Meta-tool: ${metaToolResult.signal} (${metaToolResult.supportedFamilies.length} families, core: ${metaToolResult.coreFamilies.join(", ") || "none"})`,
+    );
   }
 
   // Read root devDeps for test framework fallback in monorepos
@@ -299,19 +290,20 @@ function analyzePackage(
   }
 
   // W2-3: Pass dependency and config context to convention detectors
-  const conventions = extractConventions(
-    parsed,
-    tiers,
-    config.conventions.disable,
-    warnings,
-    { dependencies: dependencyInsights, config: configAnalysis, rootDevDeps },
-  );
+  const conventions = extractConventions(parsed, tiers, config.conventions.disable, warnings, {
+    dependencies: dependencyInsights,
+    config: configAnalysis,
+    rootDevDeps,
+  });
   vlog(verbose, `  Conventions: ${conventions.length} detected`);
 
   // Improvement 4: Existing docs detection
   const existingDocs = detectExistingDocs(pkgPath, warnings);
   if (existingDocs.hasAgentsMd || existingDocs.hasClaudeMd) {
-    vlog(verbose, `  Existing docs: ${existingDocs.hasAgentsMd ? "AGENTS.md" : ""}${existingDocs.hasClaudeMd ? " CLAUDE.md" : ""}`);
+    vlog(
+      verbose,
+      `  Existing docs: ${existingDocs.hasAgentsMd ? "AGENTS.md" : ""}${existingDocs.hasClaudeMd ? " CLAUDE.md" : ""}`,
+    );
   }
 
   const commands = extractCommands(pkgPath, config.rootDir, warnings);
@@ -329,13 +321,7 @@ function analyzePackage(
   ].filter(Boolean);
   vlog(verbose, `  Commands: ${commands.packageManager} (${cmdList.join(", ") || "none"})`);
 
-  const architecture = detectArchitecture(
-    parsed,
-    pkgPath,
-    publicAPI,
-    symbolGraph.barrelFile,
-    warnings,
-  );
+  const architecture = detectArchitecture(parsed, pkgPath, publicAPI, symbolGraph.barrelFile, warnings);
 
   // Enhancement 1: Role inference
   const partialAnalysis = buildPackageAnalysis(
@@ -372,7 +358,10 @@ function analyzePackage(
 
   // Impact classification
   const classified = classifyImpacts(conventions, antiPatterns);
-  vlog(verbose, `  Impact: ${classified.conventions.filter((c) => c.impact === "high").length} high, ${classified.conventions.filter((c) => c.impact === "medium").length} medium, ${classified.conventions.filter((c) => c.impact === "low").length} low`);
+  vlog(
+    verbose,
+    `  Impact: ${classified.conventions.filter((c) => c.impact === "high").length} high, ${classified.conventions.filter((c) => c.impact === "medium").length} medium, ${classified.conventions.filter((c) => c.impact === "low").length} low`,
+  );
 
   // Improvement 3: Call graph logging
   if (symbolGraph.callGraph.length > 0) {
@@ -408,11 +397,13 @@ function analyzePackage(
     patternFingerprints: patternFingerprints.length > 0 ? patternFingerprints : undefined,
     examples: examples.length > 0 ? examples : undefined,
     isMetaTool: metaToolResult.isMetaTool || undefined,
-    metaToolInfo: metaToolResult.isMetaTool ? {
-      signal: metaToolResult.signal as "peer-dependencies" | "dep-placement" | "family-count",
-      supportedFamilies: metaToolResult.supportedFamilies,
-      coreFamilies: metaToolResult.coreFamilies,
-    } : undefined,
+    metaToolInfo: metaToolResult.isMetaTool
+      ? {
+          signal: metaToolResult.signal as "peer-dependencies" | "dep-placement" | "family-count",
+          supportedFamilies: metaToolResult.supportedFamilies,
+          coreFamilies: metaToolResult.coreFamilies,
+        }
+      : undefined,
   };
 }
 

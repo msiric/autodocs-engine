@@ -2,19 +2,14 @@
 // Classifies conventions and anti-patterns by what AI tools reliably follow.
 // Based on user research: commands/workflows = high, architecture = medium, style = low.
 
-import type { Convention, AntiPattern, RuleImpact, ConventionCategory } from "./types.js";
+import type { AntiPattern, Convention, ConventionCategory, RuleImpact } from "./types.js";
 
 // W5-A: Simplified after removing noisy detector categories
 // Categories that represent style rules (linter's job, AI follows unreliably)
-const LOW_IMPACT_CATEGORIES: Set<ConventionCategory> = new Set([
-  "file-naming",
-]);
+const LOW_IMPACT_CATEGORIES: Set<ConventionCategory> = new Set(["file-naming"]);
 
 // Categories that represent workflow rules (AI follows reliably)
-const HIGH_IMPACT_CATEGORIES: Set<ConventionCategory> = new Set([
-  "testing",
-  "ecosystem",
-]);
+const HIGH_IMPACT_CATEGORIES: Set<ConventionCategory> = new Set(["testing", "ecosystem"]);
 
 // Pattern-based detection for style rules regardless of category
 const STYLE_PATTERNS = [

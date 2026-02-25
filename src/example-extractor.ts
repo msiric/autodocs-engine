@@ -32,18 +32,11 @@ export function extractExamples(
       if (examples.length >= maxExamples) break;
 
       // Check if this test file imports the export
-      const imports = testFile.imports.some((imp) =>
-        imp.importedNames.includes(entry.name),
-      );
+      const imports = testFile.imports.some((imp) => imp.importedNames.includes(entry.name));
       if (!imports) continue;
 
       // Try to extract a snippet from the test file
-      const snippet = extractSnippetFromTestFile(
-        entry.name,
-        testFile.relativePath,
-        packageDir,
-        warnings,
-      );
+      const snippet = extractSnippetFromTestFile(entry.name, testFile.relativePath, packageDir, warnings);
       if (snippet) {
         examples.push({
           exportName: entry.name,
@@ -72,7 +65,7 @@ function extractSnippetFromTestFile(
   exportName: string,
   testRelPath: string,
   packageDir: string,
-  warnings: Warning[],
+  _warnings: Warning[],
 ): SnippetResult | null {
   let content: string;
   try {

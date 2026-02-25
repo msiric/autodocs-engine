@@ -1,11 +1,10 @@
 // src/bin/check.ts — Staleness detection for AGENTS.md
 // Compares current analysis against a stored baseline to detect drift.
 
-import { resolve, relative } from "node:path";
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
-import { dirname } from "node:path";
-import { analyze } from "../index.js";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, relative, resolve } from "node:path";
 import { diffAnalyses } from "../diff-analyzer.js";
+import { analyze } from "../index.js";
 import type { StructuredAnalysis } from "../types.js";
 
 const DEFAULT_BASELINE = ".autodocs-baseline.json";
@@ -19,7 +18,7 @@ interface CheckOptions {
 }
 
 function stderr(msg: string): void {
-  process.stderr.write(msg + "\n");
+  process.stderr.write(`${msg}\n`);
 }
 
 function mapReplacer(_key: string, value: unknown): unknown {

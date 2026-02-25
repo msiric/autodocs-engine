@@ -11,8 +11,8 @@ import { resolve } from "node:path";
 import { analyze } from "../index.js";
 import type { StructuredAnalysis } from "../types.js";
 
-const CHECK_TTL_MS = 300;        // Don't hammer git on rapid-fire calls
-const NON_GIT_TTL_MS = 15_000;   // Re-analyze non-git repos every 15s
+const CHECK_TTL_MS = 300; // Don't hammer git on rapid-fire calls
+const NON_GIT_TTL_MS = 15_000; // Re-analyze non-git repos every 15s
 
 export interface CacheMeta {
   analyzedAt: string;
@@ -30,7 +30,9 @@ export class AnalysisCache {
   private _lastWasCacheHit = false;
 
   /** Whether the most recent get() call was a cache hit. */
-  get lastWasCacheHit(): boolean { return this._lastWasCacheHit; }
+  get lastWasCacheHit(): boolean {
+    return this._lastWasCacheHit;
+  }
 
   /** Freshness metadata for tool responses. */
   getMeta(): CacheMeta {
@@ -54,12 +56,12 @@ export class AnalysisCache {
   warm(): void {
     process.stderr.write("[autodocs] Analyzing in background...\n");
     void this.get()
-      .then(analysis => {
+      .then((analysis) => {
         const pkgs = analysis.packages.length;
         const files = analysis.packages.reduce((n, p) => n + p.files.total, 0);
         process.stderr.write(`[autodocs] Analysis complete (${pkgs} package(s), ${files} files)\n`);
       })
-      .catch(err => {
+      .catch((err) => {
         const msg = err instanceof Error ? err.message : String(err);
         process.stderr.write(`[autodocs] Background analysis failed: ${msg}\n`);
         process.stderr.write("[autodocs] Will retry on first tool call\n");

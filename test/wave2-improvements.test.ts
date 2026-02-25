@@ -1,24 +1,23 @@
 // test/wave2-improvements.test.ts — Tests for Wave 2 improvements
 // W2-1: Output Validator, W2-2: Pattern Fingerprinter, W2-3: Ecosystem Detectors, W2-4: Diff Analyzer
 
-import { describe, it, expect } from "vitest";
 import { resolve } from "node:path";
+import { describe, expect, it } from "vitest";
+import { buildToolDetector } from "../src/detectors/build-tool.js";
+import { dataFetchingDetector } from "../src/detectors/data-fetching.js";
+import { databaseDetector } from "../src/detectors/database.js";
+import { testFrameworkEcosystemDetector } from "../src/detectors/test-framework-ecosystem.js";
+import { webFrameworkDetector } from "../src/detectors/web-framework.js";
+import { diffAnalyses } from "../src/diff-analyzer.js";
 import { validateOutput } from "../src/output-validator.js";
 import { fingerprintTopExports } from "../src/pattern-fingerprinter.js";
-import { diffAnalyses } from "../src/diff-analyzer.js";
-import { dataFetchingDetector } from "../src/detectors/data-fetching.js";
-import { testFrameworkEcosystemDetector } from "../src/detectors/test-framework-ecosystem.js";
-import { databaseDetector } from "../src/detectors/database.js";
-import { webFrameworkDetector } from "../src/detectors/web-framework.js";
-import { buildToolDetector } from "../src/detectors/build-tool.js";
 import type {
-  StructuredAnalysis,
+  DetectorContext,
   PackageAnalysis,
   ParsedFile,
+  StructuredAnalysis,
   TierInfo,
   Warning,
-  DetectorContext,
-  DependencyInsights,
 } from "../src/types.js";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -100,9 +99,15 @@ function makeParsedFile(overrides: Partial<ParsedFile> = {}): ParsedFile {
     exports: [],
     imports: [],
     contentSignals: {
-      tryCatchCount: 0, useMemoCount: 0, useCallbackCount: 0,
-      useEffectCount: 0, useStateCount: 0, useQueryCount: 0,
-      useMutationCount: 0, jestMockCount: 0, hasDisplayName: false,
+      tryCatchCount: 0,
+      useMemoCount: 0,
+      useCallbackCount: 0,
+      useEffectCount: 0,
+      useStateCount: 0,
+      useQueryCount: 0,
+      useMutationCount: 0,
+      jestMockCount: 0,
+      hasDisplayName: false,
       hasErrorBoundary: false,
     },
     lineCount: 50,
@@ -144,7 +149,9 @@ describe("W2-1: Output Validator", () => {
     const output = `# Test Package\n\nGraphQL hooks for data fetching.`;
     const result = validateOutput(output, analysis, "root");
 
-    const techIssues = result.issues.filter((i) => i.type === "hallucinated_technology" && i.message.includes("graphql"));
+    const techIssues = result.issues.filter(
+      (i) => i.type === "hallucinated_technology" && i.message.includes("graphql"),
+    );
     expect(techIssues.length).toBe(0);
   });
 
@@ -197,7 +204,9 @@ describe("W2-1: Output Validator", () => {
   it("returns valid when no issues", () => {
     const analysis = makeStructuredAnalysis();
     // Output must meet minimum word count (300 for root format) to pass validation
-    const filler = Array(60).fill("This is actionable content for AI tools to follow when working with this package.").join("\n");
+    const filler = Array(60)
+      .fill("This is actionable content for AI tools to follow when working with this package.")
+      .join("\n");
     const output = `# Test Package\n\nUses TanStack Query for data fetching.\nNext.js 16 with App Router.\n\n${filler}`;
     const result = validateOutput(output, analysis, "root");
 
@@ -263,7 +272,12 @@ describe("W2-3: Data Fetching Detector", () => {
     const files: ParsedFile[] = [
       makeParsedFile({
         imports: [
-          { moduleSpecifier: "@tanstack/react-query", importedNames: ["useQuery", "useMutation"], isTypeOnly: false, isDynamic: false },
+          {
+            moduleSpecifier: "@tanstack/react-query",
+            importedNames: ["useQuery", "useMutation"],
+            isTypeOnly: false,
+            isDynamic: false,
+          },
         ],
       }),
     ];
@@ -322,7 +336,9 @@ describe("W2-3: Data Fetching Detector", () => {
 
   it("returns empty for files without query hooks", () => {
     const files: ParsedFile[] = [
-      makeParsedFile({ imports: [{ moduleSpecifier: "react", importedNames: ["useState"], isTypeOnly: false, isDynamic: false }] }),
+      makeParsedFile({
+        imports: [{ moduleSpecifier: "react", importedNames: ["useState"], isTypeOnly: false, isDynamic: false }],
+      }),
     ];
     const result = dataFetchingDetector(files, emptyTiers, emptyWarnings);
     expect(result.length).toBe(0);
@@ -335,7 +351,14 @@ describe("W2-3: Test Framework Ecosystem Detector", () => {
       makeParsedFile({
         relativePath: "src/test.test.ts",
         isTestFile: true,
-        imports: [{ moduleSpecifier: "bun:test", importedNames: ["describe", "it", "expect"], isTypeOnly: false, isDynamic: false }],
+        imports: [
+          {
+            moduleSpecifier: "bun:test",
+            importedNames: ["describe", "it", "expect"],
+            isTypeOnly: false,
+            isDynamic: false,
+          },
+        ],
       }),
     ];
     const context: DetectorContext = {
@@ -351,9 +374,7 @@ describe("W2-3: Test Framework Ecosystem Detector", () => {
   });
 
   it("detects Vitest from dependency insights", () => {
-    const files: ParsedFile[] = [
-      makeParsedFile({ relativePath: "test.test.ts", isTestFile: true }),
-    ];
+    const files: ParsedFile[] = [makeParsedFile({ relativePath: "test.test.ts", isTestFile: true })];
     const context: DetectorContext = {
       dependencies: {
         runtime: [],
@@ -394,7 +415,9 @@ describe("W2-3: Database Detector", () => {
   it("detects Prisma from imports", () => {
     const files: ParsedFile[] = [
       makeParsedFile({
-        imports: [{ moduleSpecifier: "@prisma/client", importedNames: ["PrismaClient"], isTypeOnly: false, isDynamic: false }],
+        imports: [
+          { moduleSpecifier: "@prisma/client", importedNames: ["PrismaClient"], isTypeOnly: false, isDynamic: false },
+        ],
       }),
     ];
     const context: DetectorContext = {
@@ -472,9 +495,7 @@ describe("W2-3: Build Tool Detector", () => {
 describe("W2-4: Diff Analyzer", () => {
   it("detects new exports", () => {
     const previous = makeStructuredAnalysis({
-      publicAPI: [
-        { name: "useData", kind: "hook", sourceFile: "src/use-data.ts", isTypeOnly: false, importCount: 5 },
-      ],
+      publicAPI: [{ name: "useData", kind: "hook", sourceFile: "src/use-data.ts", isTypeOnly: false, importCount: 5 }],
     });
     const current = makeStructuredAnalysis({
       publicAPI: [
@@ -496,9 +517,7 @@ describe("W2-4: Diff Analyzer", () => {
       ],
     });
     const current = makeStructuredAnalysis({
-      publicAPI: [
-        { name: "useData", kind: "hook", sourceFile: "src/use-data.ts", isTypeOnly: false, importCount: 5 },
-      ],
+      publicAPI: [{ name: "useData", kind: "hook", sourceFile: "src/use-data.ts", isTypeOnly: false, importCount: 5 }],
     });
     const diff = diffAnalyses(current, previous);
 

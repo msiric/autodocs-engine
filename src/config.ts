@@ -2,8 +2,8 @@
 // Errata applied: E-37 (mri for arg parsing), E-38 (warn if API key in config file)
 
 import { existsSync, readFileSync } from "node:fs";
-import { resolve, join } from "node:path";
-import type { ResolvedConfig, OutputFormat, Warning } from "./types.js";
+import { join, resolve } from "node:path";
+import type { OutputFormat, ResolvedConfig, Warning } from "./types.js";
 
 export type LLMSynthesisMode = "deterministic" | "full";
 
@@ -60,10 +60,7 @@ const DEFAULTS: ResolvedConfig = {
 /**
  * Resolve config from CLI args, config file, and defaults.
  */
-export function resolveConfig(
-  args: ParsedArgs,
-  warnings: Warning[] = [],
-): ResolvedConfig {
+export function resolveConfig(args: ParsedArgs, warnings: Warning[] = []): ResolvedConfig {
   // Load config file
   const fileConfig = loadConfigFile(args.config, warnings);
 
@@ -74,29 +71,22 @@ export function resolveConfig(
     packages:
       args.packages.length > 0
         ? args.packages.map((p) => resolve(p))
-        : fileConfig?.packages?.map((p: string) => resolve(p)) ??
-          DEFAULTS.packages.map((p) => resolve(p)),
+        : (fileConfig?.packages?.map((p: string) => resolve(p)) ?? DEFAULTS.packages.map((p) => resolve(p))),
     exclude: fileConfig?.exclude ?? DEFAULTS.exclude,
     rootDir: args.root ? resolve(args.root) : fileConfig?.rootDir ? resolve(fileConfig.rootDir) : undefined,
     output: {
-      format: (args.format as OutputFormat) ??
-        fileConfig?.output?.format ??
-        DEFAULTS.output.format,
+      format: (args.format as OutputFormat) ?? fileConfig?.output?.format ?? DEFAULTS.output.format,
       dir: args.output ?? fileConfig?.output?.dir ?? DEFAULTS.output.dir,
     },
     llm: {
       ...DEFAULTS.llm,
       ...fileConfig?.llm,
-      apiKey:
-        process.env.ANTHROPIC_API_KEY ??
-        process.env.OPENAI_API_KEY ??
-        fileConfig?.llm?.apiKey,
+      apiKey: process.env.ANTHROPIC_API_KEY ?? process.env.OPENAI_API_KEY ?? fileConfig?.llm?.apiKey,
     },
     conventions: {
       disable: fileConfig?.conventions?.disable ?? DEFAULTS.conventions.disable,
     },
-    maxPublicAPIEntries:
-      fileConfig?.maxPublicAPIEntries ?? DEFAULTS.maxPublicAPIEntries,
+    maxPublicAPIEntries: fileConfig?.maxPublicAPIEntries ?? DEFAULTS.maxPublicAPIEntries,
     verbose: args.verbose,
     metaToolThreshold: fileConfig?.metaToolThreshold ?? DEFAULTS.metaToolThreshold,
     noMetaTool: args.noMetaTool ?? fileConfig?.noMetaTool ?? DEFAULTS.noMetaTool,
@@ -108,11 +98,7 @@ export function resolveConfig(
   }
 
   // Validate: LLM format requires API key
-  if (
-    config.output.format !== "json" &&
-    !config.llm.apiKey &&
-    !args.dryRun
-  ) {
+  if (config.output.format !== "json" && !config.llm.apiKey && !args.dryRun) {
     warnings.push({
       level: "warn",
       module: "config",
@@ -123,10 +109,7 @@ export function resolveConfig(
   return config;
 }
 
-function loadConfigFile(
-  configPath: string | undefined,
-  warnings: Warning[],
-): Partial<ResolvedConfig> | null {
+function loadConfigFile(configPath: string | undefined, warnings: Warning[]): Partial<ResolvedConfig> | null {
   // Explicit config path
   if (configPath) {
     const absPath = resolve(configPath);
@@ -164,10 +147,7 @@ function loadConfigFile(
   return null;
 }
 
-function parseConfigFile(
-  filePath: string,
-  warnings: Warning[],
-): Partial<ResolvedConfig> | null {
+function parseConfigFile(filePath: string, warnings: Warning[]): Partial<ResolvedConfig> | null {
   try {
     const content = readFileSync(filePath, "utf-8");
     const parsed = JSON.parse(content);
@@ -177,8 +157,7 @@ function parseConfigFile(
       warnings.push({
         level: "warn",
         module: "config",
-        message:
-          "API keys should not be stored in config files. Use ANTHROPIC_API_KEY environment variable instead.",
+        message: "API keys should not be stored in config files. Use ANTHROPIC_API_KEY environment variable instead.",
       });
     }
 
@@ -197,13 +176,24 @@ function parseConfigFile(
 /**
  * E-37: Parse CLI args using mri.
  */
-export async function parseCliArgs(
-  argv: string[],
-): Promise<ParsedArgs> {
+export async function parseCliArgs(argv: string[]): Promise<ParsedArgs> {
   const mri = (await import("mri")).default;
   const args = mri(argv, {
     alias: { f: "format", o: "output", c: "config", q: "quiet", v: "verbose" },
-    boolean: ["dry-run", "quiet", "verbose", "help", "hierarchical", "flat", "merge", "no-meta-tool", "save-baseline", "full", "minimal", "telemetry"],
+    boolean: [
+      "dry-run",
+      "quiet",
+      "verbose",
+      "help",
+      "hierarchical",
+      "flat",
+      "merge",
+      "no-meta-tool",
+      "save-baseline",
+      "full",
+      "minimal",
+      "telemetry",
+    ],
     string: ["format", "output", "config", "root", "diff", "llm-synthesis", "model", "max-tasks", "mode"],
   });
 
@@ -229,6 +219,6 @@ export async function parseCliArgs(
     full: args.full ?? undefined,
     model: args.model ?? undefined,
     maxTasks: args["max-tasks"] ? parseInt(args["max-tasks"] as string, 10) : undefined,
-    benchmarkMode: (args.mode === "pr" || args.mode === "synthetic") ? args.mode : undefined,
+    benchmarkMode: args.mode === "pr" || args.mode === "synthetic" ? args.mode : undefined,
   };
 }

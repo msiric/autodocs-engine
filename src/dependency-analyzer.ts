@@ -140,7 +140,7 @@ function detectRuntime(
       try {
         const rootPkg = JSON.parse(readFileSync(rootPkgPath, "utf-8"));
         if (rootPkg.engines?.node) {
-          result.runtime.push({ name: "node", version: cleanVersionRange(rootPkg.engines.node) + " (monorepo root)" });
+          result.runtime.push({ name: "node", version: `${cleanVersionRange(rootPkg.engines.node)} (monorepo root)` });
         }
         // Do NOT add Bun from root packageManager — it's likely the build tool, not the runtime
       } catch {
@@ -163,40 +163,59 @@ function getFrameworkGuidance(name: string, version: string): FrameworkGuidanceE
     case "react":
     case "react-dom":
       if (name === "react-dom") return null; // Only report react once
-      if (major >= 19) return { guidance: "React 19 — use() hook available, Server Components available, ref as prop (no forwardRef needed)" };
-      if (major === 18) return { guidance: "React 18 — do NOT use use() hook, do NOT use React Server Components, useId available" };
-      if (major === 17) return { guidance: "React 17 — no automatic JSX transform by default, no useId, no useSyncExternalStore" };
+      if (major >= 19)
+        return {
+          guidance: "React 19 — use() hook available, Server Components available, ref as prop (no forwardRef needed)",
+        };
+      if (major === 18)
+        return { guidance: "React 18 — do NOT use use() hook, do NOT use React Server Components, useId available" };
+      if (major === 17)
+        return { guidance: "React 17 — no automatic JSX transform by default, no useId, no useSyncExternalStore" };
       return { guidance: undefined };
 
     case "typescript":
       if (major >= 5) {
         const minor = parseMinor(version);
-        if (minor >= 5) return { guidance: `TypeScript ${major}.${minor} — satisfies keyword, const type parameters, inferred type predicates` };
-        if (minor >= 4) return { guidance: `TypeScript ${major}.${minor} — satisfies keyword, const type parameters available` };
+        if (minor >= 5)
+          return {
+            guidance: `TypeScript ${major}.${minor} — satisfies keyword, const type parameters, inferred type predicates`,
+          };
+        if (minor >= 4)
+          return { guidance: `TypeScript ${major}.${minor} — satisfies keyword, const type parameters available` };
         return { guidance: `TypeScript ${major}.${minor} — satisfies keyword available, decorators stable` };
       }
       if (major === 4) return { guidance: "TypeScript 4.x — no satisfies keyword, no const type parameters" };
       return { guidance: undefined };
 
     case "next":
-      if (major >= 16) return { guidance: `Next.js ${major} — App Router default, Turbopack stable, Server Actions stable, React Server Components` };
-      if (major === 15) return { guidance: "Next.js 15 — App Router is default, Turbopack available, Server Actions stable" };
+      if (major >= 16)
+        return {
+          guidance: `Next.js ${major} — App Router default, Turbopack stable, Server Actions stable, React Server Components`,
+        };
+      if (major === 15)
+        return { guidance: "Next.js 15 — App Router is default, Turbopack available, Server Actions stable" };
       if (major === 14) return { guidance: "Next.js 14 — App Router stable, Server Actions stable, Turbopack alpha" };
-      if (major === 13) return { guidance: "Next.js 13 — App Router introduced (may use Pages Router), Server Components experimental" };
+      if (major === 13)
+        return {
+          guidance: "Next.js 13 — App Router introduced (may use Pages Router), Server Components experimental",
+        };
       return { guidance: undefined };
 
     case "vue":
       if (major >= 3) return { guidance: "Vue 3 — Composition API, script setup, Teleport, Suspense" };
-      if (major === 2) return { guidance: "Vue 2 — Options API preferred, no script setup, no Composition API by default" };
+      if (major === 2)
+        return { guidance: "Vue 2 — Options API preferred, no script setup, no Composition API by default" };
       return { guidance: undefined };
 
     case "@angular/core":
-      if (major >= 17) return { guidance: `Angular ${major} — signals, control flow syntax, standalone components default` };
+      if (major >= 17)
+        return { guidance: `Angular ${major} — signals, control flow syntax, standalone components default` };
       if (major >= 14) return { guidance: `Angular ${major} — standalone components available, inject() function` };
       return { guidance: undefined };
 
     case "svelte":
-      if (major >= 5) return { guidance: "Svelte 5 — runes ($state, $derived, $effect), no more reactive declarations ($:)" };
+      if (major >= 5)
+        return { guidance: "Svelte 5 — runes ($state, $derived, $effect), no more reactive declarations ($:)" };
       if (major >= 4) return { guidance: "Svelte 4 — reactive declarations ($:), stores, no runes" };
       return { guidance: undefined };
 
@@ -233,8 +252,16 @@ function isTestFramework(name: string): boolean {
 
 function isBundler(name: string): boolean {
   return [
-    "webpack", "vite", "esbuild", "rollup", "turbopack",
-    "rspack", "@rspack/core", "parcel", "tsup", "unbuild",
+    "webpack",
+    "vite",
+    "esbuild",
+    "rollup",
+    "turbopack",
+    "rspack",
+    "@rspack/core",
+    "parcel",
+    "tsup",
+    "unbuild",
   ].includes(name);
 }
 
@@ -245,13 +272,18 @@ function isBundler(name: string): boolean {
  * "^18.2.0" → "18.2.0", "~5.4" → "5.4", ">=16" → "16", "workspace:*" → "*"
  */
 function cleanVersionRange(range: string): string {
-  return range.replace(/^[\^~>=<]*\s*/, "").replace(/^workspace:\*?/, "").trim() || range;
+  return (
+    range
+      .replace(/^[\^~>=<]*\s*/, "")
+      .replace(/^workspace:\*?/, "")
+      .trim() || range
+  );
 }
 
 function parseMajor(version: string): number {
   const clean = cleanVersionRange(version);
   const num = parseInt(clean.split(".")[0], 10);
-  return isNaN(num) ? 0 : num;
+  return Number.isNaN(num) ? 0 : num;
 }
 
 function parseMinor(version: string): number {
@@ -259,5 +291,5 @@ function parseMinor(version: string): number {
   const parts = clean.split(".");
   if (parts.length < 2) return 0;
   const num = parseInt(parts[1], 10);
-  return isNaN(num) ? 0 : num;
+  return Number.isNaN(num) ? 0 : num;
 }

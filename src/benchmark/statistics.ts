@@ -115,15 +115,16 @@ export interface WilcoxonResult {
  */
 export function wilcoxonSignedRank(a: number[], b: number[]): WilcoxonResult {
   const n = Math.min(a.length, b.length);
-  const diffs = a.slice(0, n).map((v, i) => v - b[i]).filter(d => d !== 0);
+  const diffs = a
+    .slice(0, n)
+    .map((v, i) => v - b[i])
+    .filter((d) => d !== 0);
   const effectiveN = diffs.length;
 
   if (effectiveN < 5) return { W: 0, p: 1, n: effectiveN };
 
   // Rank absolute differences
-  const ranked = diffs
-    .map((d, i) => ({ diff: d, abs: Math.abs(d), idx: i }))
-    .sort((x, y) => x.abs - y.abs);
+  const ranked = diffs.map((d, i) => ({ diff: d, abs: Math.abs(d), idx: i })).sort((x, y) => x.abs - y.abs);
 
   // Assign ranks (handle ties with average rank)
   const ranks = new Array(effectiveN).fill(0);
@@ -145,8 +146,8 @@ export function wilcoxonSignedRank(a: number[], b: number[]): WilcoxonResult {
   }
 
   // Normal approximation for p-value
-  const mu = effectiveN * (effectiveN + 1) / 4;
-  const sigma = Math.sqrt(effectiveN * (effectiveN + 1) * (2 * effectiveN + 1) / 24);
+  const mu = (effectiveN * (effectiveN + 1)) / 4;
+  const sigma = Math.sqrt((effectiveN * (effectiveN + 1) * (2 * effectiveN + 1)) / 24);
   const z = sigma > 0 ? (Wplus - mu) / sigma : 0;
   const p = 2 * (1 - normalCDF(Math.abs(z)));
 
@@ -172,7 +173,7 @@ function normalCDF(x: number): number {
   const sign = x < 0 ? -1 : 1;
   const absX = Math.abs(x);
   const t = 1 / (1 + p * absX);
-  const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-absX * absX / 2);
+  const y = 1 - ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp((-absX * absX) / 2);
 
   return 0.5 * (1 + sign * y);
 }

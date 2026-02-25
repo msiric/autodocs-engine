@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { parseCodeBlocks } from "../../src/benchmark/code-generator.js";
 
 describe("parseCodeBlocks", () => {
@@ -28,11 +28,7 @@ describe("parseCodeBlocks", () => {
   });
 
   it("parses language tag + filepath format", () => {
-    const response = [
-      "```typescript src/utils/helper.ts",
-      "export const helper = () => {};",
-      "```",
-    ].join("\n");
+    const response = ["```typescript src/utils/helper.ts", "export const helper = () => {};", "```"].join("\n");
 
     const files = parseCodeBlocks(response);
     expect(files).toHaveLength(1);
@@ -53,11 +49,7 @@ describe("parseCodeBlocks", () => {
   });
 
   it("normalizes paths (strips ./ prefix, converts backslash)", () => {
-    const response = [
-      "```./src\\utils\\helper.ts",
-      "export const x = 1;",
-      "```",
-    ].join("\n");
+    const response = ["```./src\\utils\\helper.ts", "export const x = 1;", "```"].join("\n");
 
     const files = parseCodeBlocks(response);
     expect(files).toHaveLength(1);
@@ -65,15 +57,7 @@ describe("parseCodeBlocks", () => {
   });
 
   it("skips blocks without recognizable filepath", () => {
-    const response = [
-      "```typescript",
-      "const x = 1;",
-      "```",
-      "",
-      "```",
-      "plain text",
-      "```",
-    ].join("\n");
+    const response = ["```typescript", "const x = 1;", "```", "", "```", "plain text", "```"].join("\n");
 
     const files = parseCodeBlocks(response);
     expect(files).toHaveLength(0);
@@ -99,6 +83,6 @@ describe("parseCodeBlocks", () => {
 
     const files = parseCodeBlocks(response);
     expect(files).toHaveLength(3);
-    expect(files.map(f => f.path)).toEqual(["src/a.ts", "src/b.ts", "src/c.ts"]);
+    expect(files.map((f) => f.path)).toEqual(["src/a.ts", "src/b.ts", "src/c.ts"]);
   });
 });

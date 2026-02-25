@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
 import { resolve } from "node:path";
+import { describe, expect, it } from "vitest";
 
 // ─── Workstream A: Cleanup ───────────────────────────────────────────────────
 
@@ -113,23 +113,20 @@ describe("W5-B2: Budget limits adjusted", () => {
   it("MAX_RULES is now 120 (not 100)", async () => {
     const { validateBudget } = await import("../src/budget-validator.js");
     // 110 rules should NOT be over budget anymore (was over at 100)
-    const rules = Array.from({ length: 110 }, (_, i) =>
-      `- Use feature-${i} for all operations`,
-    );
+    const rules = Array.from({ length: 110 }, (_, i) => `- Use feature-${i} for all operations`);
     const report = validateBudget(["# Package", ...rules].join("\n"));
     expect(report.overBudget).toBe(false);
 
     // 125 rules SHOULD be over budget
-    const moreRules = Array.from({ length: 125 }, (_, i) =>
-      `- Use feature-${i} for all operations`,
-    );
+    const moreRules = Array.from({ length: 125 }, (_, i) => `- Use feature-${i} for all operations`);
     const overReport = validateBudget(["# Package", ...moreRules].join("\n"));
     expect(overReport.overBudget).toBe(true);
   });
 
   it("templates target higher line counts", async () => {
-    const { agentsMdSingleTemplate, agentsMdMultiRootTemplate, agentsMdPackageDetailTemplate } =
-      await import("../src/templates/agents-md.js");
+    const { agentsMdSingleTemplate, agentsMdMultiRootTemplate, agentsMdPackageDetailTemplate } = await import(
+      "../src/templates/agents-md.js"
+    );
 
     expect(agentsMdSingleTemplate.systemPrompt).toContain("at least 900 words");
     expect(agentsMdMultiRootTemplate.systemPrompt).toContain("at least 800 words");
@@ -170,10 +167,15 @@ describe("W5-C1: Example extractor", () => {
 
     const pkgDir = resolve(FIXTURES, "hooks-pkg");
     const files = discoverFiles(pkgDir, []);
-    const parsed = files.map((f: string) => {
-      try { return parseFile(f, pkgDir, []); }
-      catch { return null; }
-    }).filter(Boolean);
+    const parsed = files
+      .map((f: string) => {
+        try {
+          return parseFile(f, pkgDir, []);
+        } catch {
+          return null;
+        }
+      })
+      .filter(Boolean);
 
     const publicAPI = [
       { name: "useData", kind: "hook" as const, sourceFile: "src/use-data.ts", isTypeOnly: false, importCount: 3 },
@@ -224,13 +226,15 @@ describe("W5-C2: Plugin system", () => {
     const mockPlugin = {
       name: "test-plugin",
       version: "1.0.0",
-      detect: () => [{
-        category: "ecosystem" as const,
-        name: "Test convention",
-        description: "From plugin",
-        confidence: { matched: 1, total: 1, percentage: 100, description: "1 of 1 (100%)" },
-        examples: [],
-      }],
+      detect: () => [
+        {
+          category: "ecosystem" as const,
+          name: "Test convention",
+          description: "From plugin",
+          confidence: { matched: 1, total: 1, percentage: 100, description: "1 of 1 (100%)" },
+          examples: [],
+        },
+      ],
     };
 
     const conventions = extractConventions([], new Map(), [], [], undefined, [mockPlugin]);
@@ -245,7 +249,9 @@ describe("W5-C2: Plugin system", () => {
     const badPlugin = {
       name: "bad-plugin",
       version: "1.0.0",
-      detect: () => { throw new Error("Plugin crashed!"); },
+      detect: () => {
+        throw new Error("Plugin crashed!");
+      },
     };
 
     const conventions = extractConventions([], new Map(), [], warnings, undefined, [badPlugin]);
@@ -259,13 +265,15 @@ describe("W5-C2: Plugin system", () => {
     const mockPlugin = {
       name: "disabled-plugin",
       version: "1.0.0",
-      detect: () => [{
-        category: "ecosystem" as const,
-        name: "Should not appear",
-        description: "Disabled",
-        confidence: { matched: 1, total: 1, percentage: 100, description: "1 of 1 (100%)" },
-        examples: [],
-      }],
+      detect: () => [
+        {
+          category: "ecosystem" as const,
+          name: "Should not appear",
+          description: "Disabled",
+          confidence: { matched: 1, total: 1, percentage: 100, description: "1 of 1 (100%)" },
+          examples: [],
+        },
+      ],
     };
 
     const conventions = extractConventions([], new Map(), ["disabled-plugin"], [], undefined, [mockPlugin]);
@@ -305,10 +313,7 @@ describe("W5-C3: Mermaid diagram generator", () => {
 
   it("returns empty string for single package", async () => {
     const { generateDependencyDiagram } = await import("../src/mermaid-generator.js");
-    const diagram = generateDependencyDiagram(
-      [{ name: "solo", architecture: { packageType: "library" } }] as any,
-      [],
-    );
+    const diagram = generateDependencyDiagram([{ name: "solo", architecture: { packageType: "library" } }] as any, []);
     expect(diagram).toBe("");
   });
 
@@ -354,10 +359,7 @@ describe("W5 Integration", () => {
   it("multi-package pipeline produces Mermaid diagram", async () => {
     const { runPipeline } = await import("../src/pipeline.js");
     const result = await runPipeline({
-      packages: [
-        resolve(FIXTURES, "hooks-pkg"),
-        resolve(FIXTURES, "minimal-pkg"),
-      ],
+      packages: [resolve(FIXTURES, "hooks-pkg"), resolve(FIXTURES, "minimal-pkg")],
       exclude: [],
       rootDir: FIXTURES,
       output: { format: "json", dir: "/tmp" },

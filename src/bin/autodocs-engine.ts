@@ -1,12 +1,24 @@
 #!/usr/bin/env node
 // CLI entry point for autodocs-engine
 
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
-import { resolve, dirname, join } from "node:path";
-import { analyze, format, formatDeterministic, formatAsHierarchy, formatHierarchicalDeterministic, validateBudget, formatBudgetReport, ENGINE_VERSION, wrapWithDelimiters, mergeWithExisting, readExistingAgentsMd } from "../index.js";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import { parseCliArgs, resolveConfig } from "../config.js";
 import { diffAnalyses } from "../diff-analyzer.js";
-import type { OutputFormat, StructuredAnalysis } from "../types.js";
+import {
+  analyze,
+  ENGINE_VERSION,
+  format,
+  formatAsHierarchy,
+  formatBudgetReport,
+  formatDeterministic,
+  formatHierarchicalDeterministic,
+  mergeWithExisting,
+  readExistingAgentsMd,
+  validateBudget,
+  wrapWithDelimiters,
+} from "../index.js";
+import type { StructuredAnalysis } from "../types.js";
 
 const OUTPUT_FILENAMES: Record<string, string> = {
   json: "autodocs-analysis.json",
@@ -60,7 +72,7 @@ async function main() {
   const args = await parseCliArgs(process.argv.slice(2));
 
   if (args.help) {
-    process.stdout.write(HELP_TEXT + "\n");
+    process.stdout.write(`${HELP_TEXT}\n`);
     process.exit(0);
   }
 
@@ -135,9 +147,9 @@ async function main() {
   if (args.dryRun) {
     if (args.minimal) {
       const { generateMinimalAgentsMd } = await import("../deterministic-formatter.js");
-      process.stdout.write(generateMinimalAgentsMd(analysis) + "\n");
+      process.stdout.write(`${generateMinimalAgentsMd(analysis)}\n`);
     } else {
-      process.stdout.write(JSON.stringify(analysis, mapReplacer, 2) + "\n");
+      process.stdout.write(`${JSON.stringify(analysis, mapReplacer, 2)}\n`);
     }
     process.exit(0);
   }
@@ -153,7 +165,7 @@ async function main() {
       const previousJson = readFileSync(diffPath, "utf-8");
       const previous = JSON.parse(previousJson) as StructuredAnalysis;
       const diff = diffAnalyses(analysis, previous);
-      process.stdout.write(JSON.stringify(diff, null, 2) + "\n");
+      process.stdout.write(`${JSON.stringify(diff, null, 2)}\n`);
       if (!args.quiet) {
         process.stderr.write(`[INFO] ${diff.summary}\n`);
       }
@@ -167,18 +179,14 @@ async function main() {
 
   // Format and write output
   if (config.output.format === "json") {
-    const outputPath = resolve(
-      config.output.dir,
-      OUTPUT_FILENAMES[config.output.format],
-    );
+    const outputPath = resolve(config.output.dir, OUTPUT_FILENAMES[config.output.format]);
     writeFileSafe(outputPath, JSON.stringify(analysis, mapReplacer, 2));
-    if (!args.quiet)
-      process.stderr.write(`Written to ${outputPath}\n`);
+    if (!args.quiet) process.stderr.write(`Written to ${outputPath}\n`);
   } else {
     // Determine if hierarchical output should be used
     const isMultiPackage = analysis.packages.length > 1;
     const isAgentsMd = config.output.format === "agents.md";
-    const useHierarchical = isAgentsMd && isMultiPackage && !args.flat && (args.hierarchical !== false);
+    const useHierarchical = isAgentsMd && isMultiPackage && !args.flat && args.hierarchical !== false;
 
     try {
       if (useHierarchical) {
@@ -211,29 +219,30 @@ async function writeFlatOutput(
     const { generateMinimalAgentsMd } = await import("../deterministic-formatter.js");
     const minimalContent = generateMinimalAgentsMd(analysis);
     if (args.verbose)
-      process.stderr.write(`[INFO] Minimal mode: ${minimalContent.split("\n").length} lines, ~${Math.round(minimalContent.length / 3.5)} tokens\n`);
+      process.stderr.write(
+        `[INFO] Minimal mode: ${minimalContent.split("\n").length} lines, ~${Math.round(minimalContent.length / 3.5)} tokens\n`,
+      );
     if (args.dryRun) {
-      process.stdout.write(minimalContent + "\n");
+      process.stdout.write(`${minimalContent}\n`);
       return;
     }
     const filename = OUTPUT_FILENAMES[config.output.format] ?? "AGENTS.md";
     const outputPath = resolve(config.output.dir, filename);
     writeFileSafe(outputPath, minimalContent);
-    if (!args.quiet)
-      process.stderr.write(`Written to ${outputPath}\n`);
+    if (!args.quiet) process.stderr.write(`Written to ${outputPath}\n`);
     return;
   }
 
   // Determine synthesis mode: default is "deterministic" for agents.md
   const synthesisMode = args.llmSynthesis ?? (config.output.format === "agents.md" ? "deterministic" : "full");
 
-  if (args.verbose)
-    process.stderr.write(`[INFO] Calling LLM (${config.llm.model}, ${synthesisMode} mode)...\n`);
+  if (args.verbose) process.stderr.write(`[INFO] Calling LLM (${config.llm.model}, ${synthesisMode} mode)...\n`);
   const llmStart = performance.now();
 
-  const content = synthesisMode === "deterministic" && config.output.format === "agents.md"
-    ? await formatDeterministic(analysis, config, config.rootDir)
-    : await format(analysis, config);
+  const content =
+    synthesisMode === "deterministic" && config.output.format === "agents.md"
+      ? await formatDeterministic(analysis, config, config.rootDir)
+      : await format(analysis, config);
 
   if (args.verbose) {
     const llmMs = Math.round(performance.now() - llmStart);
@@ -244,7 +253,7 @@ async function writeFlatOutput(
   // Budget validation
   if (args.verbose) {
     const report = validateBudget(content);
-    process.stderr.write(formatBudgetReport(report) + "\n");
+    process.stderr.write(`${formatBudgetReport(report)}\n`);
   }
 
   let finalContent = content;
@@ -265,8 +274,7 @@ async function writeFlatOutput(
   const filename = OUTPUT_FILENAMES[config.output.format];
   const outputPath = resolve(config.output.dir, filename);
   writeFileSafe(outputPath, finalContent);
-  if (!args.quiet)
-    process.stderr.write(`Written to ${outputPath}\n`);
+  if (!args.quiet) process.stderr.write(`Written to ${outputPath}\n`);
 }
 
 /**
@@ -280,14 +288,16 @@ async function writeHierarchicalOutput(
   const synthesisMode = args.llmSynthesis ?? "deterministic";
 
   if (args.verbose)
-    process.stderr.write(`[INFO] Hierarchical mode (${synthesisMode}): generating root + ${analysis.packages.length} package files...\n`);
-  if (args.verbose)
-    process.stderr.write(`[INFO] Calling LLM (${config.llm.model})...\n`);
+    process.stderr.write(
+      `[INFO] Hierarchical mode (${synthesisMode}): generating root + ${analysis.packages.length} package files...\n`,
+    );
+  if (args.verbose) process.stderr.write(`[INFO] Calling LLM (${config.llm.model})...\n`);
 
   const llmStart = performance.now();
-  const result = synthesisMode === "deterministic"
-    ? await formatHierarchicalDeterministic(analysis, config)
-    : await formatAsHierarchy(analysis, config);
+  const result =
+    synthesisMode === "deterministic"
+      ? await formatHierarchicalDeterministic(analysis, config)
+      : await formatAsHierarchy(analysis, config);
   if (args.verbose) {
     const llmMs = Math.round(performance.now() - llmStart);
     process.stderr.write(`[INFO]   LLM calls completed in ${(llmMs / 1000).toFixed(1)}s\n`);
@@ -296,8 +306,7 @@ async function writeHierarchicalOutput(
   // Write root AGENTS.md
   const rootPath = resolve(config.output.dir, "AGENTS.md");
   writeFileSafe(rootPath, result.root);
-  if (!args.quiet)
-    process.stderr.write(`Written root: ${rootPath}\n`);
+  if (!args.quiet) process.stderr.write(`Written root: ${rootPath}\n`);
 
   // Budget validation for root
   if (args.verbose) {
@@ -310,8 +319,7 @@ async function writeHierarchicalOutput(
   for (const pkg of result.packages) {
     const pkgPath = join(packagesDir, pkg.filename);
     writeFileSafe(pkgPath, pkg.content);
-    if (!args.quiet)
-      process.stderr.write(`Written package: ${pkgPath}\n`);
+    if (!args.quiet) process.stderr.write(`Written package: ${pkgPath}\n`);
 
     if (args.verbose) {
       const pkgReport = validateBudget(pkg.content);

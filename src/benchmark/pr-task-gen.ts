@@ -2,8 +2,8 @@
 // Derives fair, deliberately vague prompts that test whether AGENTS.md
 // helps with file placement and convention adherence.
 
-import ts from "typescript";
 import { basename, extname } from "node:path";
+import ts from "typescript";
 import type { MinedTask } from "./pr-miner.js";
 
 // ─── Public API ─────────────────────────────────────────────────────────────
@@ -13,10 +13,7 @@ import type { MinedTask } from "./pr-miner.js";
  * Strips directory/location hints and implementation-specific details
  * to keep the task fair across conditions.
  */
-export function generateTaskPrompt(
-  task: MinedTask,
-  packageName: string,
-): string {
+export function generateTaskPrompt(task: MinedTask, packageName: string): string {
   const message = task.commitMessage;
   const file = task.groundTruth;
 
@@ -35,10 +32,7 @@ export function generateTaskPrompt(
   // Last resort: generic prompt from filename
   const name = basename(file.filename, extname(file.filename));
   const humanName = name.replace(/[-_]/g, " ");
-  return buildPrompt(
-    `Add a new module for ${humanName} functionality`,
-    packageName,
-  );
+  return buildPrompt(`Add a new module for ${humanName} functionality`, packageName);
 }
 
 // ─── Prompt Construction ────────────────────────────────────────────────────
@@ -48,7 +42,7 @@ function buildPrompt(description: string, packageName: string): string {
   const desc = description.charAt(0).toUpperCase() + description.slice(1);
 
   return (
-    `${desc.endsWith(".") ? desc : desc + "."}\n\n` +
+    `${desc.endsWith(".") ? desc : `${desc}.`}\n\n` +
     `This is for the ${packageName} project. ` +
     `Follow the project's conventions for file naming, imports, exports, and code style. ` +
     `Include the implementation file and any necessary updates to barrel/index files.`
@@ -76,7 +70,7 @@ export function cleanCommitMessage(message: string): string {
   cleaned = cleaned.replace(/#\d+/g, "");
 
   // Strip directory/path hints (e.g., "to src/utils", "in packages/auth")
-  cleaned = cleaned.replace(/\s+(to|in|at|from|under)\s+[a-z]+\/[a-zA-Z0-9_\-\/]+/g, "");
+  cleaned = cleaned.replace(/\s+(to|in|at|from|under)\s+[a-z]+\/[a-zA-Z0-9_\-/]+/g, "");
 
   // Strip filename references (e.g., "add auth-service.ts")
   cleaned = cleaned.replace(/\s+[a-z][a-z0-9\-_]*\.(ts|tsx|js|jsx)\b/gi, "");
@@ -93,12 +87,7 @@ export function cleanCommitMessage(message: string): string {
  * Derive a task description from the file's exports and structure.
  */
 function deriveFromFile(content: string, filename: string): string | null {
-  const sourceFile = ts.createSourceFile(
-    filename,
-    content,
-    ts.ScriptTarget.Latest,
-    true,
-  );
+  const sourceFile = ts.createSourceFile(filename, content, ts.ScriptTarget.Latest, true);
 
   const exports = extractExports(sourceFile);
   if (exports.length === 0) return null;
@@ -137,7 +126,7 @@ function extractExports(sourceFile: ts.SourceFile): ExportInfo[] {
 
   ts.forEachChild(sourceFile, (node) => {
     const mods = ts.canHaveModifiers(node) ? ts.getModifiers(node) : undefined;
-    const isExported = mods?.some(m => m.kind === ts.SyntaxKind.ExportKeyword);
+    const isExported = mods?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword);
     if (!isExported) return;
 
     if (ts.isFunctionDeclaration(node) && node.name) {

@@ -4,27 +4,26 @@
 // W2-3: Added ecosystem-specific detectors with DetectorContext support.
 // W5-A: Removed 6 noisy detectors (import/export/component/error-handling/graphql/telemetry patterns).
 
+import { buildToolDetector } from "./detectors/build-tool.js";
+import { dataFetchingDetector } from "./detectors/data-fetching.js";
+import { databaseDetector } from "./detectors/database.js";
+import { fileNamingDetector } from "./detectors/file-naming.js";
+import { hookPatternDetector } from "./detectors/hook-patterns.js";
+import { importOrderingDetector } from "./detectors/import-ordering.js";
+// W2-3: Ecosystem-specific detectors
+import { testFrameworkEcosystemDetector } from "./detectors/test-framework-ecosystem.js";
+import { testPatternDetector } from "./detectors/test-patterns.js";
+import { webFrameworkDetector } from "./detectors/web-framework.js";
+import type { DetectorPlugin } from "./plugin-loader.js";
 import type {
-  ParsedFile,
-  TierInfo,
   Convention,
   ConventionConfidence,
   ConventionDetector,
   DetectorContext,
+  ParsedFile,
+  TierInfo,
   Warning,
 } from "./types.js";
-import type { DetectorPlugin } from "./plugin-loader.js";
-
-import { fileNamingDetector } from "./detectors/file-naming.js";
-import { hookPatternDetector } from "./detectors/hook-patterns.js";
-import { testPatternDetector } from "./detectors/test-patterns.js";
-// W2-3: Ecosystem-specific detectors
-import { testFrameworkEcosystemDetector } from "./detectors/test-framework-ecosystem.js";
-import { dataFetchingDetector } from "./detectors/data-fetching.js";
-import { databaseDetector } from "./detectors/database.js";
-import { webFrameworkDetector } from "./detectors/web-framework.js";
-import { buildToolDetector } from "./detectors/build-tool.js";
-import { importOrderingDetector } from "./detectors/import-ordering.js";
 
 const DETECTOR_REGISTRY: Record<string, ConventionDetector> = {
   // Core
@@ -107,10 +106,7 @@ export function buildConfidence(matched: number, total: number): ConventionConfi
 /**
  * E-28: Helper to filter to Tier 1 and Tier 2 source files only.
  */
-export function sourceParsedFiles(
-  files: ParsedFile[],
-  tiers: Map<string, TierInfo>,
-): ParsedFile[] {
+export function sourceParsedFiles(files: ParsedFile[], tiers: Map<string, TierInfo>): ParsedFile[] {
   return files.filter((f) => {
     const t = tiers.get(f.relativePath);
     return t && t.tier !== 3;

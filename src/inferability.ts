@@ -7,11 +7,11 @@ import type { PackageAnalysis } from "./types.js";
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export interface InferabilityScore {
-  score: number;                    // 0-100 (higher = more inferable)
+  score: number; // 0-100 (higher = more inferable)
   factors: {
-    directoryObviousness: number;   // 0-100: % of dirs with standard names
-    namingConsistency: number;      // 0-100: % files following dominant pattern
-    patternUniqueness: number;      // 0-100: inverse of deep pattern signals
+    directoryObviousness: number; // 0-100: % of dirs with standard names
+    namingConsistency: number; // 0-100: % files following dominant pattern
+    patternUniqueness: number; // 0-100: inverse of deep pattern signals
     registrationComplexity: number; // 0-100: inverse of registration file count
   };
   recommendation: "full" | "minimal" | "skip";
@@ -20,28 +20,83 @@ export interface InferabilityScore {
 // ─── Standard Directory Names ────────────────────────────────────────────────
 
 const OBVIOUS_DIR_NAMES = new Set([
-  "src", "lib", "dist", "build", "out", "coverage",
-  "components", "component", "utils", "util", "utilities", "helpers", "helper",
-  "types", "typings", "interfaces", "models", "model",
-  "hooks", "hook",
-  "styles", "css", "assets", "images", "icons", "fonts",
-  "public", "static",
-  "pages", "page", "views", "view", "screens",
-  "app", "apps",
-  "api", "apis", "routes", "route", "controllers", "controller",
-  "config", "configs", "configuration", "settings",
-  "constants", "const",
-  "test", "tests", "__tests__", "spec", "specs",
-  "middleware", "middlewares",
-  "services", "service",
-  "store", "stores", "state",
-  "context", "contexts", "providers",
-  "actions", "reducers", "selectors",
-  "layouts", "layout",
-  "features", "modules",
-  "common", "shared", "core",
-  "server", "client",
-  "bin", "cli", "cmd",
+  "src",
+  "lib",
+  "dist",
+  "build",
+  "out",
+  "coverage",
+  "components",
+  "component",
+  "utils",
+  "util",
+  "utilities",
+  "helpers",
+  "helper",
+  "types",
+  "typings",
+  "interfaces",
+  "models",
+  "model",
+  "hooks",
+  "hook",
+  "styles",
+  "css",
+  "assets",
+  "images",
+  "icons",
+  "fonts",
+  "public",
+  "static",
+  "pages",
+  "page",
+  "views",
+  "view",
+  "screens",
+  "app",
+  "apps",
+  "api",
+  "apis",
+  "routes",
+  "route",
+  "controllers",
+  "controller",
+  "config",
+  "configs",
+  "configuration",
+  "settings",
+  "constants",
+  "const",
+  "test",
+  "tests",
+  "__tests__",
+  "spec",
+  "specs",
+  "middleware",
+  "middlewares",
+  "services",
+  "service",
+  "store",
+  "stores",
+  "state",
+  "context",
+  "contexts",
+  "providers",
+  "actions",
+  "reducers",
+  "selectors",
+  "layouts",
+  "layout",
+  "features",
+  "modules",
+  "common",
+  "shared",
+  "core",
+  "server",
+  "client",
+  "bin",
+  "cli",
+  "cmd",
 ]);
 
 // ─── Public API ──────────────────────────────────────────────────────────────
@@ -58,20 +113,17 @@ export function computeInferabilityScore(pkg: PackageAnalysis): InferabilityScor
 
   // Weighted average: directory and patterns matter most
   const score = Math.round(
-    directoryObviousness * 0.30 +
-    namingConsistency * 0.25 +
-    patternUniqueness * 0.25 +
-    registrationComplexity * 0.20
+    directoryObviousness * 0.3 + namingConsistency * 0.25 + patternUniqueness * 0.25 + registrationComplexity * 0.2,
   );
 
   // Thresholds
   let recommendation: InferabilityScore["recommendation"];
   if (score <= 35) {
-    recommendation = "full";     // Repo has non-obvious patterns → include all sections
+    recommendation = "full"; // Repo has non-obvious patterns → include all sections
   } else if (score <= 65) {
-    recommendation = "minimal";  // Mixed → include architecture + commands, skip verbose patterns
+    recommendation = "minimal"; // Mixed → include architecture + commands, skip verbose patterns
   } else {
-    recommendation = "skip";     // Standard patterns → omit pattern sections
+    recommendation = "skip"; // Standard patterns → omit pattern sections
   }
 
   // Floor rule: if most directories are non-obvious, never "skip" — the repo
@@ -115,7 +167,7 @@ function computeDirectoryObviousness(pkg: PackageAnalysis): number {
  * Low = mixed patterns or non-standard naming → needs explicit guidance
  */
 function computeNamingConsistency(pkg: PackageAnalysis): number {
-  const namingConvention = pkg.conventions.find(c => c.category === "file-naming");
+  const namingConvention = pkg.conventions.find((c) => c.category === "file-naming");
   if (!namingConvention) return 80; // No naming convention detected → assume standard
 
   return Math.min(100, namingConvention.confidence.percentage);
@@ -154,9 +206,7 @@ function computePatternUniqueness(pkg: PackageAnalysis): number {
  */
 function computeRegistrationComplexity(pkg: PackageAnalysis): number {
   const patterns = pkg.contributionPatterns ?? [];
-  const registrationFiles = patterns
-    .filter(p => p.registrationFile)
-    .map(p => p.registrationFile!);
+  const registrationFiles = patterns.filter((p) => p.registrationFile).map((p) => p.registrationFile!);
 
   const uniqueRegistrations = new Set(registrationFiles).size;
 

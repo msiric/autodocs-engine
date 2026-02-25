@@ -1,8 +1,8 @@
 // src/detectors/build-tool.ts — W2-3: Build/Bundle Tool Pattern Detector
 // Detects esbuild, webpack, rollup, vite, turbopack, swc from dependencies.
 
-import type { Convention, ConventionDetector, DetectorContext } from "../types.js";
 import { buildConfidence } from "../convention-extractor.js";
+import type { Convention, ConventionDetector } from "../types.js";
 
 const BUNDLER_MAP: Record<string, { name: string; format: string }> = {
   webpack: { name: "Webpack", format: "CJS/ESM with loaders and plugins" },
@@ -30,7 +30,7 @@ export const buildToolDetector: ConventionDetector = (files, _tiers, _warnings, 
       detected.add(bundler.name);
       conventions.push({
         category: "ecosystem",
-      source: "buildTool",
+        source: "buildTool",
         name: `${bundler.name} bundler`,
         description: `Built with ${bundler.name} (${b.version}): ${bundler.format}`,
         confidence: buildConfidence(1, 1),
@@ -56,13 +56,13 @@ export const buildToolDetector: ConventionDetector = (files, _tiers, _warnings, 
   for (const [pkg, bundler] of Object.entries(BUNDLER_MAP)) {
     if (detected.has(bundler.name)) continue;
     const importCount = files.filter((f) =>
-      f.imports.some((i) => !i.isTypeOnly && (i.moduleSpecifier === pkg || i.moduleSpecifier.startsWith(pkg + "/"))),
+      f.imports.some((i) => !i.isTypeOnly && (i.moduleSpecifier === pkg || i.moduleSpecifier.startsWith(`${pkg}/`))),
     ).length;
     if (importCount > 0) {
       detected.add(bundler.name);
       conventions.push({
         category: "ecosystem",
-      source: "buildTool",
+        source: "buildTool",
         name: `${bundler.name} bundler`,
         description: `Uses ${bundler.name}: ${bundler.format}`,
         confidence: buildConfidence(importCount, importCount),

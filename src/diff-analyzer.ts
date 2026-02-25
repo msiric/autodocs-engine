@@ -3,17 +3,14 @@
 // Detects new/removed exports, changed conventions, command changes, version bumps.
 // Outputs a summary and needsUpdate boolean for CI integration.
 
-import type { StructuredAnalysis, AnalysisDiff } from "./types.js";
+import type { AnalysisDiff, StructuredAnalysis } from "./types.js";
 
 /**
  * Compare two StructuredAnalysis snapshots and produce a diff report.
  * Operates on the first package in each analysis (for single-package comparison).
  * For multi-package, compares packages by name.
  */
-export function diffAnalyses(
-  current: StructuredAnalysis,
-  previous: StructuredAnalysis,
-): AnalysisDiff {
+export function diffAnalyses(current: StructuredAnalysis, previous: StructuredAnalysis): AnalysisDiff {
   const diff: AnalysisDiff = {
     newExports: [],
     removedExports: [],
@@ -90,10 +87,8 @@ export function diffAnalyses(
         } else {
           const curMajor = parseInt(curVersion.split(".")[0], 10);
           const prevMajor = parseInt(prevVersion.split(".")[0], 10);
-          if (!isNaN(curMajor) && !isNaN(prevMajor) && curMajor !== prevMajor) {
-            diff.dependencyChanges.majorVersionChanged.push(
-              `${fwName} ${prevVersion} → ${curVersion}`,
-            );
+          if (!Number.isNaN(curMajor) && !Number.isNaN(prevMajor) && curMajor !== prevMajor) {
+            diff.dependencyChanges.majorVersionChanged.push(`${fwName} ${prevVersion} → ${curVersion}`);
           }
         }
       }
@@ -121,8 +116,10 @@ export function diffAnalyses(
   if (diff.changedConventions.length > 0) parts.push(`${diff.changedConventions.length} changed convention(s)`);
   if (diff.commandsChanged) parts.push("commands changed");
   if (diff.dependencyChanges.added.length > 0) parts.push(`${diff.dependencyChanges.added.length} dependency added`);
-  if (diff.dependencyChanges.removed.length > 0) parts.push(`${diff.dependencyChanges.removed.length} dependency removed`);
-  if (diff.dependencyChanges.majorVersionChanged.length > 0) parts.push(`${diff.dependencyChanges.majorVersionChanged.length} major version bump(s)`);
+  if (diff.dependencyChanges.removed.length > 0)
+    parts.push(`${diff.dependencyChanges.removed.length} dependency removed`);
+  if (diff.dependencyChanges.majorVersionChanged.length > 0)
+    parts.push(`${diff.dependencyChanges.majorVersionChanged.length} major version bump(s)`);
 
   if (parts.length === 0) {
     diff.summary = "No significant changes detected.";

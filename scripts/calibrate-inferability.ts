@@ -4,9 +4,9 @@
 // Compares score against known benchmark deltas to validate thresholds.
 
 import { resolve } from "node:path";
+import { generateMinimalAgentsMd } from "../src/deterministic-formatter.js";
 import { analyze } from "../src/index.js";
 import { computeInferabilityScore } from "../src/inferability.js";
-import { generateMinimalAgentsMd } from "../src/deterministic-formatter.js";
 
 const repoPath = resolve(process.argv[2] ?? ".");
 const repoName = repoPath.split("/").pop() ?? repoPath;
@@ -38,7 +38,9 @@ async function main() {
       ].filter(Boolean);
       console.log(`    ${p.directory}: ${signals.length > 0 ? signals.join(", ") : "no deep signals"}`);
     }
-    console.log(`  Conventions: ${conventions.length} (${conventions.filter(c => c.confidence.percentage >= 95).length} at ≥95% confidence)`);
+    console.log(
+      `  Conventions: ${conventions.length} (${conventions.filter((c) => c.confidence.percentage >= 95).length} at ≥95% confidence)`,
+    );
     console.log();
   }
 
@@ -51,7 +53,7 @@ async function main() {
   console.log(minimal);
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error(`Error: ${err.message}`);
   process.exit(1);
 });

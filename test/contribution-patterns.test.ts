@@ -1,8 +1,12 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { detectContributionPatterns } from "../src/contribution-patterns.js";
-import type { ParsedFile, PublicAPIEntry, TierInfo, DirectoryInfo } from "../src/types.js";
+import type { DirectoryInfo, ParsedFile, PublicAPIEntry, TierInfo } from "../src/types.js";
 
-function makeParsedFile(relativePath: string, exports: { name: string; kind: string }[] = [], isTestFile = false): ParsedFile {
+function makeParsedFile(
+  relativePath: string,
+  exports: { name: string; kind: string }[] = [],
+  isTestFile = false,
+): ParsedFile {
   return {
     relativePath,
     exports: exports.map((e) => ({
@@ -44,9 +48,27 @@ describe("detectContributionPatterns", () => {
     ];
 
     const publicAPI: PublicAPIEntry[] = [
-      { name: "useCreateTab", kind: "hook", sourceFile: "src/hooks/use-create-tab.ts", isTypeOnly: false, importCount: 5 },
-      { name: "useUpdateTab", kind: "hook", sourceFile: "src/hooks/use-update-tab.ts", isTypeOnly: false, importCount: 3 },
-      { name: "useDeleteTab", kind: "hook", sourceFile: "src/hooks/use-delete-tab.ts", isTypeOnly: false, importCount: 1 },
+      {
+        name: "useCreateTab",
+        kind: "hook",
+        sourceFile: "src/hooks/use-create-tab.ts",
+        isTypeOnly: false,
+        importCount: 5,
+      },
+      {
+        name: "useUpdateTab",
+        kind: "hook",
+        sourceFile: "src/hooks/use-update-tab.ts",
+        isTypeOnly: false,
+        importCount: 3,
+      },
+      {
+        name: "useDeleteTab",
+        kind: "hook",
+        sourceFile: "src/hooks/use-delete-tab.ts",
+        isTypeOnly: false,
+        importCount: 1,
+      },
     ];
 
     const tiers = new Map<string, TierInfo>([

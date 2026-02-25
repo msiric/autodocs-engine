@@ -24,7 +24,7 @@ export function shuffleAgentsMd(agentsMd: string, seed: number = 42): string {
   // 2. Scramble export suffix mentions
   // Find words ending with common suffixes and rotate them
   const suffixes = ["Detector", "Provider", "Service", "Handler", "Controller", "Adapter", "Factory", "Builder"];
-  const foundSuffixes = suffixes.filter(s => result.includes(s));
+  const foundSuffixes = suffixes.filter((s) => result.includes(s));
   if (foundSuffixes.length >= 2) {
     const rotated = [...foundSuffixes.slice(1), foundSuffixes[0]];
     for (let i = 0; i < foundSuffixes.length; i++) {

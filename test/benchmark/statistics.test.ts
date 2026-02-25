@@ -1,5 +1,11 @@
-import { describe, it, expect } from "vitest";
-import { pairedTTest, cohensD, effectSizeLabel, bootstrapCI, wilcoxonSignedRank } from "../../src/benchmark/statistics.js";
+import { describe, expect, it } from "vitest";
+import {
+  bootstrapCI,
+  cohensD,
+  effectSizeLabel,
+  pairedTTest,
+  wilcoxonSignedRank,
+} from "../../src/benchmark/statistics.js";
 
 describe("pairedTTest", () => {
   it("detects significant difference between paired samples", () => {

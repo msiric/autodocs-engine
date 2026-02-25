@@ -6,52 +6,39 @@ import { execSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import ts from "typescript";
+import { computeImpactRadius } from "../impact-radius.js";
 import type {
-  StructuredAnalysis,
-  PackageAnalysis,
-  CommandSet,
-  PackageArchitecture,
-  FileImportEdge,
+  AntiPattern,
   CallGraphEdge,
   CoChangeEdge,
-  WorkflowRule,
+  CommandSet,
   ContributionPattern,
-  PublicAPIEntry,
   Convention,
-  AntiPattern,
+  FileImportEdge,
+  PackageAnalysis,
+  PackageArchitecture,
+  PublicAPIEntry,
+  StructuredAnalysis,
+  WorkflowRule,
 } from "../types.js";
 import { ToolError } from "./errors.js";
-import { computeImpactRadius } from "../impact-radius.js";
 
 // ─── Package Resolution ──────────────────────────────────────────────────────
 
-export function resolvePackage(
-  analysis: StructuredAnalysis,
-  packagePath?: string,
-): PackageAnalysis {
+export function resolvePackage(analysis: StructuredAnalysis, packagePath?: string): PackageAnalysis {
   if (!packagePath) {
     if (analysis.packages.length === 1) return analysis.packages[0];
-    throw new ToolError(
-      "AMBIGUOUS_PACKAGE",
-      `Multiple packages found. Specify packagePath.`,
-      [
-        "Call list_packages to see all packages",
-        `Available: ${analysis.packages.map(p => p.name).join(", ")}`,
-      ],
-    );
+    throw new ToolError("AMBIGUOUS_PACKAGE", `Multiple packages found. Specify packagePath.`, [
+      "Call list_packages to see all packages",
+      `Available: ${analysis.packages.map((p) => p.name).join(", ")}`,
+    ]);
   }
-  const pkg = analysis.packages.find(
-    p => p.relativePath === packagePath || p.name === packagePath,
-  );
+  const pkg = analysis.packages.find((p) => p.relativePath === packagePath || p.name === packagePath);
   if (!pkg) {
-    throw new ToolError(
-      "PACKAGE_NOT_FOUND",
-      `Package '${packagePath}' not found.`,
-      [
-        `Available: ${analysis.packages.map(p => p.name).join(", ")}`,
-        "Call list_packages for full details",
-      ],
-    );
+    throw new ToolError("PACKAGE_NOT_FOUND", `Package '${packagePath}' not found.`, [
+      `Available: ${analysis.packages.map((p) => p.name).join(", ")}`,
+      "Call list_packages for full details",
+    ]);
   }
   return pkg;
 }
@@ -73,9 +60,7 @@ export function getImportersForFile(
 ): FileImportEdge[] {
   const pkg = resolvePackage(analysis, packagePath);
   const chain = pkg.importChain ?? [];
-  return chain
-    .filter(e => e.source === filePath)
-    .sort((a, b) => b.symbolCount - a.symbolCount);
+  return chain.filter((e) => e.source === filePath).sort((a, b) => b.symbolCount - a.symbolCount);
 }
 
 export function getCallersForFunction(
@@ -86,12 +71,13 @@ export function getCallersForFunction(
   const pkg = resolvePackage(analysis, packagePath);
   const callGraph = pkg.callGraph ?? [];
 
-  const directCallers = callGraph.filter(e => e.to === functionName);
+  const directCallers = callGraph.filter((e) => e.to === functionName);
 
   // Compute transitive caller count via impact radius
   const impact = computeImpactRadius(callGraph);
-  const entry = impact.highImpact.find(e => e.functionName === functionName)
-    ?? impact.complex.find(e => e.functionName === functionName);
+  const entry =
+    impact.highImpact.find((e) => e.functionName === functionName) ??
+    impact.complex.find((e) => e.functionName === functionName);
 
   return {
     directCallers,
@@ -106,20 +92,13 @@ export function getCoChangesForFile(
 ): CoChangeEdge[] {
   const pkg = resolvePackage(analysis, packagePath);
   const edges = pkg.gitHistory?.coChangeEdges ?? [];
-  return edges
-    .filter(e => e.file1 === filePath || e.file2 === filePath)
-    .sort((a, b) => b.jaccard - a.jaccard);
+  return edges.filter((e) => e.file1 === filePath || e.file2 === filePath).sort((a, b) => b.jaccard - a.jaccard);
 }
 
-export function getWorkflowRules(
-  analysis: StructuredAnalysis,
-  filePath?: string,
-): WorkflowRule[] {
+export function getWorkflowRules(analysis: StructuredAnalysis, filePath?: string): WorkflowRule[] {
   const rules = analysis.crossPackage?.workflowRules ?? [];
   if (!filePath) return rules;
-  return rules.filter(r =>
-    r.trigger.includes(filePath) || r.action.includes(filePath),
-  );
+  return rules.filter((r) => r.trigger.includes(filePath) || r.action.includes(filePath));
 }
 
 export function getContributionPatterns(
@@ -130,7 +109,7 @@ export function getContributionPatterns(
   const pkg = resolvePackage(analysis, packagePath);
   const patterns = pkg.contributionPatterns ?? [];
   if (directory) {
-    return patterns.filter(p => p.directory === directory || p.directory.includes(directory));
+    return patterns.filter((p) => p.directory === directory || p.directory.includes(directory));
   }
   return patterns;
 }
@@ -145,7 +124,7 @@ export function getPublicAPI(
   let exports = pkg.publicAPI ?? [];
   if (query) {
     const q = query.toLowerCase();
-    exports = exports.filter(e => e.name.toLowerCase().includes(q));
+    exports = exports.filter((e) => e.name.toLowerCase().includes(q));
   }
   return exports.slice(0, limit);
 }
@@ -156,7 +135,7 @@ export function getExampleForExport(
   packagePath?: string,
 ): { snippet: string; testFile: string } | null {
   const pkg = resolvePackage(analysis, packagePath);
-  const example = (pkg.examples ?? []).find(e => e.exportName === exportName);
+  const example = (pkg.examples ?? []).find((e) => e.exportName === exportName);
   if (!example) return null;
   return { snippet: example.snippet, testFile: example.testFile };
 }
@@ -167,7 +146,7 @@ export function getFingerprintForExport(
   packagePath?: string,
 ): { parameterShape: string; returnShape: string } | null {
   const pkg = resolvePackage(analysis, packagePath);
-  const fp = (pkg.patternFingerprints ?? []).find(f => f.exportName === exportName);
+  const fp = (pkg.patternFingerprints ?? []).find((f) => f.exportName === exportName);
   if (!fp) return null;
   return { parameterShape: fp.parameterShape, returnShape: fp.returnShape };
 }
@@ -179,11 +158,11 @@ export function getConventions(
 ): { conventions: Convention[]; antiPatterns: AntiPattern[] } {
   const pkg = resolvePackage(analysis, packagePath);
   // Filter to non-style conventions (architecture patterns, not naming/formatting)
-  let conventions = (pkg.conventions ?? []).filter(c =>
-    c.category !== "file-naming" || (c.confidence.percentage >= 95),
+  let conventions = (pkg.conventions ?? []).filter(
+    (c) => c.category !== "file-naming" || c.confidence.percentage >= 95,
   );
   if (category) {
-    conventions = conventions.filter(c => c.category === category);
+    conventions = conventions.filter((c) => c.category === category);
   }
   return {
     conventions,
@@ -198,7 +177,7 @@ export function listPackages(analysis: StructuredAnalysis): {
   entryPoint: string;
   fileCount: number;
 }[] {
-  return analysis.packages.map(p => ({
+  return analysis.packages.map((p) => ({
     name: p.name,
     path: p.relativePath,
     type: p.architecture.packageType,
@@ -207,19 +186,16 @@ export function listPackages(analysis: StructuredAnalysis): {
   }));
 }
 
-export function getTechStackSummary(
-  analysis: StructuredAnalysis,
-  packagePath?: string,
-): string {
+export function getTechStackSummary(analysis: StructuredAnalysis, packagePath?: string): string {
   const pkg = resolvePackage(analysis, packagePath);
   const parts: string[] = [];
   const insights = pkg.dependencyInsights;
   if (insights) {
     if (insights.runtime.length > 0) {
-      parts.push(insights.runtime.map(r => `${r.name} ${r.version}`).join(", "));
+      parts.push(insights.runtime.map((r) => `${r.name} ${r.version}`).join(", "));
     }
     if (insights.frameworks.length > 0) {
-      parts.push(insights.frameworks.map(f => `${f.name} ${f.version}`).join(", "));
+      parts.push(insights.frameworks.map((f) => `${f.name} ${f.version}`).join(", "));
     }
     if (insights.testFramework) {
       parts.push(`${insights.testFramework.name} ${insights.testFramework.version}`);
@@ -230,20 +206,13 @@ export function getTechStackSummary(
 
 // ─── Plan Change / Test Info Queries ────────────────────────────────────────
 
-export function getBarrelFile(
-  analysis: StructuredAnalysis,
-  directory: string,
-  packagePath?: string,
-): string | null {
+export function getBarrelFile(analysis: StructuredAnalysis, directory: string, packagePath?: string): string | null {
   const pkg = resolvePackage(analysis, packagePath);
   const dir = directory.replace(/\/$/, "");
   const rootDir = analysis.meta?.rootDir;
   // Check if index.ts or index.tsx exists AND actually contains re-exports
   // (index.ts files that are entry points, not barrels, should be skipped)
-  const allFiles = [
-    ...pkg.files.byTier.tier1.files,
-    ...pkg.files.byTier.tier2.files,
-  ];
+  const allFiles = [...pkg.files.byTier.tier1.files, ...pkg.files.byTier.tier2.files];
   for (const barrelPath of [`${dir}/index.ts`, `${dir}/index.tsx`]) {
     if (!allFiles.includes(barrelPath)) continue;
     // Verify it has re-export statements
@@ -253,7 +222,9 @@ export function getBarrelFile(
         if (/export\s+(?:\*|\{[^}]+\})\s+from\s+["']/.test(content)) {
           return barrelPath;
         }
-      } catch { /* can't read — skip */ }
+      } catch {
+        /* can't read — skip */
+      }
     } else {
       return barrelPath; // No rootDir to verify — trust the file list
     }
@@ -318,11 +289,8 @@ export function resolveTestFile(
   // If pattern has export suffix, also try test named with suffix
   // e.g., src/detectors/foo.ts with suffix "Detector" → test/foo-detector.test.ts
   if (pattern?.exportSuffix) {
-    const suffix = pattern.exportSuffix.replace(/^[A-Z]/, c => c.toLowerCase());
-    candidates.push(
-      `test/${fileBase}-${suffix}.test${ext}`,
-      `test/${fileBase}-${suffix}.spec${ext}`,
-    );
+    const suffix = pattern.exportSuffix.replace(/^[A-Z]/, (c) => c.toLowerCase());
+    candidates.push(`test/${fileBase}-${suffix}.test${ext}`, `test/${fileBase}-${suffix}.spec${ext}`);
   }
 
   // Check which exists on disk (test files are in tier3, no file list)
@@ -337,9 +305,7 @@ export function resolveTestFile(
   }
   // Suggest the most likely candidate: mirrored test/ dir if src/ file, else co-located
   if (!testFile) {
-    testFile = sourceFilePath.startsWith("src/")
-      ? `test/${strippedBase}.test${ext}`
-      : `${dir}/${fileBase}.test${ext}`;
+    testFile = sourceFilePath.startsWith("src/") ? `test/${strippedBase}.test${ext}` : `${dir}/${fileBase}.test${ext}`;
   }
 
   // Detect framework from test command + dependencies
@@ -406,16 +372,20 @@ export function getRegistrationInsertions(
 
   // For registration: if the most-specific pattern has no registrationFile,
   // walk up to the nearest parent that does (child may inherit parent's registration)
-  const regPattern = pattern?.registrationFile ? pattern : patterns
-    .filter(p => newFilePath.startsWith(p.directory) && p.registrationFile
-      && (!pattern || p.directory.length < pattern.directory.length))
-    .sort((a, b) => b.directory.length - a.directory.length)[0];
+  const regPattern = pattern?.registrationFile
+    ? pattern
+    : patterns
+        .filter(
+          (p) =>
+            newFilePath.startsWith(p.directory) &&
+            p.registrationFile &&
+            (!pattern || p.directory.length < pattern.directory.length),
+        )
+        .sort((a, b) => b.directory.length - a.directory.length)[0];
 
   // Infer export name from most-specific pattern's suffix
   const fileBase = newFilePath.replace(/.*\//, "").replace(/\.[^.]+$/, "");
-  const exportName = pattern?.exportSuffix
-    ? kebabToCamel(fileBase) + pattern.exportSuffix
-    : kebabToCamel(fileBase);
+  const exportName = pattern?.exportSuffix ? kebabToCamel(fileBase) + pattern.exportSuffix : kebabToCamel(fileBase);
 
   // Registration file insertions (may come from parent pattern)
   let regResult: RegistrationInsertions["registrationFile"] = null;
@@ -428,10 +398,10 @@ export function getRegistrationInsertions(
       // Compute relative path from registration file to new file
       const regDir = regPattern.registrationFile.replace(/\/[^/]+$/, "");
       let relPath = newFilePath;
-      if (newFilePath.startsWith(regDir + "/")) {
-        relPath = "./" + newFilePath.slice(regDir.length + 1);
+      if (newFilePath.startsWith(`${regDir}/`)) {
+        relPath = `./${newFilePath.slice(regDir.length + 1)}`;
       } else {
-        relPath = "./" + newFilePath;
+        relPath = `./${newFilePath}`;
       }
       relPath = relPath.replace(/\.tsx?$/, ".js"); // .ts → .js for imports
 
@@ -441,7 +411,9 @@ export function getRegistrationInsertions(
         importStatement: `import { ${exportName} } from "${relPath}";`,
         registryHintLine: firstNonImportLine,
       };
-    } catch { /* registration file not readable */ }
+    } catch {
+      /* registration file not readable */
+    }
   }
 
   // Barrel file insertions
@@ -453,14 +425,16 @@ export function getRegistrationInsertions(
       const lastExportLine = findLastExportFromLine(content);
       // Use .ts extension if barrel uses .ts imports (e.g., nitro), else .js
       const useTsExtension = content.includes('.ts"') || content.includes(".ts'");
-      const moduleRef = "./" + fileBase + (useTsExtension ? ".ts" : ".js");
+      const moduleRef = `./${fileBase}${useTsExtension ? ".ts" : ".js"}`;
 
       barrelResult = {
         path: barrelPath,
         lastExportLine: lastExportLine || content.split("\n").length, // Append at end if no prior exports
         exportStatement: `export * from "${moduleRef}";`,
       };
-    } catch { /* barrel file not readable */ }
+    } catch {
+      /* barrel file not readable */
+    }
   }
 
   return { registrationFile: regResult, barrelFile: barrelResult, exportName };
@@ -474,12 +448,9 @@ export function getRegistrationInsertions(
  * This avoids the array-order dependency of `.find()` when nested directories
  * both have patterns (e.g., src/adapters/ and src/adapters/llm/).
  */
-export function findBestPattern(
-  patterns: ContributionPattern[],
-  filePath: string,
-): ContributionPattern | undefined {
+export function findBestPattern(patterns: ContributionPattern[], filePath: string): ContributionPattern | undefined {
   return patterns
-    .filter(p => filePath.startsWith(p.directory))
+    .filter((p) => filePath.startsWith(p.directory))
     .sort((a, b) => b.directory.length - a.directory.length)[0];
 }
 
@@ -615,10 +586,7 @@ export function getRecentFileChanges(rootDir: string): FileChange[] {
     }
 
     // Committed: last 50 commits within 7 days
-    const log = execGit(
-      'git log --pretty=format:"COMMIT:%H|%at|%s" --name-only -n 50 --since="7 days ago"',
-      rootDir,
-    );
+    const log = execGit('git log --pretty=format:"COMMIT:%H|%at|%s" --name-only -n 50 --since="7 days ago"', rootDir);
 
     if (log) {
       const seen = new Set(uncommitted);
@@ -757,12 +725,11 @@ export function buildSuspectList(
   // 2. Missing co-change: for each recently-changed relevant file,
   //    find high-coupling partners that weren't updated
   const missingCoChange = new Map<string, number>();
-  const relevant = [...changedFiles].filter(f => errorSet.has(f) || allCandidates.has(f));
+  const relevant = [...changedFiles].filter((f) => errorSet.has(f) || allCandidates.has(f));
 
   for (const changedFile of relevant) {
     for (const edge of coChangeEdges) {
-      const partner = edge.file1 === changedFile ? edge.file2 :
-                      edge.file2 === changedFile ? edge.file1 : null;
+      const partner = edge.file1 === changedFile ? edge.file2 : edge.file2 === changedFile ? edge.file1 : null;
       if (!partner) continue;
       if (edge.coChangeCount < 5 || edge.jaccard <= 0.4) continue;
       if (changedFiles.has(partner)) continue;
@@ -773,7 +740,7 @@ export function buildSuspectList(
   }
 
   // 3. Dynamic weights
-  const hasRecentChanges = recentChanges.some(c => c.hoursAgo < 24);
+  const hasRecentChanges = recentChanges.some((c) => c.hoursAgo < 24);
   const w = hasRecentChanges
     ? { missingCoChange: 35, recency: 25, coupling: 20, dependency: 10, workflow: 10 }
     : { missingCoChange: 0, recency: 0, coupling: 50, dependency: 35, workflow: 15 };
@@ -789,9 +756,7 @@ export function buildSuspectList(
       recency: change ? Math.max(0.05, Math.exp(-0.05 * change.hoursAgo)) : 0,
       coupling: candidateCoupling.get(file) ?? 0,
       dependency: Math.min((candidateSymbols.get(file) ?? 0) / 10, 1),
-      workflow: workflowRules.some(r =>
-        r.trigger.includes(file) || r.action.includes(file),
-      ) ? 1.0 : 0,
+      workflow: workflowRules.some((r) => r.trigger.includes(file) || r.action.includes(file)) ? 1.0 : 0,
     };
 
     let score =
@@ -802,21 +767,22 @@ export function buildSuspectList(
       w.workflow * signals.workflow;
 
     // Call graph bonus: 1.5x if call edge exists, but NOT for the error site itself
-    const callGraphBonus = !errorSet.has(file) && callGraph.some(e =>
-      (e.fromFile === file && errorSet.has(e.toFile)) ||
-      (e.toFile === file && errorSet.has(e.fromFile)),
-    );
+    const callGraphBonus =
+      !errorSet.has(file) &&
+      callGraph.some(
+        (e) => (e.fromFile === file && errorSet.has(e.toFile)) || (e.toFile === file && errorSet.has(e.fromFile)),
+      );
     if (callGraphBonus) score *= 1.5;
 
     // Build human-readable reason
     const reasons: string[] = [];
     if (signals.missingCoChange > 0) {
-      reasons.push(`Missing co-change: expected to change (${Math.round(signals.missingCoChange * 100)}% coupling) but wasn't updated`);
+      reasons.push(
+        `Missing co-change: expected to change (${Math.round(signals.missingCoChange * 100)}% coupling) but wasn't updated`,
+      );
     }
     if (signals.recency > 0.1 && change) {
-      const ago = change.isUncommitted
-        ? "uncommitted changes"
-        : `changed ${formatHoursAgo(change.hoursAgo)}`;
+      const ago = change.isUncommitted ? "uncommitted changes" : `changed ${formatHoursAgo(change.hoursAgo)}`;
       reasons.push(ago + (change.commitMessage ? `: "${change.commitMessage}"` : ""));
     }
     if (signals.coupling > 0) {
@@ -840,7 +806,7 @@ export function buildSuspectList(
   }
 
   return suspects
-    .filter(s => s.score > 0)
+    .filter((s) => s.score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, 5);
 }
@@ -875,5 +841,5 @@ function formatHoursAgo(hours: number): string {
   return `${Math.round(hours / 24)}d ago`;
 }
 
-export { computeInferabilityScore } from "../inferability.js";
 export type { InferabilityScore } from "../inferability.js";
+export { computeInferabilityScore } from "../inferability.js";

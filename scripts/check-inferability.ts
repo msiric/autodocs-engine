@@ -14,14 +14,19 @@ for (const repo of repos) {
   try {
     const analysis = await analyze({ packages: [repo.path] });
     const pkg = analysis.packages[0];
-    if (!pkg) { console.log(`${repo.name}: NO PACKAGE`); continue; }
+    if (!pkg) {
+      console.log(`${repo.name}: NO PACKAGE`);
+      continue;
+    }
     const score = computeInferabilityScore(pkg);
     const patternCount = (pkg.contributionPatterns ?? []).length;
     const dirCount = pkg.architecture.directories.length;
     const convCount = (pkg.conventions ?? []).length;
     console.log(`${repo.name}:`);
     console.log(`  score=${score.score} rec=${score.recommendation}`);
-    console.log(`  factors: dirObv=${score.factors.directoryObviousness} naming=${score.factors.namingConsistency} patUniq=${score.factors.patternUniqueness} regComp=${score.factors.registrationComplexity}`);
+    console.log(
+      `  factors: dirObv=${score.factors.directoryObviousness} naming=${score.factors.namingConsistency} patUniq=${score.factors.patternUniqueness} regComp=${score.factors.registrationComplexity}`,
+    );
     console.log(`  patterns=${patternCount} dirs=${dirCount} conventions=${convCount}`);
   } catch (e: any) {
     console.log(`${repo.name}: ERROR ${e.message?.slice(0, 100)}`);

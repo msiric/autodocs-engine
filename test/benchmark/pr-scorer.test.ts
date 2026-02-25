@@ -1,13 +1,13 @@
 // test/benchmark/pr-scorer.test.ts
-import { describe, it, expect } from "vitest";
-import {
-  scorePROutput,
-  scoreFilePlacement,
-  pathSimilarity,
-  scoreNamingConvention,
-  scoreBarrelUpdate,
-} from "../../src/benchmark/pr-scorer.js";
+import { describe, expect, it } from "vitest";
 import type { MinedTask } from "../../src/benchmark/pr-miner.js";
+import {
+  pathSimilarity,
+  scoreBarrelUpdate,
+  scoreFilePlacement,
+  scoreNamingConvention,
+  scorePROutput,
+} from "../../src/benchmark/pr-scorer.js";
 import type { GeneratedFile } from "../../src/benchmark/types.js";
 
 function makeTask(overrides: Partial<MinedTask> = {}): MinedTask {
@@ -141,9 +141,7 @@ describe("scoreBarrelUpdate", () => {
         },
       },
     });
-    const files: GeneratedFile[] = [
-      { path: "src/utils/cache.ts", content: "export function cache() {}" },
-    ];
+    const files: GeneratedFile[] = [{ path: "src/utils/cache.ts", content: "export function cache() {}" }];
     const result = scoreBarrelUpdate(files, task);
     expect(result.score).toBe(0);
   });
@@ -182,9 +180,7 @@ describe("scorePROutput", () => {
 
   it("scores based on file placement as primary metric", () => {
     const task = makeTask();
-    const files: GeneratedFile[] = [
-      { path: "src/utils/new-cache.ts", content: "export function newCache() {}" },
-    ];
+    const files: GeneratedFile[] = [{ path: "src/utils/new-cache.ts", content: "export function newCache() {}" }];
     const result = scorePROutput(files, task, 1000, 500);
     expect(result.score).toBe(100); // exact directory match
     expect(result.dimensions.filePlacement.score).toBe(100);

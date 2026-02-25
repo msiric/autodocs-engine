@@ -1,45 +1,96 @@
 // src/deterministic-formatter.ts — Generate 13 AGENTS.md sections deterministically from analysis data
 // No LLM call — pure data formatting. The LLM is used only for architecture + domain synthesis.
 
-import type {
-  StructuredAnalysis,
-  PackageAnalysis,
-  Convention,
-  Command,
-} from "./types.js";
-import { ENGINE_VERSION } from "./types.js";
+import { complexityLabel, computeImpactRadius, impactLabel } from "./impact-radius.js";
+import { computeInferabilityScore } from "./inferability.js";
 import { sanitize, stripConventionStats } from "./llm/serializer.js";
 import { PACKAGE_TO_FAMILY } from "./meta-tool-detector.js";
-import { computeImpactRadius, impactLabel, complexityLabel } from "./impact-radius.js";
-import { computeInferabilityScore } from "./inferability.js";
+import type { PackageAnalysis, StructuredAnalysis } from "./types.js";
+import { ENGINE_VERSION } from "./types.js";
 
 // ─── Directory Inferability ──────────────────────────────────────────────────
 // Directories with these names are "obvious" — AI can infer their purpose
 // from the name alone. Non-obvious directories benefit from AGENTS.md listing.
 
 const OBVIOUS_DIR_NAMES = new Set([
-  "src", "lib", "dist", "build", "out", "coverage",
-  "components", "component", "utils", "util", "utilities", "helpers", "helper",
-  "types", "typings", "interfaces", "models", "model",
-  "hooks", "hook",
-  "styles", "css", "assets", "images", "icons", "fonts",
-  "public", "static",
-  "pages", "page", "views", "view", "screens",
-  "app", "apps",
-  "api", "apis", "routes", "route", "controllers", "controller",
-  "config", "configs", "configuration", "settings",
-  "constants", "const",
-  "test", "tests", "__tests__", "spec", "specs", "__test__",
-  "middleware", "middlewares",
-  "services", "service",
-  "store", "stores", "state",
-  "context", "contexts", "providers",
-  "actions", "reducers", "selectors",
-  "layouts", "layout",
-  "features", "modules",
-  "common", "shared", "core",
-  "server", "client",
-  "bin", "cli", "cmd",
+  "src",
+  "lib",
+  "dist",
+  "build",
+  "out",
+  "coverage",
+  "components",
+  "component",
+  "utils",
+  "util",
+  "utilities",
+  "helpers",
+  "helper",
+  "types",
+  "typings",
+  "interfaces",
+  "models",
+  "model",
+  "hooks",
+  "hook",
+  "styles",
+  "css",
+  "assets",
+  "images",
+  "icons",
+  "fonts",
+  "public",
+  "static",
+  "pages",
+  "page",
+  "views",
+  "view",
+  "screens",
+  "app",
+  "apps",
+  "api",
+  "apis",
+  "routes",
+  "route",
+  "controllers",
+  "controller",
+  "config",
+  "configs",
+  "configuration",
+  "settings",
+  "constants",
+  "const",
+  "test",
+  "tests",
+  "__tests__",
+  "spec",
+  "specs",
+  "__test__",
+  "middleware",
+  "middlewares",
+  "services",
+  "service",
+  "store",
+  "stores",
+  "state",
+  "context",
+  "contexts",
+  "providers",
+  "actions",
+  "reducers",
+  "selectors",
+  "layouts",
+  "layout",
+  "features",
+  "modules",
+  "common",
+  "shared",
+  "core",
+  "server",
+  "client",
+  "bin",
+  "cli",
+  "cmd",
 ]);
 
 /**
@@ -58,16 +109,16 @@ export interface DeterministicOutput {
   summary: string;
   techStack: string;
   commands: string;
-  packageGuide: string;       // multi-package only
+  packageGuide: string; // multi-package only
   workflowRules: string;
   howToAddCode: string;
   publicAPI: string;
   dependencies: string;
   conventions: string;
-  changeImpact: string;        // from call graph analysis
+  changeImpact: string; // from call graph analysis
   supportedFrameworks: string; // meta-tools only
-  dependencyGraph: string;    // multi-package only
-  mermaidDiagram: string;     // multi-package only
+  dependencyGraph: string; // multi-package only
+  mermaidDiagram: string; // multi-package only
   teamKnowledge: string;
   // Left empty — filled by micro-LLM synthesis
   architecture: string;
@@ -84,9 +135,7 @@ const MAX_TEAM_KNOWLEDGE_QUESTIONS = 7;
  * No LLM call — this is pure deterministic formatting.
  * Architecture and domainTerminology are left empty for micro-LLM synthesis.
  */
-export function generateDeterministicAgentsMd(
-  analysis: StructuredAnalysis,
-): DeterministicOutput {
+export function generateDeterministicAgentsMd(analysis: StructuredAnalysis): DeterministicOutput {
   // Compute inferability score to decide which sections to include.
   // High score = AI can infer patterns from source → skip pattern sections.
   // Low score = non-obvious patterns → include everything.
@@ -98,24 +147,27 @@ export function generateDeterministicAgentsMd(
     title: formatTitle(analysis),
     summary: formatSummary(analysis),
     techStack: formatTechStack(analysis),
-    commands: formatCommands(analysis),                           // Always include
-    packageGuide: formatPackageGuide(analysis),                   // Always include
-    workflowRules: formatWorkflowRules(analysis),                 // Always include
-    howToAddCode: rec !== "skip"
-      ? formatContributionPatterns(analysis)                      // Skip if highly inferable
-      : "",
-    publicAPI: rec === "full"
-      ? formatPublicAPI(analysis)                                 // Only for non-obvious repos
-      : "",
-    dependencies: formatDependencies(analysis),                   // Always include (lightweight)
-    conventions: rec === "full"
-      ? formatConventions(analysis)                               // Only for non-obvious repos
-      : "",
-    changeImpact: formatChangeImpact(analysis),                   // Always include
+    commands: formatCommands(analysis), // Always include
+    packageGuide: formatPackageGuide(analysis), // Always include
+    workflowRules: formatWorkflowRules(analysis), // Always include
+    howToAddCode:
+      rec !== "skip"
+        ? formatContributionPatterns(analysis) // Skip if highly inferable
+        : "",
+    publicAPI:
+      rec === "full"
+        ? formatPublicAPI(analysis) // Only for non-obvious repos
+        : "",
+    dependencies: formatDependencies(analysis), // Always include (lightweight)
+    conventions:
+      rec === "full"
+        ? formatConventions(analysis) // Only for non-obvious repos
+        : "",
+    changeImpact: formatChangeImpact(analysis), // Always include
     supportedFrameworks: formatSupportedFrameworks(analysis),
     dependencyGraph: formatDependencyGraph(analysis),
     mermaidDiagram: formatMermaidDiagram(analysis),
-    teamKnowledge: formatTeamKnowledge(analysis),                 // Always include
+    teamKnowledge: formatTeamKnowledge(analysis), // Always include
     architecture: "",
     domainTerminology: "",
     contributingGuidelines: "",
@@ -157,7 +209,7 @@ export function assembleFinalOutput(
 
   sections.push("", deterministic.teamKnowledge);
 
-  return sections.join("\n") + "\n";
+  return `${sections.join("\n")}\n`;
 }
 
 // ─── Section Formatters ──────────────────────────────────────────────────────
@@ -259,7 +311,10 @@ function formatCommands(analysis: StructuredAnalysis): string {
   // Root commands (if multi-package)
   const rootCmds = analysis.crossPackage?.rootCommands;
   if (rootCmds) {
-    if (rootCmds.build) { lines.push(`| \`${rootCmds.build.run}\` | Build |`); hasCommands = true; }
+    if (rootCmds.build) {
+      lines.push(`| \`${rootCmds.build.run}\` | Build |`);
+      hasCommands = true;
+    }
     if (rootCmds.test) {
       lines.push(`| \`${rootCmds.test.run}\` | Test |`);
       hasCommands = true;
@@ -267,8 +322,14 @@ function formatCommands(analysis: StructuredAnalysis): string {
         lines.push(`| \`${v.run}\` | Test (${v.name}) |`);
       }
     }
-    if (rootCmds.lint) { lines.push(`| \`${rootCmds.lint.run}\` | Lint |`); hasCommands = true; }
-    if (rootCmds.start) { lines.push(`| \`${rootCmds.start.run}\` | Start |`); hasCommands = true; }
+    if (rootCmds.lint) {
+      lines.push(`| \`${rootCmds.lint.run}\` | Lint |`);
+      hasCommands = true;
+    }
+    if (rootCmds.start) {
+      lines.push(`| \`${rootCmds.start.run}\` | Start |`);
+      hasCommands = true;
+    }
     for (const cmd of rootCmds.other) {
       lines.push(`| \`${cmd.run}\` | ${sanitize(cmd.source, 80)} |`);
       hasCommands = true;
@@ -279,7 +340,10 @@ function formatCommands(analysis: StructuredAnalysis): string {
   if (!rootCmds) {
     for (const pkg of analysis.packages) {
       const prefix = analysis.packages.length > 1 ? `${pkg.name}: ` : "";
-      if (pkg.commands.build) { lines.push(`| \`${pkg.commands.build.run}\` | ${prefix}Build |`); hasCommands = true; }
+      if (pkg.commands.build) {
+        lines.push(`| \`${pkg.commands.build.run}\` | ${prefix}Build |`);
+        hasCommands = true;
+      }
       if (pkg.commands.test) {
         lines.push(`| \`${pkg.commands.test.run}\` | ${prefix}Test |`);
         hasCommands = true;
@@ -287,8 +351,14 @@ function formatCommands(analysis: StructuredAnalysis): string {
           lines.push(`| \`${v.run}\` | ${prefix}Test (${v.name}) |`);
         }
       }
-      if (pkg.commands.lint) { lines.push(`| \`${pkg.commands.lint.run}\` | ${prefix}Lint |`); hasCommands = true; }
-      if (pkg.commands.start) { lines.push(`| \`${pkg.commands.start.run}\` | ${prefix}Start |`); hasCommands = true; }
+      if (pkg.commands.lint) {
+        lines.push(`| \`${pkg.commands.lint.run}\` | ${prefix}Lint |`);
+        hasCommands = true;
+      }
+      if (pkg.commands.start) {
+        lines.push(`| \`${pkg.commands.start.run}\` | ${prefix}Start |`);
+        hasCommands = true;
+      }
       for (const cmd of pkg.commands.other) {
         lines.push(`| \`${cmd.run}\` | ${prefix}${sanitize(cmd.source, 80)} |`);
         hasCommands = true;
@@ -311,12 +381,7 @@ function formatCommands(analysis: StructuredAnalysis): string {
 function formatPackageGuide(analysis: StructuredAnalysis): string {
   if (analysis.packages.length <= 1) return "";
 
-  const lines = [
-    "## Package Guide",
-    "",
-    "| Package | Purpose | When to Use |",
-    "|---------|---------|-------------|",
-  ];
+  const lines = ["## Package Guide", "", "| Package | Purpose | When to Use |", "|---------|---------|-------------|"];
 
   for (const pkg of analysis.packages) {
     const purpose = sanitize(pkg.role?.summary ?? pkg.description ?? pkg.architecture.packageType, 100);
@@ -368,7 +433,7 @@ function formatContributionPatterns(analysis: StructuredAnalysis): string {
 
 function formatPublicAPI(analysis: StructuredAnalysis): string {
   // Collect all API entries across packages
-  const entries: { pkg: string; entry: typeof analysis.packages[0]["publicAPI"][0] }[] = [];
+  const entries: { pkg: string; entry: (typeof analysis.packages)[0]["publicAPI"][0] }[] = [];
   for (const pkg of analysis.packages) {
     for (const entry of pkg.publicAPI) {
       entries.push({ pkg: pkg.name, entry });
@@ -390,7 +455,18 @@ function formatPublicAPI(analysis: StructuredAnalysis): string {
   }
 
   // Order: hooks, functions, components, types, interfaces, classes, enums, consts
-  const kindOrder = ["hook", "function", "component", "type", "interface", "class", "enum", "const", "namespace", "unknown"];
+  const kindOrder = [
+    "hook",
+    "function",
+    "component",
+    "type",
+    "interface",
+    "class",
+    "enum",
+    "const",
+    "namespace",
+    "unknown",
+  ];
 
   const lines = ["## Public API"];
   const isMulti = analysis.packages.length > 1;
@@ -399,7 +475,7 @@ function formatPublicAPI(analysis: StructuredAnalysis): string {
     const group = byKind.get(kind);
     if (!group || group.length === 0) continue;
 
-    const label = kind.charAt(0).toUpperCase() + kind.slice(1) + "s";
+    const label = `${kind.charAt(0).toUpperCase() + kind.slice(1)}s`;
     lines.push("");
     lines.push(`### ${label}`);
     lines.push("");
@@ -448,7 +524,7 @@ function formatDependencies(analysis: StructuredAnalysis): string {
         }
       }
       const testFw = pkg.dependencyInsights?.testFramework?.name;
-      const coreDeps = pkg.dependencies.external.filter(d => !supportedPkgs.has(d.name) && d.name !== testFw);
+      const coreDeps = pkg.dependencies.external.filter((d) => !supportedPkgs.has(d.name) && d.name !== testFw);
       if (coreDeps.length > 0) {
         if (!hasContent && prefix) lines.push("", prefix.trim());
         lines.push("");
@@ -460,7 +536,7 @@ function formatDependencies(analysis: StructuredAnalysis): string {
       }
     } else {
       const testFw = pkg.dependencyInsights?.testFramework?.name;
-      const topExternal = pkg.dependencies.external.filter(d => d.name !== testFw).slice(0, 10);
+      const topExternal = pkg.dependencies.external.filter((d) => d.name !== testFw).slice(0, 10);
       if (topExternal.length > 0) {
         if (!hasContent && prefix) lines.push("", prefix.trim());
         lines.push("");
@@ -491,17 +567,14 @@ function formatConventions(analysis: StructuredAnalysis): string {
     for (const conv of pkg.conventions) {
       // For meta-tools, reclassify ecosystem conventions (except core family)
       if (pkg.isMetaTool && conv.source && ECOSYSTEM_DETECTORS.has(conv.source)) {
-        const isCore = coreFamilySet.size > 0 && [...coreFamilySet].some(
-          family => conv.name.toLowerCase().includes(family),
-        );
+        const isCore =
+          coreFamilySet.size > 0 && [...coreFamilySet].some((family) => conv.name.toLowerCase().includes(family));
         if (!isCore) continue; // Listed in "Supported Frameworks" section instead
       }
 
       const desc = stripConventionStats(conv.description);
       if (desc) {
-        const examples = conv.examples.length > 0
-          ? ` (e.g., \`${sanitize(conv.examples[0], 60)}\`)`
-          : "";
+        const examples = conv.examples.length > 0 ? ` (e.g., \`${sanitize(conv.examples[0], 60)}\`)` : "";
         doRules.push(`- **DO**: ${desc}${examples}`);
       }
     }
@@ -588,7 +661,7 @@ function formatSupportedFrameworks(analysis: StructuredAnalysis): string {
   const { supportedFamilies, coreFamilies } = pkg.metaToolInfo;
   // Exclude core families from the "supported" list (they're already in conventions)
   const coreSet = new Set(coreFamilies);
-  const supported = supportedFamilies.filter(f => !coreSet.has(f));
+  const supported = supportedFamilies.filter((f) => !coreSet.has(f));
   if (supported.length === 0) return "";
 
   const lines = [
@@ -657,9 +730,7 @@ function formatTeamKnowledge(analysis: StructuredAnalysis): string {
 
     // CLI tools have usage conventions
     if (pkg.architecture.packageType === "cli") {
-      questions.push(
-        "Are there CLI-specific behaviors, flags, or output formats that AI tools should know about?",
-      );
+      questions.push("Are there CLI-specific behaviors, flags, or output formats that AI tools should know about?");
     }
 
     // No CONTRIBUTING.md
@@ -679,31 +750,24 @@ function formatTeamKnowledge(analysis: StructuredAnalysis): string {
 
   // Multi-package questions
   if (isMultiPackage) {
-    questions.push(
-      "What's the dependency relationship between packages? Which should be built first?",
-    );
+    questions.push("What's the dependency relationship between packages? Which should be built first?");
   }
 
   // Multiple commands suggest ordering concerns
   const pkg = analysis.packages[0];
   if (pkg) {
-    const cmdCount = [pkg.commands.build, pkg.commands.test, pkg.commands.lint, pkg.commands.start]
-      .filter(Boolean).length;
+    const cmdCount = [pkg.commands.build, pkg.commands.test, pkg.commands.lint, pkg.commands.start].filter(
+      Boolean,
+    ).length;
     if (cmdCount >= 3) {
-      questions.push(
-        "Are there ordering requirements between commands? (e.g., build before test, lint before commit)",
-      );
+      questions.push("Are there ordering requirements between commands? (e.g., build before test, lint before commit)");
     }
   }
 
   // Test framework detected — ask about testing philosophy
-  const hasTestConvention = analysis.packages.some((p) =>
-    p.conventions.some((c) => c.category === "testing"),
-  );
+  const hasTestConvention = analysis.packages.some((p) => p.conventions.some((c) => c.category === "testing"));
   if (hasTestConvention) {
-    questions.push(
-      "What's the testing philosophy? (unit vs integration, what needs tests, coverage expectations)",
-    );
+    questions.push("What's the testing philosophy? (unit vs integration, what needs tests, coverage expectations)");
   }
 
   // Cap at max
@@ -739,9 +803,7 @@ export function formatArchitectureFallback(pkg: PackageAnalysis): string {
   // Filter to non-obvious directories only — obvious dirs (src/, lib/, utils/)
   // are inferable by AI from source code. Listing them creates an anchoring effect
   // that can HURT performance by blocking exploration of unlisted directories.
-  const nonObviousDirs = pkg.architecture.directories.filter(
-    dir => !isObviousDirectory(dir.path),
-  );
+  const nonObviousDirs = pkg.architecture.directories.filter((dir) => !isObviousDirectory(dir.path));
   const obviousCount = pkg.architecture.directories.length - nonObviousDirs.length;
 
   if (nonObviousDirs.length > 0) {
@@ -749,9 +811,10 @@ export function formatArchitectureFallback(pkg: PackageAnalysis): string {
     lines.push("");
     for (const dir of nonObviousDirs) {
       if (dir.exports && dir.exports.length > 0) {
-        const exportList = dir.exports.length <= 5
-          ? dir.exports.join(", ")
-          : `${dir.exports.slice(0, 5).join(", ")} (+${dir.exports.length - 5} more)`;
+        const exportList =
+          dir.exports.length <= 5
+            ? dir.exports.join(", ")
+            : `${dir.exports.slice(0, 5).join(", ")} (+${dir.exports.length - 5} more)`;
         lines.push(`- **${dir.purpose}** (\`${dir.path}/\`): ${exportList}`);
       } else {
         lines.push(`- **${dir.purpose}** (\`${dir.path}/\`, ${dir.fileCount} files)`);
@@ -774,9 +837,7 @@ export function formatArchitectureFallback(pkg: PackageAnalysis): string {
  * Generate deterministic AGENTS.md for a single package in hierarchical mode.
  * Creates a standalone package detail file.
  */
-export function generatePackageDeterministicAgentsMd(
-  pkg: PackageAnalysis,
-): DeterministicOutput {
+export function generatePackageDeterministicAgentsMd(pkg: PackageAnalysis): DeterministicOutput {
   // Wrap in a minimal StructuredAnalysis for reuse of formatters
   const singleAnalysis: StructuredAnalysis = {
     meta: { engineVersion: ENGINE_VERSION, analyzedAt: "", rootDir: ".", config: {} as any, timingMs: 0 },
@@ -789,17 +850,17 @@ export function generatePackageDeterministicAgentsMd(
     summary: pkg.role?.summary ?? pkg.description ?? `TypeScript package: ${pkg.name}`,
     techStack: formatTechStack(singleAnalysis),
     commands: formatCommands(singleAnalysis),
-    packageGuide: "",  // Not applicable for single package
-    workflowRules: "",  // Root-level only
+    packageGuide: "", // Not applicable for single package
+    workflowRules: "", // Root-level only
     howToAddCode: formatContributionPatterns(singleAnalysis),
     publicAPI: formatPublicAPI(singleAnalysis),
     dependencies: formatDependencies(singleAnalysis),
     conventions: formatConventions(singleAnalysis),
     changeImpact: formatChangeImpact(singleAnalysis),
     supportedFrameworks: formatSupportedFrameworks(singleAnalysis),
-    dependencyGraph: "",  // Root-level only
-    mermaidDiagram: "",   // Root-level only
-    teamKnowledge: "",    // Root-level only
+    dependencyGraph: "", // Root-level only
+    mermaidDiagram: "", // Root-level only
+    teamKnowledge: "", // Root-level only
     architecture: "",
     domainTerminology: "",
     contributingGuidelines: "",
@@ -850,14 +911,10 @@ export function generateMinimalAgentsMd(analysis: StructuredAnalysis): string {
   const workflow = formatMinimalWorkflowRules(analysis);
 
   // 4. Conventions (conditional: boolean signal gate + high confidence)
-  const conventions = shouldIncludeMinimalConventions(pkg)
-    ? formatMinimalConventions(pkg)
-    : "";
+  const conventions = shouldIncludeMinimalConventions(pkg) ? formatMinimalConventions(pkg) : "";
 
   // 5. Architecture (conditional: non-obvious dirs)
-  const architecture = shouldIncludeMinimalArchitecture(pkg)
-    ? formatMinimalArchitecture(pkg)
-    : "";
+  const architecture = shouldIncludeMinimalArchitecture(pkg) ? formatMinimalArchitecture(pkg) : "";
 
   // 6. Package guide (conditional: monorepo 3+ packages)
   const packages = formatMinimalPackageGuide(analysis);
@@ -866,12 +923,13 @@ export function generateMinimalAgentsMd(analysis: StructuredAnalysis): string {
   const example = formatExamplePointer(pkg);
 
   // Assemble non-empty sections
-  const optionalSections = [commands, workflow, conventions, architecture, packages, example]
-    .filter(s => s.length > 0);
+  const optionalSections = [commands, workflow, conventions, architecture, packages, example].filter(
+    (s) => s.length > 0,
+  );
 
   // Kill switch: if we have very little non-title content, add standard note
-  const hasSubstantiveContent = optionalSections.some(s =>
-    s.includes("## Workflow") || s.includes("## Conventions") || s.includes("## Key Directories"),
+  const hasSubstantiveContent = optionalSections.some(
+    (s) => s.includes("## Workflow") || s.includes("## Conventions") || s.includes("## Key Directories"),
   );
 
   if (!hasSubstantiveContent) {
@@ -887,15 +945,13 @@ export function generateMinimalAgentsMd(analysis: StructuredAnalysis): string {
 
 function shouldIncludeMinimalConventions(pkg: PackageAnalysis): boolean {
   const patterns = pkg.contributionPatterns ?? [];
-  const hasRegistration = patterns.some(p => p.registrationFile);
-  const hasNonStandardImports = patterns.some(p =>
-    (p.commonImports?.length ?? 0) > 0,
-  );
+  const hasRegistration = patterns.some((p) => p.registrationFile);
+  const hasNonStandardImports = patterns.some((p) => (p.commonImports?.length ?? 0) > 0);
   return hasRegistration || hasNonStandardImports;
 }
 
 function shouldIncludeMinimalArchitecture(pkg: PackageAnalysis): boolean {
-  return pkg.architecture.directories.some(d => !isObviousDirectory(d.path));
+  return pkg.architecture.directories.some((d) => !isObviousDirectory(d.path));
 }
 
 // ─── Minimal: Section Formatters ────────────────────────────────────────────
@@ -928,7 +984,7 @@ function formatMinimalCommands(analysis: StructuredAnalysis): string {
   if (cs.start) cmds.push({ label: "Dev", run: cs.start.run });
 
   // Fill remaining slots with non-duplicate "other" commands
-  const addedRuns = new Set(cmds.map(c => c.run));
+  const addedRuns = new Set(cmds.map((c) => c.run));
   for (const cmd of cs.other) {
     if (cmds.length >= MAX_MINIMAL_COMMANDS) break;
     if (addedRuns.has(cmd.run)) continue;
@@ -940,7 +996,7 @@ function formatMinimalCommands(analysis: StructuredAnalysis): string {
   if (capped.length === 0) return "";
 
   // Triviality check: if ALL commands are trivial, just note it
-  const allTrivial = capped.every(c => isCommandTrivial(c.run, pm));
+  const allTrivial = capped.every((c) => isCommandTrivial(c.run, pm));
   if (allTrivial) {
     return `## Commands\n\nStandard \`${pm}\` scripts — see \`package.json\` for details.`;
   }
@@ -986,16 +1042,14 @@ function formatMinimalConventions(pkg: PackageAnalysis): string {
 
   // Filter to ≥95% confidence, sorted by confidence descending
   const highConf = pkg.conventions
-    .filter(c => c.confidence.percentage >= MIN_CONVENTION_CONFIDENCE)
+    .filter((c) => c.confidence.percentage >= MIN_CONVENTION_CONFIDENCE)
     .sort((a, b) => b.confidence.percentage - a.confidence.percentage);
 
   for (const conv of highConf) {
     if (doRules.length >= MAX_MINIMAL_CONVENTIONS) break;
     const desc = stripConventionStats(conv.description);
     if (!desc) continue;
-    const ex = conv.examples.length > 0
-      ? ` (e.g., \`${sanitize(conv.examples[0], 40)}\`)`
-      : "";
+    const ex = conv.examples.length > 0 ? ` (e.g., \`${sanitize(conv.examples[0], 40)}\`)` : "";
     doRules.push(`- **DO**: ${desc}${ex}`);
   }
 
@@ -1010,7 +1064,7 @@ function formatMinimalConventions(pkg: PackageAnalysis): string {
 
 function formatMinimalArchitecture(pkg: PackageAnalysis): string {
   const nonObvious = pkg.architecture.directories
-    .filter(d => !isObviousDirectory(d.path))
+    .filter((d) => !isObviousDirectory(d.path))
     .slice(0, MAX_MINIMAL_DIRECTORIES);
 
   if (nonObvious.length === 0) return "";
@@ -1040,7 +1094,7 @@ function formatMinimalPackageGuide(analysis: StructuredAnalysis): string {
 }
 
 function formatExamplePointer(pkg: PackageAnalysis): string {
-  const pattern = (pkg.contributionPatterns ?? []).find(p => p.registrationFile);
+  const pattern = (pkg.contributionPatterns ?? []).find((p) => p.registrationFile);
   if (!pattern) return "";
   return `> **Example**: See \`${pattern.exampleFile}\` for the canonical pattern (register in \`${pattern.registrationFile}\`).`;
 }
@@ -1051,4 +1105,3 @@ function isCommandTrivial(run: string, pm: string): boolean {
   if (parts.length === 3 && parts[0] === pm && parts[1] === "run") return true;
   return false;
 }
-

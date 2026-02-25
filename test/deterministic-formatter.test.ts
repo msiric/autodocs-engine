@@ -1,14 +1,14 @@
-import { describe, it, expect } from "vitest";
 import { resolve } from "node:path";
-import { analyze } from "../src/index.js";
+import { describe, expect, it } from "vitest";
 import {
-  generateDeterministicAgentsMd,
   assembleFinalOutput,
   formatArchitectureFallback,
+  generateDeterministicAgentsMd,
   generatePackageDeterministicAgentsMd,
 } from "../src/deterministic-formatter.js";
 import { extractReadmeContext } from "../src/existing-docs.js";
-import type { StructuredAnalysis, PackageAnalysis } from "../src/types.js";
+import { analyze } from "../src/index.js";
+import type { PackageAnalysis, StructuredAnalysis } from "../src/types.js";
 
 const FIXTURES = resolve(import.meta.dirname, "fixtures");
 
@@ -40,7 +40,14 @@ function makeMinimalAnalysis(overrides: Partial<PackageAnalysis> = {}): Structur
         },
         publicAPI: [
           { name: "useAuth", kind: "hook", sourceFile: "src/hooks.ts", isTypeOnly: false, importCount: 8 },
-          { name: "fetchData", kind: "function", sourceFile: "src/api.ts", isTypeOnly: false, signature: "(url: string) => Promise<any>", importCount: 5 },
+          {
+            name: "fetchData",
+            kind: "function",
+            sourceFile: "src/api.ts",
+            isTypeOnly: false,
+            signature: "(url: string) => Promise<any>",
+            importCount: 5,
+          },
           { name: "Button", kind: "component", sourceFile: "src/ui.tsx", isTypeOnly: false, importCount: 3 },
           { name: "Config", kind: "type", sourceFile: "src/types.ts", isTypeOnly: true, importCount: 2 },
         ],
@@ -133,9 +140,7 @@ function makeMinimalAnalysis(overrides: Partial<PackageAnalysis> = {}): Structur
           linter: { name: "eslint", configFile: ".eslintrc.js" },
           formatter: { name: "prettier", configFile: ".prettierrc" },
         },
-        callGraph: [
-          { from: "useAuth", to: "fetchData", fromFile: "src/hooks.ts", toFile: "src/api.ts" },
-        ],
+        callGraph: [{ from: "useAuth", to: "fetchData", fromFile: "src/hooks.ts", toFile: "src/api.ts" }],
         ...overrides,
       },
     ],
@@ -421,9 +426,9 @@ describe("deterministic-formatter", () => {
       expect(result.title).toBe("# test-pkg");
       expect(result.summary).toContain("Shared UI");
       expect(result.techStack).toContain("react");
-      expect(result.packageGuide).toBe("");  // Not applicable
-      expect(result.dependencyGraph).toBe("");  // Root-level only
-      expect(result.teamKnowledge).toBe("");  // Root-level only
+      expect(result.packageGuide).toBe(""); // Not applicable
+      expect(result.dependencyGraph).toBe(""); // Root-level only
+      expect(result.teamKnowledge).toBe(""); // Root-level only
     });
   });
 });
@@ -449,11 +454,7 @@ describe("integration: deterministic formatting with real analysis", () => {
     });
 
     const deterministic = generateDeterministicAgentsMd(analysis);
-    const output = assembleFinalOutput(
-      deterministic,
-      formatArchitectureFallback(analysis.packages[0]),
-      "",
-    );
+    const output = assembleFinalOutput(deterministic, formatArchitectureFallback(analysis.packages[0]), "");
 
     // Should have real content
     expect(output.length).toBeGreaterThan(100);
@@ -472,11 +473,7 @@ describe("integration: deterministic formatting with real analysis", () => {
     });
 
     const deterministic = generateDeterministicAgentsMd(analysis);
-    const output = assembleFinalOutput(
-      deterministic,
-      formatArchitectureFallback(analysis.packages[0]),
-      "",
-    );
+    const output = assembleFinalOutput(deterministic, formatArchitectureFallback(analysis.packages[0]), "");
 
     expect(output).toContain("# @test/hooks-pkg");
     // The output should only mention technologies that are actually in the analysis

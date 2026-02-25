@@ -8,10 +8,7 @@ import type { PackageAnalysis, PackageDependency } from "./types.js";
  * Generate a Mermaid dependency diagram from packages and their dependency graph.
  * Only generates for multi-package analysis (>1 package).
  */
-export function generateDependencyDiagram(
-  packages: PackageAnalysis[],
-  dependencyGraph: PackageDependency[],
-): string {
+export function generateDependencyDiagram(packages: PackageAnalysis[], dependencyGraph: PackageDependency[]): string {
   if (dependencyGraph.length === 0 || packages.length < 2) {
     return "";
   }
@@ -57,17 +54,23 @@ function shortName(name: string): string {
 /**
  * Map package type to a Mermaid fill color.
  */
-function packageTypeColor(
-  packageType: string,
-): string | null {
+function packageTypeColor(packageType: string): string | null {
   switch (packageType) {
-    case "hooks": return "#e1f5fe";
-    case "react-components": return "#f3e5f5";
-    case "api-server": return "#e8f5e9";
-    case "web-application": return "#fff3e0";
-    case "library": return "#f5f5f5";
-    case "cli": return "#e0f2f1";
-    case "server": return "#e8f5e9";
-    default: return null;
+    case "hooks":
+      return "#e1f5fe";
+    case "react-components":
+      return "#f3e5f5";
+    case "api-server":
+      return "#e8f5e9";
+    case "web-application":
+      return "#fff3e0";
+    case "library":
+      return "#f5f5f5";
+    case "cli":
+      return "#e0f2f1";
+    case "server":
+      return "#e8f5e9";
+    default:
+      return null;
   }
 }

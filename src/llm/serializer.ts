@@ -1,7 +1,7 @@
 // src/llm/serializer.ts — StructuredAnalysis to markdown serialization
 // Split from llm-adapter.ts (W5-B1)
 
-import type { StructuredAnalysis, PackageAnalysis } from "../types.js";
+import type { PackageAnalysis, StructuredAnalysis } from "../types.js";
 
 // E-34: Sanitize values before interpolation
 export function sanitize(s: string, maxLen = 500): string {
@@ -77,9 +77,13 @@ export function serializeToMarkdown(analysis: StructuredAnalysis): string {
       lines.push("## Shared Conventions (apply to ALL packages)");
       for (const conv of analysis.crossPackage.sharedConventions) {
         const impact = conv.impact ? ` [impact: ${conv.impact}]` : "";
-        const examples = conv.examples.length > 0
-          ? ` (e.g., ${conv.examples.slice(0, 2).map((e) => `\`${sanitize(e, 80)}\``).join(", ")})`
-          : "";
+        const examples =
+          conv.examples.length > 0
+            ? ` (e.g., ${conv.examples
+                .slice(0, 2)
+                .map((e) => `\`${sanitize(e, 80)}\``)
+                .join(", ")})`
+            : "";
         const desc = stripConventionStats(conv.description);
         lines.push(`- **${conv.name}**: ${desc}${impact}${examples}`);
       }
@@ -193,13 +197,15 @@ export function serializePackage(pkg: PackageAnalysis, lines: string[]): void {
   lines.push("## Conventions");
   for (const conv of pkg.conventions) {
     const impact = conv.impact ? ` [impact: ${conv.impact}]` : "";
-    const examples = conv.examples.length > 0
-      ? ` (e.g., ${conv.examples.slice(0, 2).map((e) => `\`${sanitize(e, 80)}\``).join(", ")})`
-      : "";
+    const examples =
+      conv.examples.length > 0
+        ? ` (e.g., ${conv.examples
+            .slice(0, 2)
+            .map((e) => `\`${sanitize(e, 80)}\``)
+            .join(", ")})`
+        : "";
     const desc = stripConventionStats(conv.description);
-    lines.push(
-      `- **${conv.name}**: ${desc}${impact}${examples}`,
-    );
+    lines.push(`- **${conv.name}**: ${desc}${impact}${examples}`);
   }
   lines.push("");
 
@@ -222,7 +228,7 @@ export function serializePackage(pkg: PackageAnalysis, lines: string[]): void {
   lines.push("");
 
   // Role inference
-  if (pkg.role && pkg.role.summary) {
+  if (pkg.role?.summary) {
     lines.push("## Role");
     lines.push(`- Summary: ${sanitize(pkg.role.summary)}`);
     lines.push(`- Purpose: ${sanitize(pkg.role.purpose)}`);
@@ -239,9 +245,10 @@ export function serializePackage(pkg: PackageAnalysis, lines: string[]): void {
     // W3-4: Surface specific implementation names instead of just file counts
     const pattern = dir.pattern ? ` | pattern: \`${dir.pattern}\`` : "";
     if (dir.exports && dir.exports.length > 0) {
-      const exportList = dir.exports.length <= 8
-        ? dir.exports.join(", ")
-        : `${dir.exports.slice(0, 8).join(", ")} (+${dir.exports.length - 8} more)`;
+      const exportList =
+        dir.exports.length <= 8
+          ? dir.exports.join(", ")
+          : `${dir.exports.slice(0, 8).join(", ")} (+${dir.exports.length - 8} more)`;
       lines.push(`- **${dir.purpose}**: ${exportList} (see \`${dir.path}/\`)${pattern}`);
     } else {
       lines.push(`- **${dir.purpose}**: \`${dir.path}/\` (${dir.fileCount} files)${pattern}`);
@@ -306,12 +313,19 @@ export function serializePackage(pkg: PackageAnalysis, lines: string[]): void {
   if (pkg.configAnalysis) {
     const ca = pkg.configAnalysis;
     const parts: string[] = [];
-    if (ca.buildTool && ca.buildTool.name !== "none") parts.push(`Build tool: ${ca.buildTool.name} (${ca.buildTool.configFile})`);
+    if (ca.buildTool && ca.buildTool.name !== "none")
+      parts.push(`Build tool: ${ca.buildTool.name} (${ca.buildTool.configFile})`);
     if (ca.linter && ca.linter.name !== "none") parts.push(`Linter: ${ca.linter.name} (${ca.linter.configFile})`);
-    if (ca.formatter && ca.formatter.name !== "none") parts.push(`Formatter: ${ca.formatter.name} (${ca.formatter.configFile})`);
-    if (ca.taskRunner && ca.taskRunner.name !== "none") parts.push(`Task runner: ${ca.taskRunner.name} (${ca.taskRunner.configFile}), targets: ${ca.taskRunner.targets.join(", ")}`);
+    if (ca.formatter && ca.formatter.name !== "none")
+      parts.push(`Formatter: ${ca.formatter.name} (${ca.formatter.configFile})`);
+    if (ca.taskRunner && ca.taskRunner.name !== "none")
+      parts.push(
+        `Task runner: ${ca.taskRunner.name} (${ca.taskRunner.configFile}), targets: ${ca.taskRunner.targets.join(", ")}`,
+      );
     if (ca.typescript) {
-      parts.push(`TypeScript: strict=${ca.typescript.strict}, target=${ca.typescript.target}, module=${ca.typescript.module}`);
+      parts.push(
+        `TypeScript: strict=${ca.typescript.strict}, target=${ca.typescript.target}, module=${ca.typescript.module}`,
+      );
       if (ca.typescript.paths) parts.push(`Path aliases: ${Object.keys(ca.typescript.paths).join(", ")}`);
     }
     if (ca.envVars && ca.envVars.length > 0) parts.push(`Required env vars: ${ca.envVars.join(", ")}`);

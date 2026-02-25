@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { detectMetaTool, PACKAGE_TO_FAMILY } from "../src/meta-tool-detector.js";
 import type { ParsedFile, TierInfo } from "../src/types.js";
 
@@ -19,9 +19,15 @@ function makeParsedFile(
       isDynamic: false,
     })),
     contentSignals: {
-      tryCatchCount: 0, useMemoCount: 0, useCallbackCount: 0,
-      useEffectCount: 0, useStateCount: 0, useQueryCount: 0,
-      useMutationCount: 0, jestMockCount: 0, hasDisplayName: false,
+      tryCatchCount: 0,
+      useMemoCount: 0,
+      useCallbackCount: 0,
+      useEffectCount: 0,
+      useStateCount: 0,
+      useQueryCount: 0,
+      useMutationCount: 0,
+      jestMockCount: 0,
+      hasDisplayName: false,
       hasErrorBoundary: false,
     },
     lineCount: 10,
@@ -55,8 +61,10 @@ describe("Signal 1: peerDependencies", () => {
       makeParsedFile("src/c.ts", [{ moduleSpecifier: "@angular/core" }]),
     ];
     const result = detectMetaTool({
-      parsedFiles: files, tiers: makeTiers(files),
-      dependencies: {}, devDependencies: {},
+      parsedFiles: files,
+      tiers: makeTiers(files),
+      dependencies: {},
+      devDependencies: {},
       peerDeps: { react: "^18.0.0", vue: "^3.0.0", "@angular/core": "^17.0.0" },
     });
     expect(result.isMetaTool).toBe(true);
@@ -67,17 +75,20 @@ describe("Signal 1: peerDependencies", () => {
   });
 
   it("does NOT trigger when 5 peer packages map to only 1 family", () => {
-    const files = [
-      makeParsedFile("src/a.ts", [
-        { moduleSpecifier: "react" },
-        { moduleSpecifier: "react-dom" },
-      ]),
-    ];
+    const files = [makeParsedFile("src/a.ts", [{ moduleSpecifier: "react" }, { moduleSpecifier: "react-dom" }])];
     const result = detectMetaTool({
-      parsedFiles: files, tiers: makeTiers(files),
-      dependencies: {}, devDependencies: {},
+      parsedFiles: files,
+      tiers: makeTiers(files),
+      dependencies: {},
+      devDependencies: {},
       // All these are either in "react" family or not in any family
-      peerDeps: { react: "^18", "react-dom": "^18", "framer-motion": "^10", "@emotion/react": "^11", "styled-components": "^6" },
+      peerDeps: {
+        react: "^18",
+        "react-dom": "^18",
+        "framer-motion": "^10",
+        "@emotion/react": "^11",
+        "styled-components": "^6",
+      },
     });
     expect(result.isMetaTool).toBe(false);
   });
@@ -88,8 +99,10 @@ describe("Signal 1: peerDependencies", () => {
       makeParsedFile("src/b.ts", [{ moduleSpecifier: "vue" }]),
     ];
     const result = detectMetaTool({
-      parsedFiles: files, tiers: makeTiers(files),
-      dependencies: {}, devDependencies: {},
+      parsedFiles: files,
+      tiers: makeTiers(files),
+      dependencies: {},
+      devDependencies: {},
       peerDeps: { react: "^18", vue: "^3" },
     });
     expect(result.isMetaTool).toBe(false);
@@ -109,7 +122,8 @@ describe("Signal 2: Dependency placement", () => {
       ]),
     ];
     const result = detectMetaTool({
-      parsedFiles: files, tiers: makeTiers(files),
+      parsedFiles: files,
+      tiers: makeTiers(files),
       dependencies: {},
       devDependencies: { react: "^18", vue: "^3", express: "^4", webpack: "^5" },
       peerDeps: {},
@@ -129,7 +143,8 @@ describe("Signal 2: Dependency placement", () => {
       ]),
     ];
     const result = detectMetaTool({
-      parsedFiles: files, tiers: makeTiers(files),
+      parsedFiles: files,
+      tiers: makeTiers(files),
       dependencies: {},
       devDependencies: { chalk: "^5", lodash: "^4", minimist: "^1", cosmiconfig: "^9", debug: "^4" },
       peerDeps: {},
@@ -146,7 +161,8 @@ describe("Signal 2: Dependency placement", () => {
       ]),
     ];
     const result = detectMetaTool({
-      parsedFiles: files, tiers: makeTiers(files),
+      parsedFiles: files,
+      tiers: makeTiers(files),
       dependencies: {},
       devDependencies: { react: "^18", vue: "^3", express: "^4" },
       peerDeps: {},
@@ -165,7 +181,8 @@ describe("Signal 2: Dependency placement", () => {
       ]),
     ];
     const result = detectMetaTool({
-      parsedFiles: files, tiers: makeTiers(files),
+      parsedFiles: files,
+      tiers: makeTiers(files),
       dependencies: {},
       devDependencies: { react: "^18", vue: "^3", express: "^4", webpack: "^5" },
       peerDeps: {},
@@ -190,7 +207,8 @@ describe("Signal 3: Family count fallback", () => {
       ]),
     ];
     const result = detectMetaTool({
-      parsedFiles: files, tiers: makeTiers(files),
+      parsedFiles: files,
+      tiers: makeTiers(files),
       dependencies: { react: "^18", vue: "^3", express: "^4", webpack: "^5", prisma: "^5", redux: "^5" },
       devDependencies: {},
       peerDeps: {},
@@ -211,8 +229,16 @@ describe("Signal 3: Family count fallback", () => {
       ]),
     ];
     const result = detectMetaTool({
-      parsedFiles: files, tiers: makeTiers(files),
-      dependencies: { react: "^18", "react-dom": "^18", next: "^15", "@reduxjs/toolkit": "^2", express: "^4", "@prisma/client": "^5" },
+      parsedFiles: files,
+      tiers: makeTiers(files),
+      dependencies: {
+        react: "^18",
+        "react-dom": "^18",
+        next: "^15",
+        "@reduxjs/toolkit": "^2",
+        express: "^4",
+        "@prisma/client": "^5",
+      },
       devDependencies: {},
       peerDeps: {},
     });
@@ -221,14 +247,10 @@ describe("Signal 3: Family count fallback", () => {
   });
 
   it("deduplicates react + react-dom as 1 family", () => {
-    const files = [
-      makeParsedFile("src/a.ts", [
-        { moduleSpecifier: "react" },
-        { moduleSpecifier: "react-dom" },
-      ]),
-    ];
+    const files = [makeParsedFile("src/a.ts", [{ moduleSpecifier: "react" }, { moduleSpecifier: "react-dom" }])];
     const result = detectMetaTool({
-      parsedFiles: files, tiers: makeTiers(files),
+      parsedFiles: files,
+      tiers: makeTiers(files),
       dependencies: { react: "^18", "react-dom": "^18" },
       devDependencies: {},
       peerDeps: {},
@@ -253,7 +275,8 @@ describe("Import filtering", () => {
       ]),
     ];
     const result = detectMetaTool({
-      parsedFiles: files, tiers: makeTiers(files),
+      parsedFiles: files,
+      tiers: makeTiers(files),
       dependencies: {},
       devDependencies: { react: "^18", vue: "^3", express: "^4", webpack: "^5", prisma: "^5", redux: "^5" },
       peerDeps: { react: "^18", vue: "^3", express: "^4" },
@@ -263,17 +286,22 @@ describe("Import filtering", () => {
 
   it("test file (T3) imports do not count", () => {
     const files = [
-      makeParsedFile("test/a.test.ts", [
-        { moduleSpecifier: "react" },
-        { moduleSpecifier: "vue" },
-        { moduleSpecifier: "express" },
-        { moduleSpecifier: "webpack" },
-        { moduleSpecifier: "prisma" },
-        { moduleSpecifier: "redux" },
-      ], { isTestFile: true }),
+      makeParsedFile(
+        "test/a.test.ts",
+        [
+          { moduleSpecifier: "react" },
+          { moduleSpecifier: "vue" },
+          { moduleSpecifier: "express" },
+          { moduleSpecifier: "webpack" },
+          { moduleSpecifier: "prisma" },
+          { moduleSpecifier: "redux" },
+        ],
+        { isTestFile: true },
+      ),
     ];
     const result = detectMetaTool({
-      parsedFiles: files, tiers: makeTiers(files),
+      parsedFiles: files,
+      tiers: makeTiers(files),
       dependencies: {},
       devDependencies: { react: "^18", vue: "^3", express: "^4", webpack: "^5", prisma: "^5", redux: "^5" },
       peerDeps: {},
@@ -297,7 +325,8 @@ describe("Completeness pass", () => {
       ]),
     ];
     const result = detectMetaTool({
-      parsedFiles: files, tiers: makeTiers(files),
+      parsedFiles: files,
+      tiers: makeTiers(files),
       dependencies: {},
       devDependencies: {},
       peerDeps: { react: "^18", vue: "^3", "@angular/core": "^17" },
@@ -320,13 +349,16 @@ describe("Dominant family detection", () => {
       // React has 30 imports, others have 5 each
       ...Array.from({ length: 30 }, (_, i) => makeParsedFile(`src/react-${i}.ts`, [{ moduleSpecifier: "react" }])),
       ...Array.from({ length: 5 }, (_, i) => makeParsedFile(`src/vue-${i}.ts`, [{ moduleSpecifier: "vue" }])),
-      ...Array.from({ length: 5 }, (_, i) => makeParsedFile(`src/angular-${i}.ts`, [{ moduleSpecifier: "@angular/core" }])),
+      ...Array.from({ length: 5 }, (_, i) =>
+        makeParsedFile(`src/angular-${i}.ts`, [{ moduleSpecifier: "@angular/core" }]),
+      ),
       ...Array.from({ length: 5 }, (_, i) => makeParsedFile(`src/express-${i}.ts`, [{ moduleSpecifier: "express" }])),
       ...Array.from({ length: 5 }, (_, i) => makeParsedFile(`src/webpack-${i}.ts`, [{ moduleSpecifier: "webpack" }])),
       ...Array.from({ length: 5 }, (_, i) => makeParsedFile(`src/prisma-${i}.ts`, [{ moduleSpecifier: "prisma" }])),
     ];
     const result = detectMetaTool({
-      parsedFiles: files, tiers: makeTiers(files),
+      parsedFiles: files,
+      tiers: makeTiers(files),
       dependencies: { react: "^18", "react-dom": "^18" }, // React in production deps
       devDependencies: { vue: "^3", "@angular/core": "^17", express: "^4", webpack: "^5", prisma: "^5" },
       peerDeps: {},
@@ -339,13 +371,16 @@ describe("Dominant family detection", () => {
     const files = [
       ...Array.from({ length: 30 }, (_, i) => makeParsedFile(`src/react-${i}.ts`, [{ moduleSpecifier: "react" }])),
       ...Array.from({ length: 5 }, (_, i) => makeParsedFile(`src/vue-${i}.ts`, [{ moduleSpecifier: "vue" }])),
-      ...Array.from({ length: 5 }, (_, i) => makeParsedFile(`src/angular-${i}.ts`, [{ moduleSpecifier: "@angular/core" }])),
+      ...Array.from({ length: 5 }, (_, i) =>
+        makeParsedFile(`src/angular-${i}.ts`, [{ moduleSpecifier: "@angular/core" }]),
+      ),
       ...Array.from({ length: 5 }, (_, i) => makeParsedFile(`src/express-${i}.ts`, [{ moduleSpecifier: "express" }])),
       ...Array.from({ length: 5 }, (_, i) => makeParsedFile(`src/webpack-${i}.ts`, [{ moduleSpecifier: "webpack" }])),
       ...Array.from({ length: 5 }, (_, i) => makeParsedFile(`src/prisma-${i}.ts`, [{ moduleSpecifier: "prisma" }])),
     ];
     const result = detectMetaTool({
-      parsedFiles: files, tiers: makeTiers(files),
+      parsedFiles: files,
+      tiers: makeTiers(files),
       dependencies: {}, // React NOT in production deps
       devDependencies: { react: "^18", vue: "^3", "@angular/core": "^17", express: "^4", webpack: "^5", prisma: "^5" },
       peerDeps: {},
@@ -358,13 +393,16 @@ describe("Dominant family detection", () => {
     const files = [
       ...Array.from({ length: 20 }, (_, i) => makeParsedFile(`src/react-${i}.ts`, [{ moduleSpecifier: "react" }])),
       ...Array.from({ length: 18 }, (_, i) => makeParsedFile(`src/vue-${i}.ts`, [{ moduleSpecifier: "vue" }])),
-      ...Array.from({ length: 5 }, (_, i) => makeParsedFile(`src/angular-${i}.ts`, [{ moduleSpecifier: "@angular/core" }])),
+      ...Array.from({ length: 5 }, (_, i) =>
+        makeParsedFile(`src/angular-${i}.ts`, [{ moduleSpecifier: "@angular/core" }]),
+      ),
       ...Array.from({ length: 5 }, (_, i) => makeParsedFile(`src/express-${i}.ts`, [{ moduleSpecifier: "express" }])),
       ...Array.from({ length: 5 }, (_, i) => makeParsedFile(`src/webpack-${i}.ts`, [{ moduleSpecifier: "webpack" }])),
       ...Array.from({ length: 5 }, (_, i) => makeParsedFile(`src/prisma-${i}.ts`, [{ moduleSpecifier: "prisma" }])),
     ];
     const result = detectMetaTool({
-      parsedFiles: files, tiers: makeTiers(files),
+      parsedFiles: files,
+      tiers: makeTiers(files),
       dependencies: { react: "^18" },
       devDependencies: { vue: "^3", "@angular/core": "^17", express: "^4", webpack: "^5", prisma: "^5" },
       peerDeps: {},
@@ -391,17 +429,21 @@ describe("Configuration", () => {
     ];
     // Default threshold (5) would trigger
     const resultDefault = detectMetaTool({
-      parsedFiles: files, tiers: makeTiers(files),
+      parsedFiles: files,
+      tiers: makeTiers(files),
       dependencies: { react: "^18", vue: "^3", express: "^4", webpack: "^5", prisma: "^5", redux: "^5" },
-      devDependencies: {}, peerDeps: {},
+      devDependencies: {},
+      peerDeps: {},
     });
     expect(resultDefault.isMetaTool).toBe(true);
 
     // Threshold 10 should not trigger
     const resultHigh = detectMetaTool({
-      parsedFiles: files, tiers: makeTiers(files),
+      parsedFiles: files,
+      tiers: makeTiers(files),
       dependencies: { react: "^18", vue: "^3", express: "^4", webpack: "^5", prisma: "^5", redux: "^5" },
-      devDependencies: {}, peerDeps: {},
+      devDependencies: {},
+      peerDeps: {},
       threshold: 10,
     });
     expect(resultHigh.isMetaTool).toBe(false);

@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { scoreGeneratedOutput } from "../../src/benchmark/scorer.js";
 import type { BenchmarkTask, GeneratedFile } from "../../src/benchmark/types.js";
 
@@ -53,9 +53,10 @@ function makeArchTask(overrides: Partial<BenchmarkTask> = {}): BenchmarkTask {
 
 describe("command task scoring", () => {
   it("scores perfect command response", () => {
-    const files: GeneratedFile[] = [{
-      path: ".github/workflows/ci.yml",
-      content: `name: CI
+    const files: GeneratedFile[] = [
+      {
+        path: ".github/workflows/ci.yml",
+        content: `name: CI
 on: push
 jobs:
   build:
@@ -64,7 +65,8 @@ jobs:
       - run: pnpm run build
       - run: pnpm run test
       - run: pnpm run lint`,
-    }];
+      },
+    ];
 
     const result = scoreGeneratedOutput(files, makeCommandTask(), 100, 100);
     expect(result.score).toBeGreaterThanOrEqual(80);
@@ -72,25 +74,29 @@ jobs:
   });
 
   it("penalizes wrong package manager", () => {
-    const files: GeneratedFile[] = [{
-      path: "ci.yml",
-      content: "npm run build\nnpm run test\nnpm run lint",
-    }];
+    const files: GeneratedFile[] = [
+      {
+        path: "ci.yml",
+        content: "npm run build\nnpm run test\nnpm run lint",
+      },
+    ];
 
     const result = scoreGeneratedOutput(files, makeCommandTask(), 100, 100);
     // Commands found but wrong PM
-    const pmCheck = result.checks.find(c => c.name === "pm-consistency");
+    const pmCheck = result.checks.find((c) => c.name === "pm-consistency");
     expect(pmCheck?.score).toBeLessThan(pmCheck?.weight ?? 2);
   });
 
   it("detects missing commands", () => {
-    const files: GeneratedFile[] = [{
-      path: "ci.yml",
-      content: "pnpm run build",
-    }];
+    const files: GeneratedFile[] = [
+      {
+        path: "ci.yml",
+        content: "pnpm run build",
+      },
+    ];
 
     const result = scoreGeneratedOutput(files, makeCommandTask(), 100, 100);
-    const accuracyCheck = result.checks.find(c => c.name === "command-accuracy");
+    const accuracyCheck = result.checks.find((c) => c.name === "command-accuracy");
     expect(accuracyCheck?.score).toBeLessThan(4); // missing test + lint
   });
 
@@ -105,10 +111,13 @@ jobs:
 
 describe("architecture task scoring", () => {
   it("scores correct directory identification", () => {
-    const files: GeneratedFile[] = [{
-      path: "response.txt",
-      content: "The new hook should go in src/hooks/ because that's where all custom React hooks are organized in this project, following the existing convention.",
-    }];
+    const files: GeneratedFile[] = [
+      {
+        path: "response.txt",
+        content:
+          "The new hook should go in src/hooks/ because that's where all custom React hooks are organized in this project, following the existing convention.",
+      },
+    ];
 
     const result = scoreGeneratedOutput(files, makeArchTask(), 100, 100);
     expect(result.score).toBeGreaterThanOrEqual(75);
@@ -116,10 +125,13 @@ describe("architecture task scoring", () => {
   });
 
   it("gives partial credit for acceptable alternative", () => {
-    const files: GeneratedFile[] = [{
-      path: "response.txt",
-      content: "I would place the hook in src/shared/custom-hooks/ since that follows the project's library organization pattern.",
-    }];
+    const files: GeneratedFile[] = [
+      {
+        path: "response.txt",
+        content:
+          "I would place the hook in src/shared/custom-hooks/ since that follows the project's library organization pattern.",
+      },
+    ];
 
     // Use a task where alternatives don't match the expected dir name
     const task = makeArchTask({
@@ -132,41 +144,49 @@ describe("architecture task scoring", () => {
     });
 
     const result = scoreGeneratedOutput(files, task, 100, 100);
-    const dirCheck = result.checks.find(c => c.name === "correct-directory");
+    const dirCheck = result.checks.find((c) => c.name === "correct-directory");
     expect(dirCheck?.score).toBeGreaterThan(0);
     expect(dirCheck?.score).toBeLessThan(4); // partial, not full
   });
 
   it("fails for wrong directory", () => {
-    const files: GeneratedFile[] = [{
-      path: "response.txt",
-      content: "Put it in src/features/new-hook.ts",
-    }];
+    const files: GeneratedFile[] = [
+      {
+        path: "response.txt",
+        content: "Put it in src/features/new-hook.ts",
+      },
+    ];
 
     const result = scoreGeneratedOutput(files, makeArchTask(), 100, 100);
-    const dirCheck = result.checks.find(c => c.name === "correct-directory");
+    const dirCheck = result.checks.find((c) => c.name === "correct-directory");
     expect(dirCheck?.score).toBe(0);
   });
 
   it("rewards referencing project directory names", () => {
-    const files: GeneratedFile[] = [{
-      path: "response.txt",
-      content: "The hook belongs in src/hooks/ alongside the existing hooks. The src/components/ directory is for UI, and src/utils/ for generic utilities.",
-    }];
+    const files: GeneratedFile[] = [
+      {
+        path: "response.txt",
+        content:
+          "The hook belongs in src/hooks/ alongside the existing hooks. The src/components/ directory is for UI, and src/utils/ for generic utilities.",
+      },
+    ];
 
     const result = scoreGeneratedOutput(files, makeArchTask(), 100, 100);
-    const dirsCheck = result.checks.find(c => c.name === "uses-project-dirs");
+    const dirsCheck = result.checks.find((c) => c.name === "uses-project-dirs");
     expect(dirsCheck?.score).toBe(2); // mentions 3+ project dirs
   });
 
   it("rewards architectural reasoning", () => {
-    const files: GeneratedFile[] = [{
-      path: "response.txt",
-      content: "I recommend src/hooks/ because this follows the existing separation of concerns pattern where hooks are isolated from components for reusability.",
-    }];
+    const files: GeneratedFile[] = [
+      {
+        path: "response.txt",
+        content:
+          "I recommend src/hooks/ because this follows the existing separation of concerns pattern where hooks are isolated from components for reusability.",
+      },
+    ];
 
     const result = scoreGeneratedOutput(files, makeArchTask(), 100, 100);
-    const justCheck = result.checks.find(c => c.name === "justification-quality");
+    const justCheck = result.checks.find((c) => c.name === "justification-quality");
     expect(justCheck?.score).toBe(2);
   });
 

@@ -1,97 +1,170 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { mkdirSync, writeFileSync, rmSync } from "node:fs";
-import { mkdtempSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { StructuredAnalysis, PackageAnalysis } from "../../src/types.js";
-import * as tools from "../../src/mcp/tools.js";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { findBestPattern, getRegistrationInsertions } from "../../src/mcp/queries.js";
 import { formatSessionSummary, type SessionTelemetry } from "../../src/mcp/server.js";
+import * as tools from "../../src/mcp/tools.js";
+import type { PackageAnalysis, StructuredAnalysis } from "../../src/types.js";
 
 // ─── Fixture ─────────────────────────────────────────────────────────────────
 
 function makeAnalysis(overrides: Partial<PackageAnalysis> = {}): StructuredAnalysis {
   return {
     meta: { engineVersion: "0.5.0", analyzedAt: "", rootDir: "/tmp", config: {} as any, timingMs: 100 },
-    packages: [{
-      name: "test-pkg",
-      version: "1.0.0",
-      description: "Test package",
-      relativePath: ".",
-      files: { total: 20, byTier: { tier1: { count: 5, lines: 500, files: [] }, tier2: { count: 10, lines: 1000, files: [] }, tier3: { count: 5, lines: 200 } }, byExtension: { ".ts": 20 } },
-      publicAPI: [
-        { name: "analyze", kind: "function" as const, sourceFile: "src/index.ts", isTypeOnly: false, importCount: 12, signature: "(opts) => Promise<Analysis>" },
-        { name: "format", kind: "function" as const, sourceFile: "src/index.ts", isTypeOnly: false, importCount: 8 },
-        { name: "Config", kind: "type" as const, sourceFile: "src/types.ts", isTypeOnly: true, importCount: 20 },
-      ],
-      conventions: [
-        { category: "file-naming" as const, name: "kebab-case", description: "Use kebab-case", confidence: { matched: 20, total: 20, percentage: 100, description: "20/20" }, examples: [], impact: "low" as const },
-        { category: "testing" as const, name: "co-located tests", description: "Tests next to source", confidence: { matched: 15, total: 18, percentage: 83, description: "15/18" }, examples: [], impact: "high" as const },
-      ],
-      commands: {
-        packageManager: "pnpm" as const,
-        build: { run: "pnpm run build", source: "package.json" },
-        test: { run: "pnpm run test", source: "package.json" },
-        lint: { run: "pnpm run lint", source: "package.json" },
-        other: [],
-      },
-      architecture: {
-        entryPoint: "src/index.ts",
-        directories: [
-          { path: "src/detectors", purpose: "Convention detectors", fileCount: 8, exports: ["fileNaming", "hooks"], pattern: "{name}.ts" },
-          { path: "src/llm", purpose: "LLM integration", fileCount: 5, exports: ["adapter", "client"] },
-          { path: "src/bin", purpose: "CLI entry points", fileCount: 3, exports: [] },
-        ],
-        packageType: "library" as const,
-        hasJSX: false,
-      },
-      dependencies: { internal: [], external: [{ name: "typescript", importCount: 5 }], totalUniqueDependencies: 3 },
-      role: { summary: "Codebase intelligence engine", purpose: "", whenToUse: "", inferredFrom: [] },
-      antiPatterns: [
-        { rule: "Do NOT use camelCase", reason: "Project uses kebab-case", confidence: "high" as const, derivedFrom: "file-naming" },
-      ],
-      contributionPatterns: [
-        {
-          type: "function", directory: "src/detectors/", filePattern: "{name}.ts",
-          exampleFile: "src/detectors/file-naming.ts",
-          steps: ["Create file", "Import Convention", "Export as Detector", "Register"],
-          commonImports: [{ specifier: "../types.js", symbols: ["Convention"], coverage: 0.9 }],
-          exportSuffix: "Detector",
-          registrationFile: "src/convention-extractor.ts",
+    packages: [
+      {
+        name: "test-pkg",
+        version: "1.0.0",
+        description: "Test package",
+        relativePath: ".",
+        files: {
+          total: 20,
+          byTier: {
+            tier1: { count: 5, lines: 500, files: [] },
+            tier2: { count: 10, lines: 1000, files: [] },
+            tier3: { count: 5, lines: 200 },
+          },
+          byExtension: { ".ts": 20 },
         },
-      ],
-      importChain: [
-        { importer: "src/pipeline.ts", source: "src/types.ts", symbolCount: 12, symbols: ["StructuredAnalysis", "PackageAnalysis"] },
-        { importer: "src/formatter.ts", source: "src/types.ts", symbolCount: 8, symbols: ["Convention", "CommandSet"] },
-      ],
-      callGraph: [
-        { from: "runPipeline", to: "analyzePackage", fromFile: "src/pipeline.ts", toFile: "src/pipeline.ts" },
-        { from: "analyzePackage", to: "parseFile", fromFile: "src/pipeline.ts", toFile: "src/ast-parser.ts" },
-      ],
-      gitHistory: {
-        coChangeEdges: [
-          { file1: "src/formatter.ts", file2: "src/types.ts", coChangeCount: 8, file1Commits: 10, file2Commits: 15, jaccard: 0.47, lastCoChangeTimestamp: Date.now() / 1000 },
+        publicAPI: [
+          {
+            name: "analyze",
+            kind: "function" as const,
+            sourceFile: "src/index.ts",
+            isTypeOnly: false,
+            importCount: 12,
+            signature: "(opts) => Promise<Analysis>",
+          },
+          { name: "format", kind: "function" as const, sourceFile: "src/index.ts", isTypeOnly: false, importCount: 8 },
+          { name: "Config", kind: "type" as const, sourceFile: "src/types.ts", isTypeOnly: true, importCount: 20 },
         ],
-        totalCommitsAnalyzed: 25,
-        commitsFilteredBySize: 1,
-        historySpanDays: 30,
-      },
-      configAnalysis: { typescript: { strict: true, target: "ES2022", module: "esnext", moduleResolution: "bundler" } },
-      dependencyInsights: {
-        runtime: [{ name: "Node", version: "20" }],
-        frameworks: [{ name: "TypeScript", version: "5.4" }],
-        testFramework: { name: "Vitest", version: "2.0" },
-      },
-      ...overrides,
-    } as PackageAnalysis],
+        conventions: [
+          {
+            category: "file-naming" as const,
+            name: "kebab-case",
+            description: "Use kebab-case",
+            confidence: { matched: 20, total: 20, percentage: 100, description: "20/20" },
+            examples: [],
+            impact: "low" as const,
+          },
+          {
+            category: "testing" as const,
+            name: "co-located tests",
+            description: "Tests next to source",
+            confidence: { matched: 15, total: 18, percentage: 83, description: "15/18" },
+            examples: [],
+            impact: "high" as const,
+          },
+        ],
+        commands: {
+          packageManager: "pnpm" as const,
+          build: { run: "pnpm run build", source: "package.json" },
+          test: { run: "pnpm run test", source: "package.json" },
+          lint: { run: "pnpm run lint", source: "package.json" },
+          other: [],
+        },
+        architecture: {
+          entryPoint: "src/index.ts",
+          directories: [
+            {
+              path: "src/detectors",
+              purpose: "Convention detectors",
+              fileCount: 8,
+              exports: ["fileNaming", "hooks"],
+              pattern: "{name}.ts",
+            },
+            { path: "src/llm", purpose: "LLM integration", fileCount: 5, exports: ["adapter", "client"] },
+            { path: "src/bin", purpose: "CLI entry points", fileCount: 3, exports: [] },
+          ],
+          packageType: "library" as const,
+          hasJSX: false,
+        },
+        dependencies: { internal: [], external: [{ name: "typescript", importCount: 5 }], totalUniqueDependencies: 3 },
+        role: { summary: "Codebase intelligence engine", purpose: "", whenToUse: "", inferredFrom: [] },
+        antiPatterns: [
+          {
+            rule: "Do NOT use camelCase",
+            reason: "Project uses kebab-case",
+            confidence: "high" as const,
+            derivedFrom: "file-naming",
+          },
+        ],
+        contributionPatterns: [
+          {
+            type: "function",
+            directory: "src/detectors/",
+            filePattern: "{name}.ts",
+            exampleFile: "src/detectors/file-naming.ts",
+            steps: ["Create file", "Import Convention", "Export as Detector", "Register"],
+            commonImports: [{ specifier: "../types.js", symbols: ["Convention"], coverage: 0.9 }],
+            exportSuffix: "Detector",
+            registrationFile: "src/convention-extractor.ts",
+          },
+        ],
+        importChain: [
+          {
+            importer: "src/pipeline.ts",
+            source: "src/types.ts",
+            symbolCount: 12,
+            symbols: ["StructuredAnalysis", "PackageAnalysis"],
+          },
+          {
+            importer: "src/formatter.ts",
+            source: "src/types.ts",
+            symbolCount: 8,
+            symbols: ["Convention", "CommandSet"],
+          },
+        ],
+        callGraph: [
+          { from: "runPipeline", to: "analyzePackage", fromFile: "src/pipeline.ts", toFile: "src/pipeline.ts" },
+          { from: "analyzePackage", to: "parseFile", fromFile: "src/pipeline.ts", toFile: "src/ast-parser.ts" },
+        ],
+        gitHistory: {
+          coChangeEdges: [
+            {
+              file1: "src/formatter.ts",
+              file2: "src/types.ts",
+              coChangeCount: 8,
+              file1Commits: 10,
+              file2Commits: 15,
+              jaccard: 0.47,
+              lastCoChangeTimestamp: Date.now() / 1000,
+            },
+          ],
+          totalCommitsAnalyzed: 25,
+          commitsFilteredBySize: 1,
+          historySpanDays: 30,
+        },
+        configAnalysis: {
+          typescript: { strict: true, target: "ES2022", module: "esnext", moduleResolution: "bundler" },
+        },
+        dependencyInsights: {
+          runtime: [{ name: "Node", version: "20" }],
+          frameworks: [{ name: "TypeScript", version: "5.4" }],
+          testFramework: { name: "Vitest", version: "2.0" },
+        },
+        ...overrides,
+      } as PackageAnalysis,
+    ],
     crossPackage: {
       dependencyGraph: [],
       sharedConventions: [],
       divergentConventions: [],
       sharedAntiPatterns: [],
       workflowRules: [
-        { trigger: "When modifying src/types.ts", action: "Check 5 dependent files", source: "Import chain", impact: "high" as const },
-        { trigger: "After changing convention detectors", action: "Run full test suite", source: "Technology", impact: "high" as const },
+        {
+          trigger: "When modifying src/types.ts",
+          action: "Check 5 dependent files",
+          source: "Import chain",
+          impact: "high" as const,
+        },
+        {
+          trigger: "After changing convention detectors",
+          action: "Run full test suite",
+          source: "Technology",
+          impact: "high" as const,
+        },
       ],
     },
     warnings: [],
@@ -237,20 +310,31 @@ describe("handleGetConventions", () => {
 describe("findBestPattern", () => {
   const patterns = [
     {
-      type: "class", directory: "src/adapters/", filePattern: "{name}.ts",
+      type: "class",
+      directory: "src/adapters/",
+      filePattern: "{name}.ts",
       exampleFile: "src/adapters/fs.ts",
-      steps: ["Create"], commonImports: [], exportSuffix: "Adapter",
+      steps: ["Create"],
+      commonImports: [],
+      exportSuffix: "Adapter",
       registrationFile: "src/index.ts",
     },
     {
-      type: "class", directory: "src/adapters/llm/", filePattern: "{name}.ts",
+      type: "class",
+      directory: "src/adapters/llm/",
+      filePattern: "{name}.ts",
       exampleFile: "src/adapters/llm/claude.ts",
-      steps: ["Create"], commonImports: [], exportSuffix: "LLMAdapter",
+      steps: ["Create"],
+      commonImports: [],
+      exportSuffix: "LLMAdapter",
     },
     {
-      type: "function", directory: "src/utils/", filePattern: "{name}.ts",
+      type: "function",
+      directory: "src/utils/",
+      filePattern: "{name}.ts",
       exampleFile: "src/utils/retry.ts",
-      steps: ["Create"], commonImports: [],
+      steps: ["Create"],
+      commonImports: [],
     },
   ] as any[];
 
@@ -287,12 +371,10 @@ describe("getRegistrationInsertions: nested directory fallback", () => {
     // Create temp project with a real registration file
     tmpDir = mkdtempSync(join(tmpdir(), "autodocs-test-"));
     mkdirSync(join(tmpDir, "src"), { recursive: true });
-    writeFileSync(join(tmpDir, "src/index.ts"), [
-      'import { FsAdapter } from "./adapters/fs.js";',
-      "",
-      "export const adapters = [FsAdapter];",
-      "",
-    ].join("\n"));
+    writeFileSync(
+      join(tmpDir, "src/index.ts"),
+      ['import { FsAdapter } from "./adapters/fs.js";', "", "export const adapters = [FsAdapter];", ""].join("\n"),
+    );
   });
 
   afterAll(() => {
@@ -302,76 +384,78 @@ describe("getRegistrationInsertions: nested directory fallback", () => {
   function makeNestedAnalysis(): StructuredAnalysis {
     return {
       meta: { engineVersion: "0.8.0", analyzedAt: "", rootDir: tmpDir, config: {} as any, timingMs: 0 },
-      packages: [{
-        name: "test-pkg",
-        version: "1.0.0",
-        description: "",
-        relativePath: ".",
-        files: { total: 5, byTier: { tier1: { count: 5, lines: 500, files: ["src/adapters/fs.ts", "src/adapters/llm/claude.ts"] }, tier2: { count: 0, lines: 0, files: [] }, tier3: { count: 0, lines: 0 } }, byExtension: { ".ts": 5 } },
-        publicAPI: [],
-        conventions: [],
-        commands: { packageManager: "npm" as const, other: [] },
-        architecture: { entryPoint: "src/index.ts", directories: [], packageType: "library" as const, hasJSX: false },
-        dependencies: { internal: [], external: [], totalUniqueDependencies: 0 },
-        role: { summary: "", purpose: "", whenToUse: "", inferredFrom: [] },
-        antiPatterns: [],
-        contributionPatterns: [
-          {
-            type: "class", directory: "src/adapters/", filePattern: "{name}.ts",
-            exampleFile: "src/adapters/fs.ts",
-            steps: ["Create adapter"],
-            commonImports: [{ specifier: "../../core/types.js", symbols: ["Config"], coverage: 0.8 }],
-            exportSuffix: "Adapter",
-            registrationFile: "src/index.ts",
+      packages: [
+        {
+          name: "test-pkg",
+          version: "1.0.0",
+          description: "",
+          relativePath: ".",
+          files: {
+            total: 5,
+            byTier: {
+              tier1: { count: 5, lines: 500, files: ["src/adapters/fs.ts", "src/adapters/llm/claude.ts"] },
+              tier2: { count: 0, lines: 0, files: [] },
+              tier3: { count: 0, lines: 0 },
+            },
+            byExtension: { ".ts": 5 },
           },
-          {
-            type: "class", directory: "src/adapters/llm/", filePattern: "{name}.ts",
-            exampleFile: "src/adapters/llm/claude.ts",
-            steps: ["Create LLM adapter"],
-            commonImports: [],
-            exportSuffix: "LLMAdapter",
-            // No registrationFile — this is the edge case
-          },
-        ],
-      } as any],
+          publicAPI: [],
+          conventions: [],
+          commands: { packageManager: "npm" as const, other: [] },
+          architecture: { entryPoint: "src/index.ts", directories: [], packageType: "library" as const, hasJSX: false },
+          dependencies: { internal: [], external: [], totalUniqueDependencies: 0 },
+          role: { summary: "", purpose: "", whenToUse: "", inferredFrom: [] },
+          antiPatterns: [],
+          contributionPatterns: [
+            {
+              type: "class",
+              directory: "src/adapters/",
+              filePattern: "{name}.ts",
+              exampleFile: "src/adapters/fs.ts",
+              steps: ["Create adapter"],
+              commonImports: [{ specifier: "../../core/types.js", symbols: ["Config"], coverage: 0.8 }],
+              exportSuffix: "Adapter",
+              registrationFile: "src/index.ts",
+            },
+            {
+              type: "class",
+              directory: "src/adapters/llm/",
+              filePattern: "{name}.ts",
+              exampleFile: "src/adapters/llm/claude.ts",
+              steps: ["Create LLM adapter"],
+              commonImports: [],
+              exportSuffix: "LLMAdapter",
+              // No registrationFile — this is the edge case
+            },
+          ],
+        } as any,
+      ],
       crossPackage: undefined,
       warnings: [],
     };
   }
 
   it("falls back to parent registrationFile when child has none", () => {
-    const result = getRegistrationInsertions(
-      makeNestedAnalysis(),
-      "src/adapters/llm/openai.ts",
-    );
+    const result = getRegistrationInsertions(makeNestedAnalysis(), "src/adapters/llm/openai.ts");
     expect(result.registrationFile).not.toBeNull();
     expect(result.registrationFile?.path).toBe("src/index.ts");
   });
 
   it("preserves child exportSuffix when falling back for registration", () => {
-    const result = getRegistrationInsertions(
-      makeNestedAnalysis(),
-      "src/adapters/llm/openai.ts",
-    );
+    const result = getRegistrationInsertions(makeNestedAnalysis(), "src/adapters/llm/openai.ts");
     // Export name should use the CHILD pattern's suffix (LLMAdapter), not the parent's
     expect(result.exportName).toBe("openaiLLMAdapter");
   });
 
   it("uses direct pattern when it has registrationFile", () => {
-    const result = getRegistrationInsertions(
-      makeNestedAnalysis(),
-      "src/adapters/new-adapter.ts",
-    );
+    const result = getRegistrationInsertions(makeNestedAnalysis(), "src/adapters/new-adapter.ts");
     expect(result.registrationFile).not.toBeNull();
     expect(result.registrationFile?.path).toBe("src/index.ts");
     expect(result.exportName).toBe("newAdapterAdapter");
   });
 
   it("returns null registration when no pattern matches", () => {
-    const result = getRegistrationInsertions(
-      makeNestedAnalysis(),
-      "src/core/something.ts",
-    );
+    const result = getRegistrationInsertions(makeNestedAnalysis(), "src/core/something.ts");
     expect(result.registrationFile).toBeNull();
   });
 });
@@ -408,7 +492,7 @@ describe("formatSessionSummary", () => {
   it("lists tools sorted by frequency", () => {
     const summary = formatSessionSummary(makeSession());
     // get_commands (3) should come before diagnose (2) before plan_change (1)
-    const toolsLine = summary.split("\n").find(l => l.includes("Tools:"))!;
+    const toolsLine = summary.split("\n").find((l) => l.includes("Tools:"))!;
     expect(toolsLine).toMatch(/get_commands.*diagnose.*plan_change/);
   });
 

@@ -1,9 +1,9 @@
 // src/command-extractor.ts — Module 6: Command Extractor
 // Errata applied: E-29 (auto-detect monorepo root)
 
-import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { resolve, join, dirname, relative } from "node:path";
-import type { CommandSet, Command, Warning, WorkspaceCommand } from "./types.js";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { dirname, join, relative, resolve } from "node:path";
+import type { Command, CommandSet, Warning, WorkspaceCommand } from "./types.js";
 
 const CATEGORY_PATTERNS: Record<string, string[]> = {
   build: ["build", "compile", "transpile"],
@@ -20,11 +20,7 @@ const OTHER_PATTERNS: Record<string, string[]> = {
 /**
  * Extract build/test/lint/start commands from package.json scripts.
  */
-export function extractCommands(
-  packageDir: string,
-  rootDir?: string,
-  warnings: Warning[] = [],
-): CommandSet {
+export function extractCommands(packageDir: string, rootDir?: string, _warnings: Warning[] = []): CommandSet {
   const absPackageDir = resolve(packageDir);
 
   // E-29: Auto-detect monorepo root if not provided
@@ -32,9 +28,7 @@ export function extractCommands(
 
   const pm = detectPackageManager(resolvedRoot ?? absPackageDir);
   const pkgScripts = readScripts(absPackageDir);
-  const rootScripts = resolvedRoot && resolvedRoot !== absPackageDir
-    ? readScripts(resolvedRoot)
-    : {};
+  const rootScripts = resolvedRoot && resolvedRoot !== absPackageDir ? readScripts(resolvedRoot) : {};
 
   const commands: CommandSet = {
     packageManager: pm,
@@ -43,14 +37,7 @@ export function extractCommands(
 
   // Map primary categories
   for (const [category, patterns] of Object.entries(CATEGORY_PATTERNS)) {
-    const cmd = resolveCommand(
-      category,
-      patterns,
-      pkgScripts,
-      rootScripts,
-      pm,
-      absPackageDir,
-    );
+    const cmd = resolveCommand(category, patterns, pkgScripts, rootScripts, pm, absPackageDir);
     if (cmd) {
       if (category === "build") commands.build = cmd;
       else if (category === "test") commands.test = cmd;
@@ -61,14 +48,7 @@ export function extractCommands(
 
   // Map "other" categories
   for (const [category, patterns] of Object.entries(OTHER_PATTERNS)) {
-    const cmd = resolveCommand(
-      category,
-      patterns,
-      pkgScripts,
-      rootScripts,
-      pm,
-      absPackageDir,
-    );
+    const cmd = resolveCommand(category, patterns, pkgScripts, rootScripts, pm, absPackageDir);
     if (cmd) {
       commands.other.push(cmd);
     }
@@ -78,12 +58,12 @@ export function extractCommands(
 }
 
 function resolveCommand(
-  category: string,
+  _category: string,
   patterns: string[],
   pkgScripts: Record<string, string>,
   rootScripts: Record<string, string>,
   pm: CommandSet["packageManager"],
-  packageDir: string,
+  _packageDir: string,
 ): Command | undefined {
   const pkgMatch = findScript(pkgScripts, patterns);
   const rootMatch = findScript(rootScripts, patterns);
@@ -124,9 +104,7 @@ function detectPackageManager(dir: string): CommandSet["packageManager"] {
 
   // Check packageManager field
   try {
-    const pkgJson = JSON.parse(
-      readFileSync(join(dir, "package.json"), "utf-8"),
-    );
+    const pkgJson = JSON.parse(readFileSync(join(dir, "package.json"), "utf-8"));
     if (typeof pkgJson.packageManager === "string") {
       if (pkgJson.packageManager.startsWith("yarn")) return "yarn";
       if (pkgJson.packageManager.startsWith("pnpm")) return "pnpm";
@@ -141,19 +119,14 @@ function detectPackageManager(dir: string): CommandSet["packageManager"] {
 
 function readScripts(dir: string): Record<string, string> {
   try {
-    const pkgJson = JSON.parse(
-      readFileSync(join(dir, "package.json"), "utf-8"),
-    );
+    const pkgJson = JSON.parse(readFileSync(join(dir, "package.json"), "utf-8"));
     return pkgJson.scripts ?? {};
   } catch {
     return {};
   }
 }
 
-function findScript(
-  scripts: Record<string, string>,
-  patterns: string[],
-): string | undefined {
+function findScript(scripts: Record<string, string>, patterns: string[]): string | undefined {
   for (const pattern of patterns) {
     if (pattern in scripts) return pattern;
   }
@@ -168,7 +141,6 @@ function formatRun(pm: CommandSet["packageManager"], script: string): string {
       return `pnpm ${script}`;
     case "bun":
       return `bun run ${script}`;
-    case "npm":
     default:
       return `npm run ${script}`;
   }
@@ -180,7 +152,7 @@ function addVariants(
   scripts: Record<string, string>,
   pm: CommandSet["packageManager"],
 ): void {
-  const prefix = primary + ":";
+  const prefix = `${primary}:`;
   const variants: Command["variants"] = cmd.variants ?? [];
   for (const key of Object.keys(scripts)) {
     if (key.startsWith(prefix) && key !== primary) {
@@ -217,13 +189,19 @@ function autoDetectRoot(packageDir: string): string | undefined {
 
 const OPERATIONAL_PATTERNS: RegExp[] = [
   // Database
-  /^db[:\-]/, /^migrate/, /^seed/,
+  /^db[:-]/,
+  /^migrate/,
+  /^seed/,
   // Workers/queues
-  /^dev[:\-](worker|listener|queue)/, /^sync[:\-]/, /^worker/,
+  /^dev[:-](worker|listener|queue)/,
+  /^sync[:-]/,
+  /^worker/,
   // Deployment
-  /^deploy/, /^release/,
+  /^deploy/,
+  /^release/,
   // Code generation
-  /^generate/, /^codegen/,
+  /^generate/,
+  /^codegen/,
   // Email
   /^email/,
 ];
@@ -234,8 +212,8 @@ const OPERATIONAL_PATTERNS: RegExp[] = [
  */
 export function scanWorkspaceCommands(
   rootDir: string,
-  warnings: Warning[] = [],
-  analyzedPackageNames?: Set<string>,
+  _warnings: Warning[] = [],
+  _analyzedPackageNames?: Set<string>,
 ): WorkspaceCommand[] {
   const absRoot = resolve(rootDir);
   const pm = detectPackageManager(absRoot);
@@ -279,8 +257,8 @@ export function scanWorkspaceCommands(
 }
 
 function categorizeScript(name: string): string {
-  if (/^db[:\-]|^migrate|^seed/.test(name)) return "database";
-  if (/^dev[:\-](worker|listener|queue)|^sync[:\-]|^worker/.test(name)) return "workers";
+  if (/^db[:-]|^migrate|^seed/.test(name)) return "database";
+  if (/^dev[:-](worker|listener|queue)|^sync[:-]|^worker/.test(name)) return "workers";
   if (/^deploy|^release/.test(name)) return "deployment";
   if (/^generate|^codegen/.test(name)) return "codegen";
   if (/^email/.test(name)) return "email";
@@ -298,9 +276,15 @@ function findAllPackageJsons(rootDir: string): string[] {
     try {
       const entries = readdirSync(dir, { withFileTypes: true });
       for (const entry of entries) {
-        if (entry.name === "node_modules" || entry.name === "dist" ||
-            entry.name === ".git" || entry.name === "build" ||
-            entry.name === "out" || entry.name === "coverage") continue;
+        if (
+          entry.name === "node_modules" ||
+          entry.name === "dist" ||
+          entry.name === ".git" ||
+          entry.name === "build" ||
+          entry.name === "out" ||
+          entry.name === "coverage"
+        )
+          continue;
 
         const fullPath = join(dir, entry.name);
         if (entry.isFile() && entry.name === "package.json") {

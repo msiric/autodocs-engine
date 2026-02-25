@@ -5,12 +5,12 @@
 // A bug-fix commit is identified as: message contains "fix", AND changes both
 // test files and source files (excluding docs-only or refactor-only commits).
 
-import { describe, it, expect, beforeAll } from "vitest";
 import { execSync } from "node:child_process";
 import { resolve } from "node:path";
+import { beforeAll, describe, expect, it } from "vitest";
 import { analyze } from "../src/index.js";
-import type { StructuredAnalysis } from "../src/types.js";
 import * as Q from "../src/mcp/queries.js";
+import type { StructuredAnalysis } from "../src/types.js";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -24,10 +24,11 @@ interface BugFixCommit {
 // ─── Mining ─────────────────────────────────────────────────────────────────
 
 function mineBugFixCommits(repoDir: string, limit: number = 20): BugFixCommit[] {
-  const log = execSync(
-    'git log --pretty=format:"%H|%s" --name-only -n 200',
-    { cwd: repoDir, encoding: "utf-8", timeout: 10000 },
-  ).trim();
+  const log = execSync('git log --pretty=format:"%H|%s" --name-only -n 200', {
+    cwd: repoDir,
+    encoding: "utf-8",
+    timeout: 10000,
+  }).trim();
 
   const commits: BugFixCommit[] = [];
   let current: { sha: string; message: string; files: string[] } | null = null;
@@ -58,18 +59,15 @@ function classifyCommit(raw: { sha: string; message: string; files: string[] }):
   // Must be a fix commit
   if (!/\bfix/i.test(raw.message)) return null;
 
-  const testFiles = raw.files.filter(f =>
-    /\.(test|spec)\.[jt]sx?$/.test(f),
-  );
-  const sourceFiles = raw.files.filter(f =>
-    /\.[jt]sx?$/.test(f) && !testFiles.includes(f)
-    && !f.endsWith(".d.ts") && !f.includes("node_modules"),
+  const testFiles = raw.files.filter((f) => /\.(test|spec)\.[jt]sx?$/.test(f));
+  const sourceFiles = raw.files.filter(
+    (f) => /\.[jt]sx?$/.test(f) && !testFiles.includes(f) && !f.endsWith(".d.ts") && !f.includes("node_modules"),
   );
 
   // Need at least 1 source file changed (the fix) and not too many (clear signal)
   if (sourceFiles.length === 0 || sourceFiles.length > 5) return null;
   // Exclude docs-only commits
-  if (raw.files.every(f => /\.(md|json|ya?ml)$/.test(f))) return null;
+  if (raw.files.every((f) => /\.(md|json|ya?ml)$/.test(f))) return null;
 
   return {
     sha: raw.sha,
@@ -120,26 +118,20 @@ describe("diagnose empirical validation", () => {
       // Skip if source files aren't in the current import graph
       // (they may have been renamed/deleted since the fix)
       const pkg = analysis.packages[0];
-      const knownFiles = new Set([
-        ...pkg.files.byTier.tier1.files,
-        ...pkg.files.byTier.tier2.files,
-      ]);
-      const relevantSourceFiles = commit.sourceFiles.filter(f => knownFiles.has(f));
+      const knownFiles = new Set([...pkg.files.byTier.tier1.files, ...pkg.files.byTier.tier2.files]);
+      const relevantSourceFiles = commit.sourceFiles.filter((f) => knownFiles.has(f));
       if (relevantSourceFiles.length === 0) continue;
 
       totalCommits++;
 
       // Run diagnose with the test file
       const recentChanges = Q.getRecentFileChanges(analysis.meta.rootDir);
-      const errorFiles = [...new Set([
-        ...commit.testFiles,
-        ...relevantSourceFiles,
-      ])];
+      const errorFiles = [...new Set([...commit.testFiles, ...relevantSourceFiles])];
       const suspects = Q.buildSuspectList(analysis, errorFiles, recentChanges);
 
       // Check: does any actual fix file appear in top 5 suspects?
-      const suspectFiles = new Set(suspects.map(s => s.file));
-      const hit = relevantSourceFiles.some(f => suspectFiles.has(f));
+      const suspectFiles = new Set(suspects.map((s) => s.file));
+      const hit = relevantSourceFiles.some((f) => suspectFiles.has(f));
       if (hit) hitCount++;
     }
 

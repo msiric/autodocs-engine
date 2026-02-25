@@ -1,9 +1,9 @@
-import { describe, it, expect, afterEach } from "vitest";
-import { parseFile } from "../src/ast-parser.js";
-import { buildPublicAPI } from "../src/analysis-builder.js";
-import type { SymbolGraph, ParsedFile, ResolvedExport, Warning } from "../src/types.js";
-import { writeFileSync, mkdirSync, rmSync } from "node:fs";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { afterEach, describe, expect, it } from "vitest";
+import { buildPublicAPI } from "../src/analysis-builder.js";
+import { parseFile } from "../src/ast-parser.js";
+import type { ParsedFile, ResolvedExport, SymbolGraph, Warning } from "../src/types.js";
 
 const FIXTURE_DIR = join(import.meta.dirname ?? __dirname, ".fixtures-temp");
 
@@ -26,13 +26,16 @@ describe("Fix B: React check for hook classification", () => {
   afterEach(cleanup);
 
   it("classifies use-prefixed function as 'hook' when file imports React", () => {
-    const filepath = setupFixture("use-data.ts", `
+    const filepath = setupFixture(
+      "use-data.ts",
+      `
 import { useState } from "react";
 export function useData() {
   const [data, setData] = useState(null);
   return { data, setData };
 }
-`);
+`,
+    );
     const warnings: Warning[] = [];
     const parsed = parseFile(filepath, FIXTURE_DIR, warnings);
     const hookExport = parsed.exports.find((e) => e.name === "useData");
@@ -41,13 +44,16 @@ export function useData() {
   });
 
   it("classifies use-prefixed function as 'function' when file does NOT import React", () => {
-    const filepath = setupFixture("use-middleware.ts", `
+    const filepath = setupFixture(
+      "use-middleware.ts",
+      `
 export function useMiddleware(handler: any) {
   return (req: any, res: any, next: any) => {
     handler(req, res, next);
   };
 }
-`);
+`,
+    );
     const warnings: Warning[] = [];
     const parsed = parseFile(filepath, FIXTURE_DIR, warnings);
     const fnExport = parsed.exports.find((e) => e.name === "useMiddleware");
@@ -56,11 +62,14 @@ export function useMiddleware(handler: any) {
   });
 
   it("classifies use-prefixed arrow function as 'function' in non-React file", () => {
-    const filepath = setupFixture("use-query.ts", `
+    const filepath = setupFixture(
+      "use-query.ts",
+      `
 export const useQuery = (sql: string) => {
   return { rows: [], sql };
 };
-`);
+`,
+    );
     const warnings: Warning[] = [];
     const parsed = parseFile(filepath, FIXTURE_DIR, warnings);
     const fnExport = parsed.exports.find((e) => e.name === "useQuery");
@@ -69,12 +78,15 @@ export const useQuery = (sql: string) => {
   });
 
   it("classifies use-prefixed function as 'hook' with preact import", () => {
-    const filepath = setupFixture("use-signal.ts", `
+    const filepath = setupFixture(
+      "use-signal.ts",
+      `
 import { signal } from "preact";
 export function useSignal() {
   return signal(0);
 }
-`);
+`,
+    );
     const warnings: Warning[] = [];
     const parsed = parseFile(filepath, FIXTURE_DIR, warnings);
     const hookExport = parsed.exports.find((e) => e.name === "useSignal");
@@ -90,7 +102,18 @@ describe("Fix B: buildPublicAPI also applies React check", () => {
         relativePath: "src/middleware.ts",
         exports: [{ name: "useMiddleware", kind: "unknown", isReExport: false, isTypeOnly: false }],
         imports: [{ moduleSpecifier: "hono", importedNames: ["Hono"], isTypeOnly: false, isDynamic: false }],
-        contentSignals: { tryCatchCount: 0, useMemoCount: 0, useCallbackCount: 0, useEffectCount: 0, useStateCount: 0, useQueryCount: 0, useMutationCount: 0, jestMockCount: 0, hasDisplayName: false, hasErrorBoundary: false },
+        contentSignals: {
+          tryCatchCount: 0,
+          useMemoCount: 0,
+          useCallbackCount: 0,
+          useEffectCount: 0,
+          useStateCount: 0,
+          useQueryCount: 0,
+          useMutationCount: 0,
+          jestMockCount: 0,
+          hasDisplayName: false,
+          hasErrorBoundary: false,
+        },
         lineCount: 10,
         isTestFile: false,
         isGeneratedFile: false,
@@ -160,7 +183,18 @@ describe("Fix C: Export cap ranking by importance", () => {
         relativePath: `src/hooks/use-hook-${i}.ts`,
         exports: [],
         imports: [{ moduleSpecifier: "react", importedNames: ["useState"], isTypeOnly: false, isDynamic: false }],
-        contentSignals: { tryCatchCount: 0, useMemoCount: 0, useCallbackCount: 0, useEffectCount: 0, useStateCount: 0, useQueryCount: 0, useMutationCount: 0, jestMockCount: 0, hasDisplayName: false, hasErrorBoundary: false },
+        contentSignals: {
+          tryCatchCount: 0,
+          useMemoCount: 0,
+          useCallbackCount: 0,
+          useEffectCount: 0,
+          useStateCount: 0,
+          useQueryCount: 0,
+          useMutationCount: 0,
+          jestMockCount: 0,
+          hasDisplayName: false,
+          hasErrorBoundary: false,
+        },
         lineCount: 10,
         isTestFile: false,
         isGeneratedFile: false,

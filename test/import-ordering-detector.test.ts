@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { importOrderingDetector } from "../src/detectors/import-ordering.js";
 import type { ParsedFile, TierInfo } from "../src/types.js";
 
@@ -6,7 +6,7 @@ function makeFile(relativePath: string, imports: { specifier: string }[]): Parse
   return {
     relativePath,
     exports: [],
-    imports: imports.map(i => ({
+    imports: imports.map((i) => ({
       moduleSpecifier: i.specifier,
       importedNames: ["x"],
       isTypeOnly: false,
@@ -43,7 +43,7 @@ describe("importOrderingDetector", () => {
     );
 
     const result = importOrderingDetector(files, tiers, []);
-    expect(result.some(c => c.name.includes("external before local"))).toBe(true);
+    expect(result.some((c) => c.name.includes("external before local"))).toBe(true);
   });
 
   it("detects builtin-first ordering pattern", () => {
@@ -57,14 +57,12 @@ describe("importOrderingDetector", () => {
     );
 
     const result = importOrderingDetector(files, tiers, []);
-    expect(result.some(c => c.name.includes("builtins first"))).toBe(true);
+    expect(result.some((c) => c.name.includes("builtins first"))).toBe(true);
   });
 
   it("returns empty for files with too few imports", () => {
     const files = Array.from({ length: 6 }, (_, i) =>
-      makeFile(`src/${String.fromCharCode(97 + i)}.ts`, [
-        { specifier: "./utils.js" },
-      ]),
+      makeFile(`src/${String.fromCharCode(97 + i)}.ts`, [{ specifier: "./utils.js" }]),
     );
 
     const result = importOrderingDetector(files, tiers, []);
@@ -93,17 +91,13 @@ describe("importOrderingDetector", () => {
 
     const result = importOrderingDetector(files, tiers, []);
     // Should not report a strong pattern when it's 50/50
-    const extBeforeLocal = result.find(c => c.name.includes("external before local"));
+    const extBeforeLocal = result.find((c) => c.name.includes("external before local"));
     expect(extBeforeLocal).toBeUndefined();
   });
 
   it("returns empty for too few files", () => {
     const files = [
-      makeFile("src/a.ts", [
-        { specifier: "zod" },
-        { specifier: "./local.js" },
-        { specifier: "typescript" },
-      ]),
+      makeFile("src/a.ts", [{ specifier: "zod" }, { specifier: "./local.js" }, { specifier: "typescript" }]),
     ];
 
     const result = importOrderingDetector(files, new Map([["src/a.ts", { tier: 1 } as any]]), []);

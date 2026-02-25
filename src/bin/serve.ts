@@ -34,24 +34,29 @@ export async function runServe(args: { path?: string; verbose?: boolean; telemet
     finalized = true;
     if (session.calls.size === 0) return;
 
-    process.stderr.write(formatSessionSummary(session) + "\n");
+    process.stderr.write(`${formatSessionSummary(session)}\n`);
 
     // Write session summary to JSONL
     if (session.telemetryPath) {
       try {
-        appendFileSync(session.telemetryPath, JSON.stringify({
-          v: 1,
-          type: "session",
-          ts: new Date().toISOString(),
-          runId: session.runId,
-          durationMs: Date.now() - session.startTime,
-          totalCalls: [...session.calls.values()].reduce((a, b) => a + b, 0),
-          estInputTokens: session.totalInputTokens,
-          estOutputTokens: session.totalOutputTokens,
-          errors: session.errors,
-          tools: Object.fromEntries(session.calls),
-        }) + "\n");
-      } catch { /* best-effort */ }
+        appendFileSync(
+          session.telemetryPath,
+          `${JSON.stringify({
+            v: 1,
+            type: "session",
+            ts: new Date().toISOString(),
+            runId: session.runId,
+            durationMs: Date.now() - session.startTime,
+            totalCalls: [...session.calls.values()].reduce((a, b) => a + b, 0),
+            estInputTokens: session.totalInputTokens,
+            estOutputTokens: session.totalOutputTokens,
+            errors: session.errors,
+            tools: Object.fromEntries(session.calls),
+          })}\n`,
+        );
+      } catch {
+        /* best-effort */
+      }
     }
   }
 

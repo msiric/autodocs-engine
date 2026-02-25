@@ -11,10 +11,7 @@ type ToolResult = { content: { type: "text"; text: string }[] };
 
 // ─── P0 Tools ────────────────────────────────────────────────────────────────
 
-export function handleGetCommands(
-  analysis: StructuredAnalysis,
-  args: { packagePath?: string },
-): ToolResult {
+export function handleGetCommands(analysis: StructuredAnalysis, args: { packagePath?: string }): ToolResult {
   const commands = Q.getCommands(analysis, args.packagePath);
   const techStack = Q.getTechStackSummary(analysis, args.packagePath);
 
@@ -40,17 +37,41 @@ export function handleGetCommands(
 
 // Standard directory names that AI can infer without guidance
 const OBVIOUS_DIR_NAMES = new Set([
-  "src", "lib", "dist", "build", "out", "components", "utils", "util",
-  "types", "hooks", "styles", "assets", "public", "pages", "app", "api",
-  "config", "constants", "test", "tests", "__tests__", "middleware",
-  "services", "store", "context", "common", "shared", "core", "server",
-  "client", "bin", "cli",
+  "src",
+  "lib",
+  "dist",
+  "build",
+  "out",
+  "components",
+  "utils",
+  "util",
+  "types",
+  "hooks",
+  "styles",
+  "assets",
+  "public",
+  "pages",
+  "app",
+  "api",
+  "config",
+  "constants",
+  "test",
+  "tests",
+  "__tests__",
+  "middleware",
+  "services",
+  "store",
+  "context",
+  "common",
+  "shared",
+  "core",
+  "server",
+  "client",
+  "bin",
+  "cli",
 ]);
 
-export function handleGetArchitecture(
-  analysis: StructuredAnalysis,
-  args: { packagePath?: string },
-): ToolResult {
+export function handleGetArchitecture(analysis: StructuredAnalysis, args: { packagePath?: string }): ToolResult {
   const arch = Q.getArchitecture(analysis, args.packagePath);
   const pkg = Q.resolvePackage(analysis, args.packagePath);
 
@@ -60,7 +81,7 @@ export function handleGetArchitecture(
   lines.push("");
 
   // Separate non-obvious from obvious directories
-  const nonObvious = arch.directories.filter(dir => {
+  const nonObvious = arch.directories.filter((dir) => {
     const name = dir.path.replace(/\/$/, "").split("/").pop()?.toLowerCase() ?? "";
     return !OBVIOUS_DIR_NAMES.has(name);
   });
@@ -70,9 +91,10 @@ export function handleGetArchitecture(
     lines.push("Key directories (non-exhaustive — explore the source tree for additional directories):");
     lines.push("");
     for (const dir of nonObvious) {
-      const exportsStr = dir.exports.length > 0
-        ? ` — exports: ${dir.exports.slice(0, 5).join(", ")}${dir.exports.length > 5 ? `, +${dir.exports.length - 5} more` : ""}`
-        : "";
+      const exportsStr =
+        dir.exports.length > 0
+          ? ` — exports: ${dir.exports.slice(0, 5).join(", ")}${dir.exports.length > 5 ? `, +${dir.exports.length - 5} more` : ""}`
+          : "";
       lines.push(`  ${dir.path}/ (${dir.fileCount} files) — ${dir.purpose}${exportsStr}`);
       if (dir.pattern) lines.push(`    Pattern: ${dir.pattern}`);
     }
@@ -83,9 +105,10 @@ export function handleGetArchitecture(
   } else {
     lines.push("All directories:");
     for (const dir of arch.directories) {
-      const exportsStr = dir.exports.length > 0
-        ? ` — exports: ${dir.exports.slice(0, 5).join(", ")}${dir.exports.length > 5 ? `, +${dir.exports.length - 5} more` : ""}`
-        : "";
+      const exportsStr =
+        dir.exports.length > 0
+          ? ` — exports: ${dir.exports.slice(0, 5).join(", ")}${dir.exports.length > 5 ? `, +${dir.exports.length - 5} more` : ""}`
+          : "";
       lines.push(`  ${dir.path}/ (${dir.fileCount} files) — ${dir.purpose}${exportsStr}`);
     }
     lines.push("");
@@ -125,7 +148,9 @@ export function handleAnalyzeImpact(
     const coChanges = Q.getCoChangesForFile(analysis, args.filePath, args.packagePath);
     const total = importers.length + coChanges.length;
     const radius = total <= 5 ? "Small" : total <= 15 ? "Medium" : "Large";
-    lines.push(`**Blast radius: ${radius}** — ${importers.length} direct importers, ${coChanges.length} co-change partners.`);
+    lines.push(
+      `**Blast radius: ${radius}** — ${importers.length} direct importers, ${coChanges.length} co-change partners.`,
+    );
   }
 
   lines.push("");
@@ -147,9 +172,7 @@ export function handleAnalyzeImpact(
 
   // Callers section
   if (args.functionName && (scope === "all" || scope === "callers")) {
-    const { directCallers, transitiveCount } = Q.getCallersForFunction(
-      analysis, args.functionName, args.packagePath,
-    );
+    const { directCallers, transitiveCount } = Q.getCallersForFunction(analysis, args.functionName, args.packagePath);
     const shown = directCallers.slice(0, limit);
     lines.push(`### Callers of ${args.functionName}() (${directCallers.length} direct, ${transitiveCount} transitive)`);
     if (shown.length === 0) {
@@ -166,7 +189,9 @@ export function handleAnalyzeImpact(
   if (args.filePath && (scope === "all" || scope === "cochanges")) {
     const coChanges = Q.getCoChangesForFile(analysis, args.filePath, args.packagePath);
     const shown = coChanges.slice(0, limit);
-    lines.push(`### Co-change Partners (${coChanges.length} files${coChanges.length > limit ? `, showing top ${limit}` : ""})`);
+    lines.push(
+      `### Co-change Partners (${coChanges.length} files${coChanges.length > limit ? `, showing top ${limit}` : ""})`,
+    );
     if (shown.length === 0) {
       lines.push("No co-change data available (git history may be insufficient).");
     } else {
@@ -255,7 +280,9 @@ export function handleGetContributionGuide(
       lines.push("");
       lines.push("Common imports:");
       for (const imp of pattern.commonImports) {
-        lines.push(`- \`${imp.specifier}\`: ${imp.symbols.join(", ")} (${Math.round(imp.coverage * 100)}% of siblings)`);
+        lines.push(
+          `- \`${imp.specifier}\`: ${imp.symbols.join(", ")} (${Math.round(imp.coverage * 100)}% of siblings)`,
+        );
       }
     }
     // Inline example code (first 15 lines of example file)
@@ -284,7 +311,7 @@ export function handleGetExports(
   lines.push("");
 
   if (exports.length === 0) {
-    lines.push("No exports found" + (args.query ? ` matching "${args.query}"` : "") + ".");
+    lines.push(`No exports found${args.query ? ` matching "${args.query}"` : ""}.`);
     return { content: [{ type: "text", text: lines.join("\n") }] };
   }
 
@@ -418,7 +445,9 @@ export function handlePlanChange(
 
   lines.push("## Change Plan");
   lines.push("");
-  lines.push(`**Blast radius: ${radius}** — ${dependents.size} dependents, ${coChanges.size} co-change partners, ${registrationFiles.size + barrelFiles.size} registration/barrel updates.`);
+  lines.push(
+    `**Blast radius: ${radius}** — ${dependents.size} dependents, ${coChanges.size} co-change partners, ${registrationFiles.size + barrelFiles.size} registration/barrel updates.`,
+  );
 
   // Dependents
   if (dependents.size > 0) {
@@ -614,19 +643,25 @@ export function handleReviewChanges(
 
     // Check 1: Export suffix
     if (pattern.exportSuffix) {
-      const hasSuffix = exportNames.some(n => n.endsWith(pattern.exportSuffix!));
-      lines.push(hasSuffix
-        ? `- ✅ Export suffix: \`${exportNames.find(n => n.endsWith(pattern.exportSuffix!))}\` ends with "${pattern.exportSuffix}"`
-        : `- ❌ Export suffix: expected export ending with "${pattern.exportSuffix}", found: ${exportNames.join(", ") || "none"}`);
+      const hasSuffix = exportNames.some((n) => n.endsWith(pattern.exportSuffix!));
+      lines.push(
+        hasSuffix
+          ? `- ✅ Export suffix: \`${exportNames.find((n) => n.endsWith(pattern.exportSuffix!))}\` ends with "${pattern.exportSuffix}"`
+          : `- ❌ Export suffix: expected export ending with "${pattern.exportSuffix}", found: ${exportNames.join(", ") || "none"}`,
+      );
     }
 
     // Check 2: Common imports
     if (pattern.commonImports && pattern.commonImports.length > 0) {
       for (const expected of pattern.commonImports) {
-        const found = importSpecs.some(s => s === expected.specifier || s.endsWith(expected.specifier.replace(/^\.\//, "")));
-        lines.push(found
-          ? `- ✅ Import: imports from \`${expected.specifier}\``
-          : `- ❌ Import: missing import from \`${expected.specifier}\` (${expected.symbols.join(", ")})`);
+        const found = importSpecs.some(
+          (s) => s === expected.specifier || s.endsWith(expected.specifier.replace(/^\.\//, "")),
+        );
+        lines.push(
+          found
+            ? `- ✅ Import: imports from \`${expected.specifier}\``
+            : `- ❌ Import: missing import from \`${expected.specifier}\` (${expected.symbols.join(", ")})`,
+        );
       }
     }
 
@@ -637,10 +672,14 @@ export function handleReviewChanges(
       try {
         const regContent = readFileSync(resolve(rootDir, pattern.registrationFile), "utf-8");
         isRegistered = regContent.includes(fileBase);
-      } catch { /* can't read */ }
-      lines.push(isRegistered
-        ? `- ✅ Registration: referenced in \`${pattern.registrationFile}\``
-        : `- ❌ Registration: not yet registered in \`${pattern.registrationFile}\` — use auto_register to fix`);
+      } catch {
+        /* can't read */
+      }
+      lines.push(
+        isRegistered
+          ? `- ✅ Registration: referenced in \`${pattern.registrationFile}\``
+          : `- ❌ Registration: not yet registered in \`${pattern.registrationFile}\` — use auto_register to fix`,
+      );
     }
 
     // Check 4: Barrel
@@ -651,10 +690,14 @@ export function handleReviewChanges(
       try {
         const barrelContent = readFileSync(resolve(rootDir, barrelPath), "utf-8");
         isExported = barrelContent.includes(fileBase);
-      } catch { /* can't read */ }
-      lines.push(isExported
-        ? `- ✅ Barrel: exported from \`${barrelPath}\``
-        : `- ❌ Barrel: not exported from \`${barrelPath}\` — use auto_register to fix`);
+      } catch {
+        /* can't read */
+      }
+      lines.push(
+        isExported
+          ? `- ✅ Barrel: exported from \`${barrelPath}\``
+          : `- ❌ Barrel: not exported from \`${barrelPath}\` — use auto_register to fix`,
+      );
     }
 
     // Check 5: Test file
@@ -741,7 +784,7 @@ export function handleDiagnose(
     lines.push(`**Error:** ${parsed.message}`);
   }
   if (errorFileList.length > 0) {
-    lines.push(`**Error site:** ${errorFileList.map(f => "`" + f + "`").join(", ")}`);
+    lines.push(`**Error site:** ${errorFileList.map((f) => `\`${f}\``).join(", ")}`);
   }
   if (suspects.length > 0) {
     lines.push(`**Likely root cause:** \`${suspects[0].file}\` — ${suspects[0].reason}`);
@@ -768,22 +811,23 @@ export function handleDiagnose(
     const chain = Q.traceImportChain(analysis, testFile, suspects[0].file, args.packagePath);
     if (chain) {
       lines.push("### Dependency Chain");
-      lines.push(chain.map(f => `\`${f}\``).join(" → "));
+      lines.push(chain.map((f) => `\`${f}\``).join(" → "));
       lines.push("");
     }
   }
 
   // Config file changes
-  const configChanges = recentChanges.filter(c =>
-    CONFIG_FILES.some(cf => c.file.endsWith(cf)),
-  );
+  const configChanges = recentChanges.filter((c) => CONFIG_FILES.some((cf) => c.file.endsWith(cf)));
   if (configChanges.length > 0) {
     lines.push("### Configuration Changes");
     for (const c of configChanges) {
-      const ago = c.isUncommitted ? "uncommitted" :
-        c.hoursAgo < 1 ? "just now" :
-        c.hoursAgo < 24 ? `${Math.round(c.hoursAgo)}h ago` :
-        `${Math.round(c.hoursAgo / 24)}d ago`;
+      const ago = c.isUncommitted
+        ? "uncommitted"
+        : c.hoursAgo < 1
+          ? "just now"
+          : c.hoursAgo < 24
+            ? `${Math.round(c.hoursAgo)}h ago`
+            : `${Math.round(c.hoursAgo / 24)}d ago`;
       lines.push(`- \`${c.file}\` (${ago})`);
     }
     lines.push("");
@@ -792,16 +836,16 @@ export function handleDiagnose(
   // Flaky test detection
   if (args.errorText && FLAKY_PATTERNS.test(args.errorText) && recentChanges.length === 0) {
     lines.push("### Possible Flaky Test");
-    lines.push("No code changes correlate with this failure. The error pattern (timeout/network) suggests a flaky test — try re-running.");
+    lines.push(
+      "No code changes correlate with this failure. The error pattern (timeout/network) suggests a flaky test — try re-running.",
+    );
     lines.push("");
   }
 
   // Recently added test detection
   if (testFile) {
-    const testChange = recentChanges.find(c => c.file === testFile);
-    const noSuspectChanges = suspects.slice(0, 3).every(s =>
-      !recentChanges.some(c => c.file === s.file),
-    );
+    const testChange = recentChanges.find((c) => c.file === testFile);
+    const noSuspectChanges = suspects.slice(0, 3).every((s) => !recentChanges.some((c) => c.file === s.file));
     if (testChange && noSuspectChanges) {
       lines.push("### Recently Added Test");
       lines.push(`\`${testFile}\` was recently modified. This may be exposing a pre-existing bug.`);
@@ -819,7 +863,7 @@ export function handleDiagnose(
     if (testFile) atRisk.delete(testFile);
     if (atRisk.size > 0) {
       lines.push("### At-Risk Tests");
-      lines.push([...atRisk].map(t => `\`${t}\``).join(", "));
+      lines.push([...atRisk].map((t) => `\`${t}\``).join(", "));
       lines.push("");
     }
   }
@@ -843,8 +887,13 @@ export function handleDiagnose(
 
   // Next step: suggest plan_change
   if (suspects.length > 0) {
-    const topFiles = suspects.slice(0, 3).map(s => `"${s.file}"`).join(", ");
-    lines.push(`**Next step:** Call \`plan_change({ files: [${topFiles}] })\` to understand full blast radius before fixing.`);
+    const topFiles = suspects
+      .slice(0, 3)
+      .map((s) => `"${s.file}"`)
+      .join(", ");
+    lines.push(
+      `**Next step:** Call \`plan_change({ files: [${topFiles}] })\` to understand full blast radius before fixing.`,
+    );
   }
 
   return { content: [{ type: "text", text: lines.join("\n") }] };

@@ -3,8 +3,8 @@
 // the GraphQL hallucination. If useQuery comes from @tanstack/react-query,
 // the project does NOT use GraphQL for data fetching.
 
-import type { Convention, ConventionDetector, DetectorContext } from "../types.js";
 import { buildConfidence } from "../convention-extractor.js";
+import type { Convention, ConventionDetector } from "../types.js";
 
 export const dataFetchingDetector: ConventionDetector = (files, _tiers, _warnings, _context) => {
   const conventions: Convention[] = [];
@@ -108,7 +108,7 @@ export const dataFetchingDetector: ConventionDetector = (files, _tiers, _warning
       const count = allSources.get(source) ?? 0;
       conventions.push({
         category: "ecosystem",
-      source: "dataFetching",
+        source: "dataFetching",
         name: "oRPC data fetching",
         description: `Uses oRPC for type-safe RPC data fetching (NOT GraphQL)`,
         confidence: buildConfidence(count, totalUsages),
@@ -119,13 +119,18 @@ export const dataFetchingDetector: ConventionDetector = (files, _tiers, _warning
 
   // If none of the known libraries matched, check for unknown sources
   const knownSources = new Set([
-    "@apollo/client", "@apollo/react-hooks",
-    "@tanstack/react-query", "react-query",
-    "@trpc/react-query", "@trpc/client",
-    "swr", "urql", "@urql/core",
+    "@apollo/client",
+    "@apollo/react-hooks",
+    "@tanstack/react-query",
+    "react-query",
+    "@trpc/react-query",
+    "@trpc/client",
+    "swr",
+    "urql",
+    "@urql/core",
   ]);
-  const unknownSources = [...allSources.keys()].filter((s) =>
-    !knownSources.has(s) && !s.includes("orpc") && !s.includes("@orpc"),
+  const unknownSources = [...allSources.keys()].filter(
+    (s) => !knownSources.has(s) && !s.includes("orpc") && !s.includes("@orpc"),
   );
 
   if (unknownSources.length > 0 && conventions.length === 0) {

@@ -1,14 +1,14 @@
 // src/benchmark/types.ts — Benchmark system type definitions
 
-import type { ContributionPattern, Convention, AntiPattern } from "../types.js";
+import type { AntiPattern, ContributionPattern, Convention } from "../types.js";
 
 // ─── Conditions ──────────────────────────────────────────────────────────────
 
 export type BenchmarkCondition =
-  | "treatment"            // A: AGENTS.md + siblings + dir listing + reg/barrel
-  | "realistic-control"    // B: siblings + dir listing + reg/barrel (no AGENTS.md)
+  | "treatment" // A: AGENTS.md + siblings + dir listing + reg/barrel
+  | "realistic-control" // B: siblings + dir listing + reg/barrel (no AGENTS.md)
   | "impoverished-control" // C: dir listing + reg/barrel only
-  | "negative-control";    // N: shuffled AGENTS.md + dir listing + reg/barrel
+  | "negative-control"; // N: shuffled AGENTS.md + dir listing + reg/barrel
 
 // ─── Tasks ───────────────────────────────────────────────────────────────────
 
@@ -22,25 +22,25 @@ export interface BenchmarkTask {
   tier: TaskTier;
   taskType: TaskType;
   prompt: string;
-  contributionPattern?: ContributionPattern;  // pattern tasks only
+  contributionPattern?: ContributionPattern; // pattern tasks only
   conventions: Convention[];
   antiPatterns: AntiPattern[];
   expectedDirectory: string;
-  expectedFilePattern: string;    // regex source string
+  expectedFilePattern: string; // regex source string
   maxScoringPoints: number;
   context: TaskContext;
   // Command task data
   commandData?: {
     expectedCommands: string[];
     packageManager: string;
-    allCommandNames: string[];    // build, test, lint, start, etc.
+    allCommandNames: string[]; // build, test, lint, start, etc.
   };
   // Architecture task data
   architectureData?: {
     expectedDirectory: string;
     directoryPurpose: string;
-    alternatives?: string[];      // acceptable alternative directories
-    allDirectories: string[];     // all project directory names for matching
+    alternatives?: string[]; // acceptable alternative directories
+    allDirectories: string[]; // all project directory names for matching
   };
 }
 
@@ -68,17 +68,20 @@ export interface BenchmarkResults {
 
 export interface ConditionSummary {
   tasksRun: number;
-  conditions: Record<BenchmarkCondition, {
-    meanScore: number;
-    passRate: number;
-    scores: number[];
-    meanTokens: number;
-  }>;
-  headlineDelta: number;          // A - B (marginal value)
-  upperBoundDelta: number;        // A - C
-  pValue?: number;                // paired t-test on A-B (full mode only)
-  effectSize?: number;            // Cohen's d on A-B (full mode only)
-  ci95?: [number, number];        // 95% bootstrap CI on A-B delta
+  conditions: Record<
+    BenchmarkCondition,
+    {
+      meanScore: number;
+      passRate: number;
+      scores: number[];
+      meanTokens: number;
+    }
+  >;
+  headlineDelta: number; // A - B (marginal value)
+  upperBoundDelta: number; // A - C
+  pValue?: number; // paired t-test on A-B (full mode only)
+  effectSize?: number; // Cohen's d on A-B (full mode only)
+  ci95?: [number, number]; // 95% bootstrap CI on A-B delta
 }
 
 export interface TaskResult {
@@ -90,10 +93,10 @@ export interface TaskResult {
 }
 
 export interface RunResult {
-  score: number;                  // 0-100 normalized
-  rawScore: number;               // raw points earned
-  maxPoints: number;              // max possible points for this tier
-  passed: boolean;                // score >= 70%
+  score: number; // 0-100 normalized
+  rawScore: number; // raw points earned
+  maxPoints: number; // max possible points for this tier
+  passed: boolean; // score >= 70%
   checks: CheckResult[];
   filesCreated: string[];
   tokensUsed: number;
@@ -126,6 +129,6 @@ export interface BenchmarkOptions {
 // ─── Generated Files ─────────────────────────────────────────────────────────
 
 export interface GeneratedFile {
-  path: string;       // relative path
+  path: string; // relative path
   content: string;
 }

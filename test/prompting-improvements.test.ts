@@ -2,14 +2,14 @@
 // Validates: temperature, XML tags, grounding rules, fill-in-the-blank,
 // few-shot example, word counts, whitelist validator, length validation.
 
-import { describe, it, expect } from "vitest";
 import { resolve } from "node:path";
+import { describe, expect, it } from "vitest";
 import { validateOutput } from "../src/output-validator.js";
 import {
-  agentsMdSingleTemplate,
   agentsMdMultiRootTemplate,
-  agentsMdPackageDetailTemplate,
   agentsMdMultiTemplate,
+  agentsMdPackageDetailTemplate,
+  agentsMdSingleTemplate,
 } from "../src/templates/agents-md.js";
 import type { PackageAnalysis, StructuredAnalysis } from "../src/types.js";
 
@@ -30,9 +30,7 @@ function makePackageAnalysis(overrides: Partial<PackageAnalysis> = {}): PackageA
       },
       byExtension: { ".ts": 10 },
     },
-    publicAPI: [
-      { name: "useData", kind: "hook", sourceFile: "src/use-data.ts", isTypeOnly: false, importCount: 5 },
-    ],
+    publicAPI: [{ name: "useData", kind: "hook", sourceFile: "src/use-data.ts", isTypeOnly: false, importCount: 5 }],
     conventions: [],
     commands: {
       packageManager: "npm",
@@ -49,9 +47,7 @@ function makePackageAnalysis(overrides: Partial<PackageAnalysis> = {}): PackageA
     },
     dependencies: {
       internal: [],
-      external: [
-        { name: "typescript", importCount: 0 },
-      ],
+      external: [{ name: "typescript", importCount: 0 }],
       totalUniqueDependencies: 1,
     },
     role: { summary: "test utility", purpose: "testing", whenToUse: "when testing", inferredFrom: [] },

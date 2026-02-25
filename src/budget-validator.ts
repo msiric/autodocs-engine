@@ -90,15 +90,11 @@ export function validateBudget(content: string): BudgetReport {
   ];
 
   if (overBudget) {
-    parts.push(
-      `WARNING: Exceeds instruction budget by ${ruleCount - MAX_RULES} rules. AI performance may degrade.`,
-    );
+    parts.push(`WARNING: Exceeds instruction budget by ${ruleCount - MAX_RULES} rules. AI performance may degrade.`);
   }
 
   if (styleRules.length > 0) {
-    parts.push(
-      `${styleRules.length} style rule(s) detected — consider moving to linter config.`,
-    );
+    parts.push(`${styleRules.length} style rule(s) detected — consider moving to linter config.`);
   }
 
   return {
