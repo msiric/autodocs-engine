@@ -1,9 +1,10 @@
 // src/bin/init.ts — Zero-config init command
 // Auto-detects project structure and generates AGENTS.md on first try.
 
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { analyze, formatDeterministic, formatHierarchicalDeterministic, generateMinimalAgentsMd } from "../index.js";
+import { discoverWorkspacePackages, parsePnpmWorkspaceYaml } from "../workspace-resolver.js";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -176,119 +177,7 @@ export function detectProjectStructure(cwd: string): ProjectStructure {
   return { isMonorepo: false, root: absCwd, packages: [absCwd], packageManager };
 }
 
-// ─── Workspace Discovery ─────────────────────────────────────────────────────
-
-/**
- * Discover workspace package directories from glob patterns.
- * Handles common patterns: "packages/*", "apps/*", "libs/**".
- */
-function discoverWorkspacePackages(root: string, globs: string[]): string[] {
-  const packages: string[] = [];
-  const seen = new Set<string>();
-
-  for (const glob of globs) {
-    // Strip trailing / if present
-    const cleanGlob = glob.replace(/\/+$/, "");
-
-    // Common patterns: "packages/*", "apps/*", "libs/**"
-    // Split into base directory and wildcard
-    const starIdx = cleanGlob.indexOf("*");
-    if (starIdx === -1) {
-      // No wildcard — treat as literal directory
-      const dir = resolve(root, cleanGlob);
-      if (existsSync(join(dir, "package.json")) && !seen.has(dir)) {
-        seen.add(dir);
-        packages.push(dir);
-      }
-      continue;
-    }
-
-    const baseDir = resolve(root, cleanGlob.slice(0, starIdx).replace(/\/+$/, ""));
-    if (!existsSync(baseDir)) continue;
-
-    const isRecursive = cleanGlob.includes("**");
-
-    if (isRecursive) {
-      walkForPackages(baseDir, packages, seen);
-    } else {
-      // Single-level wildcard: list immediate subdirectories
-      try {
-        const entries = readdirSync(baseDir, { withFileTypes: true });
-        for (const entry of entries) {
-          if (!entry.isDirectory()) continue;
-          if (entry.name === "node_modules" || entry.name.startsWith(".")) continue;
-          const dir = join(baseDir, entry.name);
-          if (existsSync(join(dir, "package.json")) && !seen.has(dir)) {
-            seen.add(dir);
-            packages.push(dir);
-          }
-        }
-      } catch {
-        // Can't read directory
-      }
-    }
-  }
-
-  return packages.sort();
-}
-
-/** Recursively find directories containing package.json. */
-function walkForPackages(dir: string, results: string[], seen: Set<string>, depth = 0): void {
-  if (depth > 4) return;
-  try {
-    const entries = readdirSync(dir, { withFileTypes: true });
-    for (const entry of entries) {
-      if (!entry.isDirectory()) continue;
-      if (entry.name === "node_modules" || entry.name.startsWith(".")) continue;
-      const subdir = join(dir, entry.name);
-      if (existsSync(join(subdir, "package.json")) && !seen.has(subdir)) {
-        seen.add(subdir);
-        results.push(subdir);
-      }
-      walkForPackages(subdir, results, seen, depth + 1);
-    }
-  } catch {
-    // Can't read directory
-  }
-}
-
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-
-/** Simple YAML parser for pnpm-workspace.yaml — only reads the `packages:` field. */
-function parsePnpmWorkspaceYaml(filePath: string): string[] {
-  try {
-    const content = readFileSync(filePath, "utf-8");
-    const globs: string[] = [];
-    let inPackages = false;
-
-    for (const line of content.split("\n")) {
-      const trimmed = line.trim();
-      if (trimmed === "packages:" || trimmed === "packages: ") {
-        inPackages = true;
-        continue;
-      }
-      if (inPackages) {
-        if (trimmed.startsWith("- ")) {
-          // Strip "- " prefix and optional quotes
-          const value = trimmed
-            .slice(2)
-            .trim()
-            .replace(/^['"]|['"]$/g, "");
-          if (value && !value.startsWith("!")) {
-            globs.push(value);
-          }
-        } else if (trimmed && !trimmed.startsWith("#")) {
-          // Non-list line — end of packages section
-          break;
-        }
-      }
-    }
-
-    return globs;
-  } catch {
-    return [];
-  }
-}
 
 /** Detect package manager from lockfiles. */
 function detectPM(dir: string): string {
