@@ -522,7 +522,9 @@ function checkFilenamePattern(file: GeneratedFile | undefined, task: BenchmarkTa
   const fileName = basename(file.path);
   // The file pattern from ContributionPattern uses {name} placeholder
   // Convert to a loose regex
-  const patternStr = task.expectedFilePattern.replace(/\{[^}]+\}/g, "[\\w-]+").replace(/\./g, "\\.");
+  const patternStr = task.expectedFilePattern
+    .replace(/[.*+?^${}()|[\]\\]/g, "\\$&") // Escape all regex metacharacters first
+    .replace(/\\\{[^}]+\\\}/g, "[\\w-]+"); // Then convert {name} placeholders to regex
   const regex = new RegExp(`^${patternStr}$`, "i");
 
   return regex.test(fileName)

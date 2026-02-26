@@ -13,12 +13,14 @@ export function sanitize(s: string, maxLen = 500): string {
  * "32 of 33 files (97%)" → "" | "(97%)" → ""
  */
 export function stripConventionStats(desc: string): string {
-  return desc
-    .replace(/\s*\(\d+%\)/g, "")
-    .replace(/\s*\d+ of \d+ files/g, "")
-    .replace(/\s*\d+ of \d+ exports/g, "")
-    .replace(/\s*\d+ of \d+ imports/g, "")
-    .replace(/\s*\d+ of \d+\b/g, "")
+  // Cap input length to prevent ReDoS on pathological strings
+  const safe = desc.length > 10_000 ? desc.slice(0, 10_000) : desc;
+  return safe
+    .replace(/\s*\(\d{1,4}%\)/g, "")
+    .replace(/\s*\d{1,6} of \d{1,6} files/g, "")
+    .replace(/\s*\d{1,6} of \d{1,6} exports/g, "")
+    .replace(/\s*\d{1,6} of \d{1,6} imports/g, "")
+    .replace(/\s*\d{1,6} of \d{1,6}\b/g, "")
     .trim();
 }
 
