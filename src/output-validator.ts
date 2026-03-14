@@ -153,6 +153,11 @@ export function validateOutput(
   const minWords = format === "package-detail" ? 400 : 300;
   checkMinimumLength(output, minWords, issues);
 
+  // Check 10-12: Omission checks (Phase 5 — catch missing critical content)
+  checkConventionOmission(output, packages, issues);
+  checkCriticalExportOmission(output, packages, issues);
+  checkCommandOmission(output, packages, issues);
+
   // Compose correction prompt
   const errors = issues.filter((i) => i.severity === "error");
   let correctionPrompt: string | undefined;
@@ -506,6 +511,80 @@ function checkMinimumLength(output: string, minWords: number, issues: Validation
       message: `Output is ${wordCount} words but minimum is ${minWords}. Expand Architecture, Workflow Rules, and Public API sections.`,
       suggestion: `Add more detail to reach at least ${minWords} words. Include all commands, workflow rules, and top 20 public API exports.`,
     });
+  }
+}
+
+// ─── Check 10: Convention Omission (Phase 5) ─────────────────────────────────
+
+function checkConventionOmission(output: string, packages: PackageAnalysis[], issues: ValidationIssue[]): void {
+  for (const pkg of packages) {
+    for (const conv of pkg.conventions) {
+      if (conv.confidence.percentage < 90 || conv.impact !== "high") continue;
+      // Extract a keyword from the convention name (first significant word)
+      const keywords = conv.name.split(/\s+/).filter((w) => w.length > 3);
+      const found = keywords.some((kw) => output.toLowerCase().includes(kw.toLowerCase()));
+      if (!found) {
+        issues.push({
+          severity: "warning",
+          type: "missing_convention",
+          message: `High-confidence convention "${conv.name}" (${conv.confidence.percentage}%) not mentioned in output`,
+          suggestion: `Include this convention in the DO/DON'T section`,
+        });
+      }
+    }
+  }
+}
+
+// ─── Check 11: Critical Export Omission (Phase 5) ────────────────────────────
+
+function checkCriticalExportOmission(output: string, packages: PackageAnalysis[], issues: ValidationIssue[]): void {
+  for (const pkg of packages) {
+    // Only check top exports by import count — weighted by importance
+    const topExports = pkg.publicAPI
+      .filter((e) => !e.isTypeOnly && (e.importCount ?? 0) >= 5)
+      .sort((a, b) => (b.importCount ?? 0) - (a.importCount ?? 0))
+      .slice(0, 5);
+
+    let score = 0;
+    let maxScore = 0;
+    for (const exp of topExports) {
+      const weight = Math.log2((exp.importCount ?? 0) + 1);
+      maxScore += weight;
+      if (output.includes(exp.name)) score += weight;
+    }
+
+    const EXPORT_COVERAGE_THRESHOLD = 0.4; // Warn if <40% of top-export importance is covered
+    if (maxScore > 0 && score / maxScore < EXPORT_COVERAGE_THRESHOLD) {
+      const missing = topExports.filter((e) => !output.includes(e.name)).map((e) => e.name);
+      issues.push({
+        severity: "warning",
+        type: "missing_export",
+        message: `Most-imported exports not mentioned: ${missing.join(", ")}`,
+        suggestion: "Include high-usage exports in the Public API section",
+      });
+    }
+  }
+}
+
+// ─── Check 12: Command Omission (Phase 5) ────────────────────────────────────
+
+function checkCommandOmission(output: string, packages: PackageAnalysis[], issues: ValidationIssue[]): void {
+  for (const pkg of packages) {
+    const cmds = pkg.commands;
+    const missing: string[] = [];
+
+    if (cmds.build && !output.includes(cmds.build.run)) missing.push(`build: ${cmds.build.run}`);
+    if (cmds.test && !output.includes(cmds.test.run)) missing.push(`test: ${cmds.test.run}`);
+    if (cmds.lint && !output.includes(cmds.lint.run)) missing.push(`lint: ${cmds.lint.run}`);
+
+    if (missing.length > 0) {
+      issues.push({
+        severity: "warning",
+        type: "missing_command",
+        message: `Commands not mentioned in output: ${missing.join(", ")}`,
+        suggestion: "Include all build/test/lint commands in the Commands section",
+      });
+    }
   }
 }
 

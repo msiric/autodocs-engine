@@ -10,6 +10,7 @@ import {
 } from "./llm-adapter.js";
 import { runPipeline } from "./pipeline.js";
 import type { ResolvedConfig, StructuredAnalysis } from "./types.js";
+import { discoverWorkspacePackages, readWorkspaceGlobs } from "./workspace-resolver.js";
 
 export type { BudgetReport } from "./budget-validator.js";
 export { formatBudgetReport, validateBudget } from "./budget-validator.js";
@@ -72,6 +73,7 @@ const DEFAULTS: Omit<ResolvedConfig, "packages"> = {
   verbose: false,
   metaToolThreshold: 5,
   noMetaTool: false,
+  typeChecking: false,
 };
 
 /**
@@ -79,10 +81,29 @@ const DEFAULTS: Omit<ResolvedConfig, "packages"> = {
  * This is the core intelligence engine — pure computation + file reads.
  */
 export async function analyze(options: Partial<ResolvedConfig> & { packages: string[] }): Promise<StructuredAnalysis> {
+  let packages = options.packages.map((p) => resolve(p));
+  let rootDir = options.rootDir ? resolve(options.rootDir) : undefined;
+
+  // Auto-detect workspace packages: if a single directory has workspace globs,
+  // expand to the individual workspace packages (monorepo root → workspace packages).
+  // This makes MCP and CLI automatically analyze real source packages, not empty roots.
+  if (packages.length === 1 && !rootDir) {
+    const root = packages[0];
+    const globs = readWorkspaceGlobs(root);
+    if (globs.length > 0) {
+      const workspacePkgs = discoverWorkspacePackages(root, globs);
+      if (workspacePkgs.length > 0) {
+        packages = workspacePkgs;
+        rootDir = root;
+      }
+    }
+  }
+
   const config: ResolvedConfig = {
     ...DEFAULTS,
     ...options,
-    packages: options.packages.map((p) => resolve(p)),
+    packages,
+    rootDir,
     output: { ...DEFAULTS.output, ...options.output },
     llm: { ...DEFAULTS.llm, ...options.llm },
     conventions: { ...DEFAULTS.conventions, ...options.conventions },

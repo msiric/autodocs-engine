@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { detectMetaTool, PACKAGE_TO_FAMILY } from "../src/meta-tool-detector.js";
 import type { ParsedFile, TierInfo } from "../src/types.js";
+import { createImport, createParsedFile } from "./helpers/fixtures.js";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -9,35 +10,17 @@ function makeParsedFile(
   imports: { moduleSpecifier: string; isTypeOnly?: boolean }[] = [],
   opts: { isTestFile?: boolean } = {},
 ): ParsedFile {
-  return {
+  return createParsedFile({
     relativePath,
-    exports: [],
-    imports: imports.map((i) => ({
-      moduleSpecifier: i.moduleSpecifier,
-      importedNames: [],
-      isTypeOnly: i.isTypeOnly ?? false,
-      isDynamic: false,
-    })),
-    contentSignals: {
-      tryCatchCount: 0,
-      useMemoCount: 0,
-      useCallbackCount: 0,
-      useEffectCount: 0,
-      useStateCount: 0,
-      useQueryCount: 0,
-      useMutationCount: 0,
-      jestMockCount: 0,
-      hasDisplayName: false,
-      hasErrorBoundary: false,
-    },
     lineCount: 10,
+    imports: imports.map((i) =>
+      createImport({
+        moduleSpecifier: i.moduleSpecifier,
+        isTypeOnly: i.isTypeOnly ?? false,
+      }),
+    ),
     isTestFile: opts.isTestFile ?? false,
-    isGeneratedFile: false,
-    hasJSX: false,
-    hasCJS: false,
-    hasSyntaxErrors: false,
-    callReferences: [],
-  };
+  });
 }
 
 function makeTiers(files: ParsedFile[]): Map<string, TierInfo> {

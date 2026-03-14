@@ -34,7 +34,7 @@ describe("W5-A: Cleanup — noisy detectors removed", () => {
       "src/detectors/import-patterns.ts",
       "src/detectors/export-patterns.ts",
       "src/detectors/component-patterns.ts",
-      "src/detectors/error-handling.ts",
+      // error-handling.ts re-added in Phase 1A (redesigned: custom error classes + Result types, not try/catch density)
       "src/detectors/graphql-patterns.ts",
       "src/detectors/telemetry-patterns.ts",
     ];

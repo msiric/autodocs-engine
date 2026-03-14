@@ -1,6 +1,8 @@
 // src/types.ts — ALL shared types for the Codebase Intelligence Engine
 // Incorporates errata E-6 through E-13, E-39
 
+import { createRequire } from "node:module";
+
 // ─── Top-level output ────────────────────────────────────────────────────────
 
 export interface StructuredAnalysis {
@@ -45,6 +47,7 @@ export interface ResolvedConfig {
   verbose: boolean;
   metaToolThreshold: number; // default 5 — Signal 3 family count threshold
   noMetaTool: boolean; // --no-meta-tool flag
+  typeChecking: boolean; // --type-checking flag (opt-in, requires tsconfig.json)
 }
 
 export type OutputFormat = "json" | "agents.md" | "claude.md" | "cursorrules";
@@ -80,6 +83,7 @@ export interface PackageAnalysis {
   callGraph?: CallGraphEdge[];
   importChain?: FileImportEdge[];
   gitHistory?: GitHistoryAnalysis;
+  implicitCoupling?: ImplicitCouplingEdge[];
   patternFingerprints?: PatternFingerprint[];
   examples?: UsageExample[]; // W5-C1: Usage examples extracted from test files
   isMetaTool?: boolean;
@@ -166,6 +170,15 @@ export interface FileImportEdge {
   symbols: string[];
 }
 
+// ─── Implicit Coupling (co-change with no import relationship) ───────────────
+
+export interface ImplicitCouplingEdge {
+  file1: string;
+  file2: string;
+  jaccard: number;
+  coChangeCount: number;
+}
+
 // ─── Git History Co-Change Analysis ──────────────────────────────────────────
 
 export interface CoChangeEdge {
@@ -231,6 +244,9 @@ export interface PublicAPIEntry {
   isTypeOnly: boolean;
   description?: string;
   importCount?: number; // E-11: how many files import this symbol
+  // Phase 3: Type-aware enrichment (opt-in via --type-checking)
+  parameterTypes?: { name: string; type: string; optional: boolean }[];
+  returnType?: string;
 }
 
 export type SymbolKind =
@@ -265,8 +281,16 @@ export interface Convention {
   source?: string; // Detector name that produced this convention (e.g., "dataFetching")
 }
 
-// W5-A: Removed unused categories: imports, exports, components, error-handling, graphql, telemetry, state-management
-export type ConventionCategory = "file-naming" | "hooks" | "testing" | "ecosystem";
+// W5-A: Removed unused categories: imports, exports, components, graphql, telemetry
+export type ConventionCategory =
+  | "file-naming"
+  | "hooks"
+  | "testing"
+  | "ecosystem"
+  | "error-handling"
+  | "state-management"
+  | "async-patterns"
+  | "api-patterns";
 
 // ─── Commands ────────────────────────────────────────────────────────────────
 
@@ -406,6 +430,11 @@ export interface ContentSignals {
   useQueryCount: number;
   useMutationCount: number;
 
+  // Phase 1B: Async pattern signals
+  promiseAllCount: number; // Promise.all/allSettled/race calls
+  asyncFunctionCount: number; // async function/arrow declarations
+  awaitInLoopCount: number; // await expressions inside for/for-of loops
+
   // Regex-based (E-17: kept as regex — no clean AST equivalent)
   jestMockCount: number;
   hasDisplayName: boolean;
@@ -482,7 +511,10 @@ export interface ValidationIssue {
     | "command_mismatch"
     | "meaningless_title"
     | "unused_framework"
-    | "under_minimum_length";
+    | "under_minimum_length"
+    | "missing_convention"
+    | "missing_export"
+    | "missing_command";
   message: string;
   line?: number;
   suggestion?: string;
@@ -530,7 +562,10 @@ export interface AnalysisDiff {
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-export const ENGINE_VERSION = "0.8.0";
+// Read version from package.json to avoid drift (was hardcoded "0.8.0" while package.json said 0.9.9)
+const _require = createRequire(import.meta.url);
+const _pkg = _require("../package.json") as { version: string };
+export const ENGINE_VERSION: string = _pkg.version;
 
 export const DEFAULT_EXCLUDE_DIRS = [
   "node_modules",

@@ -4,7 +4,12 @@
 import { appendFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-export async function runServe(args: { path?: string; verbose?: boolean; telemetry?: boolean }): Promise<void> {
+export async function runServe(args: {
+  path?: string;
+  verbose?: boolean;
+  telemetry?: boolean;
+  typeChecking?: boolean;
+}): Promise<void> {
   const projectPath = resolve(args.path ?? ".");
 
   // Lazy-load MCP dependencies — users who don't use serve don't pay the cost
@@ -13,7 +18,11 @@ export async function runServe(args: { path?: string; verbose?: boolean; telemet
 
   const verbose = args.verbose ?? Boolean(process.env.AUTODOCS_DEBUG);
   const telemetry = args.telemetry ?? process.env.AUTODOCS_TELEMETRY === "1";
-  const { server, cache, session } = createAutodocsServer(projectPath, { verbose, telemetry });
+  const { server, cache, session } = createAutodocsServer(projectPath, {
+    verbose,
+    telemetry,
+    typeChecking: args.typeChecking,
+  });
   const transport = new StdioServerTransport();
 
   // Connect first — handshake must complete before heavy analysis work

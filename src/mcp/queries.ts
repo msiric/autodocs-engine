@@ -15,6 +15,7 @@ import type {
   ContributionPattern,
   Convention,
   FileImportEdge,
+  ImplicitCouplingEdge,
   PackageAnalysis,
   PackageArchitecture,
   PublicAPIEntry,
@@ -103,6 +104,25 @@ export function getWorkflowRules(analysis: StructuredAnalysis, filePath?: string
   const rules = analysis.crossPackage?.workflowRules ?? [];
   if (!filePath) return rules;
   return rules.filter((r) => r.trigger.includes(filePath) || r.action.includes(filePath));
+}
+
+export function getImplicitCouplingForFile(
+  analysis: StructuredAnalysis,
+  filePath: string,
+  packagePath?: string,
+): ImplicitCouplingEdge[] {
+  const pkg = resolvePackage(analysis, packagePath);
+  const edges = pkg.implicitCoupling ?? [];
+  return edges.filter((e) => e.file1 === filePath || e.file2 === filePath).sort((a, b) => b.jaccard - a.jaccard);
+}
+
+export function getExportedNamesForFile(
+  analysis: StructuredAnalysis,
+  filePath: string,
+  packagePath?: string,
+): string[] {
+  const pkg = resolvePackage(analysis, packagePath);
+  return pkg.publicAPI.filter((e) => e.sourceFile === filePath && !e.isTypeOnly).map((e) => e.name);
 }
 
 export function getContributionPatterns(
@@ -491,11 +511,48 @@ function findLastExportFromLine(content: string): number {
 
 // ─── Diagnose Queries ───────────────────────────────────────────────────────
 
-// Scoring thresholds (validated by adversarial review, 10 models)
-const MISSING_CO_CHANGE_MIN_COUNT = 5; // Minimum co-change frequency to activate signal
-const MISSING_CO_CHANGE_MIN_JACCARD = 0.4; // Minimum Jaccard coupling for missing co-change
-const RECENCY_DECAY_LAMBDA = 0.05; // Exponential decay: half-life ~14 hours
-const RECENCY_FLOOR = 0.05; // Minimum recency score (prevents zero for old changes)
+// ─── Scoring Functions (Phase 4: continuous weights, bi-modal decay, sigmoid smoothing) ───
+
+/** Bi-modal recency decay: fast initial + slow tail for weekend bugs. */
+function recencyScore(hoursAgo: number): number {
+  // At 1h: 0.94, 6h: 0.61, 14h: 0.39, 48h: 0.21, 72h: 0.19
+  return 0.7 * Math.exp(-0.2 * hoursAgo) + 0.3 * Math.exp(-0.01 * hoursAgo);
+}
+
+/** Sigmoid with configurable steepness. k=5 gives a meaningfully smooth transition. */
+function sigmoid(value: number, midpoint: number, k = 5): number {
+  return 1 / (1 + Math.exp(-k * (value - midpoint)));
+}
+
+// Weight interpolation thresholds
+const RECENT_RICHNESS_SATURATION = 10; // ≥10 recent files = full recent signal
+const COCHANGE_RICHNESS_SATURATION = 20; // ≥20 co-change edges = full co-change signal
+
+/**
+ * Continuous weight interpolation based on data richness (replaces 3 discrete configs).
+ * Weights sum to ~100 at any data richness level. When recent data is sparse,
+ * coupling/dependency absorb the weight. When co-change data is sparse, recency dominates.
+ */
+function computeWeights(recentFilesCount: number, cochangeEdgesCount: number) {
+  const rr = Math.min(recentFilesCount / RECENT_RICHNESS_SATURATION, 1); // 0-1
+  const cr = Math.min(cochangeEdgesCount / COCHANGE_RICHNESS_SATURATION, 1); // 0-1
+  return {
+    missingCoChange: 30 * rr * cr, // only active with both recent changes AND co-change data
+    recency: 20 * rr + 10 * (1 - cr) * rr, // absorbs co-change weight when co-change sparse
+    coupling: 15 * cr + 20 * (1 - rr) * cr, // absorbs recency weight when recent data sparse
+    dependency: 10 + 15 * (1 - rr) * (1 - cr), // baseline + absorbs when both signals sparse
+    workflow: 10 + 5 * (1 - cr), // baseline + boost when co-change sparse
+    testMapping: 15, // always active — test name convention is high-precision, 0-cost
+  };
+}
+
+/** Test file → source file mapping by naming convention. 0-cost, high-precision signal. */
+function testToSourceScore(testFile: string | null, candidateFile: string): number {
+  if (!testFile) return 0;
+  // test/foo.test.ts → src/foo.ts, or test/bar.spec.ts → src/bar.ts
+  const stripped = testFile.replace(/\.(test|spec)\.(ts|tsx|js|jsx)$/, ".$2").replace(/^(test|__tests__)\//, "src/");
+  return candidateFile === stripped ? 1 : 0;
+}
 
 export interface ParsedError {
   files: string[];
@@ -519,6 +576,7 @@ export interface Suspect {
     coupling: number;
     dependency: number;
     workflow: number;
+    testMapping: number;
   };
   callGraphBonus: boolean;
   reason: string;
@@ -534,9 +592,12 @@ export function parseErrorText(errorText: string, rootDir?: string): ParsedError
   let message: string | null = null;
 
   // Cap input to prevent DoS from pathologically large error strings
-  const text = errorText.length > 100_000 ? errorText.slice(0, 100_000) : errorText;
+  // Strip ANSI escape codes (terminal colors, bold, etc.)
+  const capped = errorText.length > 100_000 ? errorText.slice(0, 100_000) : errorText;
+  // biome-ignore lint/suspicious/noControlCharactersInRegex: ANSI escape sequence stripping requires \x1B
+  const text = capped.replace(/\x1B\[[0-9;]*m/g, "");
 
-  const msgMatch = text.match(/(?:TypeError|ReferenceError|Error|SyntaxError):\s*(.+)/);
+  const msgMatch = text.match(/(?:TypeError|ReferenceError|Error|SyntaxError):\s*([^\n]+)/);
   if (msgMatch) message = msgMatch[1].trim();
 
   for (const line of text.split("\n")) {
@@ -562,6 +623,22 @@ export function parseErrorText(errorText: string, rootDir?: string): ParsedError
 
     // Vitest/Jest: "❯ file:line:col" or "› file:line:col"
     if ((m = line.match(/[❯›]\s+([^\s]+\.[jt]sx?):(\d+):\d+/))) {
+      addProjectFile(fileSet, m[1], rootDir);
+      continue;
+    }
+
+    // Webpack/Vite build error: "ERROR in ./src/foo.ts" or "[vite] Error: ... src/foo.ts"
+    if ((m = line.match(/ERROR\s+in\s+\.?\/?([\w/.-]+\.[jt]sx?)/))) {
+      addProjectFile(fileSet, m[1], rootDir);
+      continue;
+    }
+    if ((m = line.match(/\[vite\]\s+.*?([\w/.-]+\.[jt]sx?)/))) {
+      addProjectFile(fileSet, m[1], rootDir);
+      continue;
+    }
+
+    // Nested stack trace: "Caused by: ... at file:line:col"
+    if ((m = line.match(/[Cc]aused by:.*?([\w/.-]+\.[jt]sx?):(\d+)/))) {
       addProjectFile(fileSet, m[1], rootDir);
       continue;
     }
@@ -685,6 +762,7 @@ export function buildSuspectList(
   errorFiles: string[],
   recentChanges: FileChange[],
   packagePath?: string,
+  testFile?: string | null,
 ): Suspect[] {
   const pkg = resolvePackage(analysis, packagePath);
   const errorSet = new Set(errorFiles);
@@ -701,79 +779,95 @@ export function buildSuspectList(
   const changedFiles = new Set(changeMap.keys());
 
   // 1. Collect candidates: import neighbors + co-change partners of error files
+  //    Build indexes first to avoid O(errorFiles × edges) nested loops
   const candidateSymbols = new Map<string, number>(); // file → max symbolCount
   const candidateCoupling = new Map<string, number>(); // file → max Jaccard
 
-  for (const errorFile of errorFiles) {
-    // Files the error file imports from (upstream — likely root cause)
-    for (const edge of chain) {
-      if (edge.importer === errorFile) {
-        setMax(candidateSymbols, edge.source, edge.symbolCount);
-      }
+  // Index import chain by both importer and source for O(1) lookup
+  const importByImporter = new Map<string, typeof chain>();
+  const importBySource = new Map<string, typeof chain>();
+  for (const edge of chain) {
+    let byImp = importByImporter.get(edge.importer);
+    if (!byImp) {
+      byImp = [];
+      importByImporter.set(edge.importer, byImp);
     }
-    // Files that import from error file (downstream — may need updating)
-    for (const edge of chain) {
-      if (edge.source === errorFile) {
-        setMax(candidateSymbols, edge.importer, edge.symbolCount);
-      }
+    byImp.push(edge);
+    let bySrc = importBySource.get(edge.source);
+    if (!bySrc) {
+      bySrc = [];
+      importBySource.set(edge.source, bySrc);
     }
-    // Co-change partners
-    for (const edge of coChangeEdges) {
-      if (edge.file1 === errorFile) {
-        setMax(candidateCoupling, edge.file2, edge.jaccard);
-      } else if (edge.file2 === errorFile) {
-        setMax(candidateCoupling, edge.file1, edge.jaccard);
+    bySrc.push(edge);
+  }
+
+  // Index co-change edges by both files
+  const coChangeByFile = new Map<string, typeof coChangeEdges>();
+  for (const edge of coChangeEdges) {
+    for (const f of [edge.file1, edge.file2]) {
+      let arr = coChangeByFile.get(f);
+      if (!arr) {
+        arr = [];
+        coChangeByFile.set(f, arr);
       }
+      arr.push(edge);
     }
   }
 
-  // Include error files as candidates (they may have been recently changed)
-  for (const f of errorFiles) {
-    if (!candidateSymbols.has(f) && !candidateCoupling.has(f)) {
-      candidateSymbols.set(f, 0);
+  for (const errorFile of errorFiles) {
+    for (const edge of importByImporter.get(errorFile) ?? []) {
+      setMax(candidateSymbols, edge.source, edge.symbolCount);
     }
+    for (const edge of importBySource.get(errorFile) ?? []) {
+      setMax(candidateSymbols, edge.importer, edge.symbolCount);
+    }
+    for (const edge of coChangeByFile.get(errorFile) ?? []) {
+      const partner = edge.file1 === errorFile ? edge.file2 : edge.file1;
+      setMax(candidateCoupling, partner, edge.jaccard);
+    }
+  }
+
+  for (const f of errorFiles) {
+    if (!candidateSymbols.has(f) && !candidateCoupling.has(f)) candidateSymbols.set(f, 0);
   }
 
   const allCandidates = new Set([...candidateSymbols.keys(), ...candidateCoupling.keys()]);
 
-  // 2. Missing co-change: for each recently-changed relevant file,
-  //    find high-coupling partners that weren't updated
+  // 2. Missing co-change: joint sigmoid on both Jaccard AND count
   const missingCoChange = new Map<string, number>();
   const relevant = [...changedFiles].filter((f) => errorSet.has(f) || allCandidates.has(f));
 
   for (const changedFile of relevant) {
     for (const edge of coChangeEdges) {
       const partner = edge.file1 === changedFile ? edge.file2 : edge.file2 === changedFile ? edge.file1 : null;
-      if (!partner) continue;
-      if (edge.coChangeCount < MISSING_CO_CHANGE_MIN_COUNT || edge.jaccard <= MISSING_CO_CHANGE_MIN_JACCARD) continue;
-      if (changedFiles.has(partner)) continue;
-
-      setMax(missingCoChange, partner, edge.jaccard);
-      allCandidates.add(partner);
+      if (!partner || changedFiles.has(partner)) continue;
+      // Joint sigmoid: both Jaccard and count must be strong
+      const score = sigmoid(edge.jaccard, 0.4, 5) * sigmoid(Math.log(edge.coChangeCount), Math.log(5), 3);
+      if (score > 0.05) {
+        setMax(missingCoChange, partner, score);
+        allCandidates.add(partner);
+      }
     }
   }
 
-  // 3. Dynamic weights — adapt to available signals
-  const hasRecentChanges = recentChanges.some((c) => c.hoursAgo < 24);
-  const hasCoChangeData = coChangeEdges.length > 0;
-  const w = hasRecentChanges
-    ? hasCoChangeData
-      ? { missingCoChange: 35, recency: 25, coupling: 20, dependency: 10, workflow: 10 }
-      : { missingCoChange: 0, recency: 40, dependency: 35, coupling: 0, workflow: 25 }
-    : { missingCoChange: 0, recency: 0, coupling: 50, dependency: 35, workflow: 15 };
+  // 3. Continuous weight interpolation
+  const recentCount = recentChanges.filter((c) => c.hoursAgo < 48).length;
+  const w = computeWeights(recentCount, coChangeEdges.length);
 
   // 4. Score each candidate
   const suspects: Suspect[] = [];
 
   for (const file of allCandidates) {
     const change = changeMap.get(file);
+    const rawCoupling = candidateCoupling.get(file) ?? 0;
 
     const signals = {
       missingCoChange: missingCoChange.get(file) ?? 0,
-      recency: change ? Math.max(RECENCY_FLOOR, Math.exp(-RECENCY_DECAY_LAMBDA * change.hoursAgo)) : 0,
-      coupling: candidateCoupling.get(file) ?? 0,
+      recency: change ? recencyScore(change.hoursAgo) : 0,
+      coupling: sigmoid(rawCoupling, 0.2, 5),
       dependency: Math.min((candidateSymbols.get(file) ?? 0) / 10, 1),
       workflow: workflowRules.some((r) => r.trigger.includes(file) || r.action.includes(file)) ? 1.0 : 0,
+      testMapping: testToSourceScore(testFile ?? null, file),
     };
 
     let score =
@@ -781,7 +875,8 @@ export function buildSuspectList(
       w.recency * signals.recency +
       w.coupling * signals.coupling +
       w.dependency * signals.dependency +
-      w.workflow * signals.workflow;
+      w.workflow * signals.workflow +
+      w.testMapping * signals.testMapping;
 
     // Call graph bonus: 1.5x if call edge exists, but NOT for the error site itself
     const callGraphBonus =
@@ -793,17 +888,18 @@ export function buildSuspectList(
 
     // Build human-readable reason
     const reasons: string[] = [];
+    if (signals.testMapping > 0) {
+      reasons.push("test name maps to this source file");
+    }
     if (signals.missingCoChange > 0) {
-      reasons.push(
-        `Missing co-change: expected to change (${Math.round(signals.missingCoChange * 100)}% coupling) but wasn't updated`,
-      );
+      reasons.push(`Missing co-change: expected to change but wasn't updated`);
     }
     if (signals.recency > 0.1 && change) {
       const ago = change.isUncommitted ? "uncommitted changes" : `changed ${formatHoursAgo(change.hoursAgo)}`;
       reasons.push(ago + (change.commitMessage ? `: "${change.commitMessage}"` : ""));
     }
-    if (signals.coupling > 0) {
-      reasons.push(`${Math.round(signals.coupling * 100)}% co-change coupling`);
+    if (signals.coupling > 0.1) {
+      reasons.push(`${Math.round(rawCoupling * 100)}% co-change coupling`);
     }
     if (signals.dependency > 0) {
       reasons.push(`${candidateSymbols.get(file) ?? 0} symbols shared with error site`);

@@ -415,6 +415,9 @@ function walkForDynamicImports(node: ts.Node, imports: ImportEntry[]): void {
 function computeContentSignals(content: string, sourceFile: ts.SourceFile): ContentSignals {
   // AST-based signals (E-17)
   let tryCatchCount = 0;
+  let promiseAllCount = 0;
+  let asyncFunctionCount = 0;
+  let awaitInLoopCount = 0;
   const hookCounts: Record<string, number> = {
     useMemo: 0,
     useCallback: 0,
@@ -424,22 +427,52 @@ function computeContentSignals(content: string, sourceFile: ts.SourceFile): Cont
     useMutation: 0,
   };
 
-  function walkForSignals(node: ts.Node): void {
+  function walkForSignals(node: ts.Node, insideLoop = false): void {
     if (ts.isTryStatement(node)) {
       tryCatchCount++;
     }
+
+    // Phase 1B: Async pattern signals
+    if (
+      (ts.isFunctionDeclaration(node) || ts.isArrowFunction(node) || ts.isMethodDeclaration(node)) &&
+      node.modifiers?.some((m) => m.kind === ts.SyntaxKind.AsyncKeyword)
+    ) {
+      asyncFunctionCount++;
+    }
+    if (ts.isAwaitExpression(node) && insideLoop) {
+      awaitInLoopCount++;
+    }
+
+    // Track if we're inside a loop for await-in-loop detection
+    const isLoop =
+      ts.isForStatement(node) ||
+      ts.isForOfStatement(node) ||
+      ts.isForInStatement(node) ||
+      ts.isWhileStatement(node) ||
+      ts.isDoStatement(node);
+
     if (ts.isCallExpression(node)) {
       let calleeName: string | undefined;
       if (ts.isIdentifier(node.expression)) {
         calleeName = node.expression.text;
       } else if (ts.isPropertyAccessExpression(node.expression)) {
-        calleeName = node.expression.name.text;
+        // Detect Promise.all/allSettled/race
+        const obj = node.expression.expression;
+        const method = node.expression.name.text;
+        if (
+          ts.isIdentifier(obj) &&
+          obj.text === "Promise" &&
+          (method === "all" || method === "allSettled" || method === "race")
+        ) {
+          promiseAllCount++;
+        }
+        calleeName = method;
       }
       if (calleeName && calleeName in hookCounts) {
         hookCounts[calleeName]++;
       }
     }
-    ts.forEachChild(node, walkForSignals);
+    ts.forEachChild(node, (child) => walkForSignals(child, insideLoop || isLoop));
   }
   walkForSignals(sourceFile);
 
@@ -456,6 +489,9 @@ function computeContentSignals(content: string, sourceFile: ts.SourceFile): Cont
     useStateCount: hookCounts.useState,
     useQueryCount: hookCounts.useQuery,
     useMutationCount: hookCounts.useMutation,
+    promiseAllCount,
+    asyncFunctionCount,
+    awaitInLoopCount,
     jestMockCount,
     hasDisplayName,
     hasErrorBoundary,

@@ -119,6 +119,7 @@ async function main() {
       path: args.packages[1],
       verbose: args.verbose,
       telemetry: args.telemetry,
+      typeChecking: args.typeChecking,
     });
     // Don't exit — server stays alive until client disconnects
     return;

@@ -23,6 +23,7 @@ import {
 } from "../src/templates/agents-md.js";
 import { classifyTiers } from "../src/tier-classifier.js";
 import type { DependencyInsights, PackageAnalysis, ParsedFile, TierInfo, Warning } from "../src/types.js";
+import { createImport, createParsedFile } from "./helpers/fixtures.js";
 
 const FIXTURES = resolve(__dirname, "fixtures");
 const MONOREPO = resolve(FIXTURES, "monorepo-scope/root");
@@ -34,33 +35,33 @@ function makeMinimalParsedFile(
   path: string,
   imports: { moduleSpecifier: string; importedNames: string[] }[] = [],
 ): ParsedFile {
-  return {
-    absolutePath: path,
+  return createParsedFile({
     relativePath: path,
     lineCount: 10,
-    imports: imports.map((i) => ({
-      moduleSpecifier: i.moduleSpecifier,
-      importedNames: i.importedNames,
-      isDynamic: false,
-      isTypeOnly: false,
-    })),
-    exports: [],
-    isTestFile: false,
-    isConfigFile: false,
-    functionDeclarations: [],
-    classDeclarations: [],
-    typeDeclarations: [],
-  };
+    imports: imports.map((i) =>
+      createImport({
+        moduleSpecifier: i.moduleSpecifier,
+        importedNames: i.importedNames,
+      }),
+    ),
+  });
 }
 
 function makeMinimalTestFile(
   path: string,
   imports: { moduleSpecifier: string; importedNames: string[] }[] = [],
 ): ParsedFile {
-  return {
-    ...makeMinimalParsedFile(path, imports),
+  return createParsedFile({
+    relativePath: path,
+    lineCount: 10,
     isTestFile: true,
-  };
+    imports: imports.map((i) =>
+      createImport({
+        moduleSpecifier: i.moduleSpecifier,
+        importedNames: i.importedNames,
+      }),
+    ),
+  });
 }
 
 function makePackageAnalysis(overrides: Partial<PackageAnalysis> = {}): PackageAnalysis {

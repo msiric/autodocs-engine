@@ -129,7 +129,7 @@ describe("integration: analyze()", () => {
     });
 
     expect(result.meta.timingMs).toBeGreaterThanOrEqual(0);
-    expect(result.meta.engineVersion).toBe("0.8.0");
+    expect(result.meta.engineVersion).toMatch(/^\d+\.\d+\.\d+$/);
     expect(result.meta.analyzedAt).toBeTruthy();
   });
 

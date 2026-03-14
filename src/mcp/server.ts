@@ -16,6 +16,7 @@ import * as tools from "./tools.js";
 export interface ServerOptions {
   verbose?: boolean;
   telemetry?: boolean;
+  typeChecking?: boolean;
 }
 
 // ─── Session Telemetry ──────────────────────────────────────────────────────
@@ -99,7 +100,7 @@ export function createAutodocsServer(
     { instructions: SERVER_INSTRUCTIONS },
   );
 
-  const cache = new AnalysisCache(projectPath);
+  const cache = new AnalysisCache(projectPath, { typeChecking: options.typeChecking });
 
   const session: SessionTelemetry = {
     startTime: Date.now(),

@@ -4,12 +4,16 @@
 // W2-3: Added ecosystem-specific detectors with DetectorContext support.
 // W5-A: Removed 6 noisy detectors (import/export/component/error-handling/graphql/telemetry patterns).
 
+import { apiPatternsDetector } from "./detectors/api-patterns.js";
+import { asyncPatternsDetector } from "./detectors/async-patterns.js";
 import { buildToolDetector } from "./detectors/build-tool.js";
 import { dataFetchingDetector } from "./detectors/data-fetching.js";
 import { databaseDetector } from "./detectors/database.js";
+import { errorHandlingDetector } from "./detectors/error-handling.js";
 import { fileNamingDetector } from "./detectors/file-naming.js";
 import { hookPatternDetector } from "./detectors/hook-patterns.js";
 import { importOrderingDetector } from "./detectors/import-ordering.js";
+import { stateManagementDetector } from "./detectors/state-management.js";
 // W2-3: Ecosystem-specific detectors
 import { testFrameworkEcosystemDetector } from "./detectors/test-framework-ecosystem.js";
 import { testPatternDetector } from "./detectors/test-patterns.js";
@@ -37,6 +41,12 @@ const DETECTOR_REGISTRY: Record<string, ConventionDetector> = {
   webFramework: webFrameworkDetector,
   buildTool: buildToolDetector,
   importOrdering: importOrderingDetector,
+  // Phase 1A: Error handling + state management
+  errorHandling: errorHandlingDetector,
+  stateManagement: stateManagementDetector,
+  // Phase 1B: Async patterns + API patterns
+  asyncPatterns: asyncPatternsDetector,
+  apiPatterns: apiPatternsDetector,
 };
 
 /**
