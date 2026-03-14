@@ -599,6 +599,14 @@ export interface Suspect {
   reason: string;
 }
 
+export type DiagnoseConfidence = "high" | "medium" | "low";
+
+export interface DiagnoseResult {
+  suspects: Suspect[];
+  confidence: DiagnoseConfidence;
+  confidenceReason: string;
+}
+
 /**
  * Extract file paths, test file, and error message from raw error/stack trace text.
  * Handles V8 stacks, TypeScript compiler errors, Vitest output, and generic patterns.
@@ -772,7 +780,7 @@ export function traceImportChain(
 
 /**
  * Score candidate files using 5 signals with dynamic weights + call graph bonus.
- * Returns top 5 suspects sorted by score descending.
+ * Returns top 5 suspects with confidence assessment based on signal quality.
  */
 export function buildSuspectList(
   analysis: StructuredAnalysis,
@@ -780,7 +788,7 @@ export function buildSuspectList(
   recentChanges: FileChange[],
   packagePath?: string,
   testFile?: string | null,
-): Suspect[] {
+): DiagnoseResult {
   const pkg = resolvePackage(analysis, packagePath);
   const errorSet = new Set(errorFiles);
   const chain = pkg.importChain ?? [];
@@ -974,10 +982,74 @@ export function buildSuspectList(
     });
   }
 
-  return suspects
+  const ranked = suspects
     .filter((s) => s.score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, 5);
+
+  return assessConfidence(ranked, {
+    hasRecentChanges: recentChanges.length > 0,
+    hasCoChangeData: coChangeEdges.length > 0,
+    hasCallGraph: callGraph.length > 0,
+    testHasDirectImport: testFile ? (importByImporter.get(testFile)?.length ?? 0) > 0 : false,
+    candidatePoolSize: allCandidates.size,
+  });
+}
+
+/**
+ * Assess confidence based on signal quality — not the suspects themselves.
+ * High: multiple independent signals available, top suspect strongly differentiated.
+ * Medium: some signals available, moderate differentiation.
+ * Low: thin signal (no co-change, test doesn't import sources, large candidate pool).
+ */
+function assessConfidence(
+  suspects: Suspect[],
+  signals: {
+    hasRecentChanges: boolean;
+    hasCoChangeData: boolean;
+    hasCallGraph: boolean;
+    testHasDirectImport: boolean;
+    candidatePoolSize: number;
+  },
+): DiagnoseResult {
+  if (suspects.length === 0) {
+    return { suspects, confidence: "low", confidenceReason: "No suspects found" };
+  }
+
+  // Count how many independent signal sources are available
+  let signalCount = 0;
+  if (signals.hasRecentChanges) signalCount++;
+  if (signals.hasCoChangeData) signalCount++;
+  if (signals.hasCallGraph) signalCount++;
+  if (signals.testHasDirectImport) signalCount++;
+
+  // Score discrimination: how much does #1 stand out from #2?
+  const topScore = suspects[0].score;
+  const secondScore = suspects.length > 1 ? suspects[1].score : 0;
+  const discrimination = secondScore > 0 ? topScore / secondScore : topScore > 0 ? 10 : 0;
+
+  // Large candidate pool with low discrimination = noisy
+  const isNoisy = signals.candidatePoolSize > 20 && discrimination < 1.5;
+
+  let confidence: DiagnoseConfidence;
+  let confidenceReason: string;
+
+  if (signalCount >= 3 && discrimination >= 1.5 && !isNoisy) {
+    confidence = "high";
+    confidenceReason = `${signalCount} independent signals, clear top suspect`;
+  } else if (signalCount >= 2 || (signalCount >= 1 && discrimination >= 2)) {
+    confidence = "medium";
+    confidenceReason = `${signalCount} signal${signalCount === 1 ? "" : "s"}, ${discrimination >= 1.5 ? "moderate" : "weak"} differentiation`;
+  } else {
+    confidence = "low";
+    const reasons: string[] = [];
+    if (!signals.testHasDirectImport) reasons.push("test doesn't directly import source modules");
+    if (!signals.hasCoChangeData) reasons.push("no co-change history available");
+    if (isNoisy) reasons.push(`${signals.candidatePoolSize} candidates with similar scores`);
+    confidenceReason = reasons.length > 0 ? reasons.join("; ") : "limited signal available";
+  }
+
+  return { suspects, confidence, confidenceReason };
 }
 
 // ─── Diagnose Helpers ───────────────────────────────────────────────────────

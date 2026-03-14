@@ -830,7 +830,13 @@ export function handleDiagnose(
   const recentChanges = rootDir ? Q.getRecentFileChanges(rootDir) : [];
 
   // 4. Build suspect list (pass testFile for test-to-source mapping signal)
-  const suspects = Q.buildSuspectList(analysis, errorFileList, recentChanges, args.packagePath, testFile);
+  const { suspects, confidence, confidenceReason } = Q.buildSuspectList(
+    analysis,
+    errorFileList,
+    recentChanges,
+    args.packagePath,
+    testFile,
+  );
 
   // 5. Format output
   lines.push("## Diagnosis");
@@ -842,6 +848,7 @@ export function handleDiagnose(
   if (errorFileList.length > 0) {
     lines.push(`**Error site:** ${errorFileList.map((f) => `\`${f}\``).join(", ")}`);
   }
+  lines.push(`**Confidence:** ${confidence} — ${confidenceReason}`);
   if (suspects.length > 0) {
     lines.push(`**Likely root cause:** \`${suspects[0].file}\` — ${suspects[0].reason}`);
   }

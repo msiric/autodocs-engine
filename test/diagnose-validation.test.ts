@@ -130,7 +130,7 @@ describe("diagnose empirical validation", () => {
       // Run diagnose with the test file
       const recentChanges = Q.getRecentFileChanges(analysis.meta.rootDir);
       const errorFiles = [...new Set([...commit.testFiles, ...relevantSourceFiles])];
-      const suspects = Q.buildSuspectList(analysis, errorFiles, recentChanges);
+      const { suspects } = Q.buildSuspectList(analysis, errorFiles, recentChanges);
 
       // Check: does any actual fix file appear in top 5 suspects?
       const suspectFiles = new Set(suspects.map((s) => s.file));
