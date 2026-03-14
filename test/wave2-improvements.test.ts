@@ -11,14 +11,8 @@ import { webFrameworkDetector } from "../src/detectors/web-framework.js";
 import { diffAnalyses } from "../src/diff-analyzer.js";
 import { validateOutput } from "../src/output-validator.js";
 import { fingerprintTopExports } from "../src/pattern-fingerprinter.js";
-import type {
-  DetectorContext,
-  PackageAnalysis,
-  ParsedFile,
-  StructuredAnalysis,
-  TierInfo,
-  Warning,
-} from "../src/types.js";
+import type { DetectorContext, PackageAnalysis, StructuredAnalysis } from "../src/types.js";
+import { createParsedFile, emptyTiers, emptyWarnings } from "./helpers/fixtures.js";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -92,37 +86,6 @@ function makeStructuredAnalysis(pkgOverrides: Partial<PackageAnalysis> = {}): St
     warnings: [],
   };
 }
-
-function makeParsedFile(overrides: Partial<ParsedFile> = {}): ParsedFile {
-  return {
-    relativePath: "src/test.ts",
-    exports: [],
-    imports: [],
-    contentSignals: {
-      tryCatchCount: 0,
-      useMemoCount: 0,
-      useCallbackCount: 0,
-      useEffectCount: 0,
-      useStateCount: 0,
-      useQueryCount: 0,
-      useMutationCount: 0,
-      jestMockCount: 0,
-      hasDisplayName: false,
-      hasErrorBoundary: false,
-    },
-    lineCount: 50,
-    isTestFile: false,
-    isGeneratedFile: false,
-    hasJSX: false,
-    hasCJS: false,
-    hasSyntaxErrors: false,
-    callReferences: [],
-    ...overrides,
-  };
-}
-
-const emptyTiers = new Map<string, TierInfo>();
-const emptyWarnings: Warning[] = [];
 
 // ─── W2-1: Output Validator ──────────────────────────────────────────────────
 
@@ -270,7 +233,7 @@ describe("W2-2: Pattern Fingerprinter", () => {
 describe("W2-3: Data Fetching Detector", () => {
   it("detects TanStack Query from @tanstack/react-query imports", () => {
     const files: ParsedFile[] = [
-      makeParsedFile({
+      createParsedFile({
         imports: [
           {
             moduleSpecifier: "@tanstack/react-query",
@@ -290,7 +253,7 @@ describe("W2-3: Data Fetching Detector", () => {
 
   it("detects Apollo Client as GraphQL", () => {
     const files: ParsedFile[] = [
-      makeParsedFile({
+      createParsedFile({
         imports: [
           { moduleSpecifier: "@apollo/client", importedNames: ["useQuery"], isTypeOnly: false, isDynamic: false },
         ],
@@ -305,7 +268,7 @@ describe("W2-3: Data Fetching Detector", () => {
 
   it("detects tRPC as not GraphQL", () => {
     const files: ParsedFile[] = [
-      makeParsedFile({
+      createParsedFile({
         imports: [
           { moduleSpecifier: "@trpc/react-query", importedNames: ["useQuery"], isTypeOnly: false, isDynamic: false },
         ],
@@ -319,7 +282,7 @@ describe("W2-3: Data Fetching Detector", () => {
 
   it("does NOT assume GraphQL for unknown sources", () => {
     const files: ParsedFile[] = [
-      makeParsedFile({
+      createParsedFile({
         imports: [
           { moduleSpecifier: "./custom-hooks", importedNames: ["useQuery"], isTypeOnly: false, isDynamic: false },
         ],
@@ -336,7 +299,7 @@ describe("W2-3: Data Fetching Detector", () => {
 
   it("returns empty for files without query hooks", () => {
     const files: ParsedFile[] = [
-      makeParsedFile({
+      createParsedFile({
         imports: [{ moduleSpecifier: "react", importedNames: ["useState"], isTypeOnly: false, isDynamic: false }],
       }),
     ];
@@ -348,7 +311,7 @@ describe("W2-3: Data Fetching Detector", () => {
 describe("W2-3: Test Framework Ecosystem Detector", () => {
   it("detects Bun test from runtime + test files", () => {
     const files: ParsedFile[] = [
-      makeParsedFile({
+      createParsedFile({
         relativePath: "src/test.test.ts",
         isTestFile: true,
         imports: [
@@ -374,7 +337,7 @@ describe("W2-3: Test Framework Ecosystem Detector", () => {
   });
 
   it("detects Vitest from dependency insights", () => {
-    const files: ParsedFile[] = [makeParsedFile({ relativePath: "test.test.ts", isTestFile: true })];
+    const files: ParsedFile[] = [createParsedFile({ relativePath: "test.test.ts", isTestFile: true })];
     const context: DetectorContext = {
       dependencies: {
         runtime: [],
@@ -389,7 +352,7 @@ describe("W2-3: Test Framework Ecosystem Detector", () => {
   });
 
   it("returns empty when no test files", () => {
-    const files: ParsedFile[] = [makeParsedFile()];
+    const files: ParsedFile[] = [createParsedFile()];
     const context: DetectorContext = {
       dependencies: { runtime: [{ name: "bun", version: "1.0.0" }], frameworks: [] },
     };
@@ -414,7 +377,7 @@ describe("W2-3: Database Detector", () => {
 
   it("detects Prisma from imports", () => {
     const files: ParsedFile[] = [
-      makeParsedFile({
+      createParsedFile({
         imports: [
           { moduleSpecifier: "@prisma/client", importedNames: ["PrismaClient"], isTypeOnly: false, isDynamic: false },
         ],
@@ -447,7 +410,7 @@ describe("W2-3: Web Framework Detector", () => {
 
   it("detects Express from imports", () => {
     const files: ParsedFile[] = [
-      makeParsedFile({
+      createParsedFile({
         imports: [{ moduleSpecifier: "express", importedNames: ["Router"], isTypeOnly: false, isDynamic: false }],
       }),
     ];

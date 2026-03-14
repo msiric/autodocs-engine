@@ -321,6 +321,15 @@ export function handleGetExports(
     lines.push(`Source: \`${exp.sourceFile}\` | Imported by: ${exp.importCount ?? 0} files`);
     if (sig) lines.push(`Signature: \`${sig}\``);
 
+    // Phase 3: Display resolved types from TypeChecker (if available)
+    if (exp.parameterTypes && exp.parameterTypes.length > 0) {
+      const params = exp.parameterTypes.map((p) => `${p.name}${p.optional ? "?" : ""}: ${p.type}`).join(", ");
+      lines.push(`Parameters: \`(${params})\``);
+    }
+    if (exp.returnType && exp.returnType !== "void" && exp.returnType !== "any") {
+      lines.push(`Returns: \`${exp.returnType}\``);
+    }
+
     // Add parameter shape from fingerprint if available
     const fp = Q.getFingerprintForExport(analysis, exp.name, args.packagePath);
     if (fp) {
@@ -390,7 +399,7 @@ export function handlePlanChange(
 
   // Collect data across all input files
   const dependents = new Map<string, { symbols: string[]; symbolCount: number }>();
-  const coChanges = new Map<string, { jaccard: number; count: number }>();
+  const coChanges = new Map<string, { jaccard: number; count: number; lastCoChangeTimestamp?: number }>();
   const registrationFiles = new Map<string, string>(); // file → reason
   const barrelFiles = new Set<string>();
   const testFiles = new Map<string, string>(); // source → test command
@@ -414,7 +423,11 @@ export function handlePlanChange(
       if (edge.jaccard < CO_CHANGE_THRESHOLD) continue;
       const existing = coChanges.get(partner);
       if (!existing || edge.jaccard > existing.jaccard) {
-        coChanges.set(partner, { jaccard: edge.jaccard, count: edge.coChangeCount });
+        coChanges.set(partner, {
+          jaccard: edge.jaccard,
+          count: edge.coChangeCount,
+          lastCoChangeTimestamp: edge.lastCoChangeTimestamp,
+        });
       }
     }
 
@@ -462,14 +475,57 @@ export function handlePlanChange(
     }
   }
 
-  // Co-changes
+  // Co-changes (with recency)
   if (coChanges.size > 0) {
     lines.push("");
     lines.push("### Co-Change Partners (git history)");
     const sorted = [...coChanges.entries()].sort((a, b) => b[1].jaccard - a[1].jaccard);
     for (const [file, info] of sorted.slice(0, MAX_SECTION_ITEMS)) {
       const pct = Math.round(info.jaccard * 100);
-      lines.push(`- \`${file}\` — Jaccard ${pct}%, co-changed ${info.count} times`);
+      const recency = info.lastCoChangeTimestamp
+        ? `, last ${Math.round((Date.now() / 1000 - info.lastCoChangeTimestamp) / 86400)}d ago`
+        : "";
+      lines.push(`- \`${file}\` — Jaccard ${pct}%, co-changed ${info.count} times${recency}`);
+    }
+  }
+
+  // Implicit coupling (co-change with no import relationship)
+  const implicitEdges = new Map<string, { jaccard: number; count: number }>();
+  for (const file of args.files) {
+    const edges = Q.getImplicitCouplingForFile(analysis, file, args.packagePath);
+    for (const edge of edges) {
+      const partner = edge.file1 === file ? edge.file2 : edge.file1;
+      if (inputSet.has(partner) || dependents.has(partner) || coChanges.has(partner)) continue;
+      const existing = implicitEdges.get(partner);
+      if (!existing || edge.jaccard > existing.jaccard) {
+        implicitEdges.set(partner, { jaccard: edge.jaccard, count: edge.coChangeCount });
+      }
+    }
+  }
+  if (implicitEdges.size > 0) {
+    lines.push("");
+    lines.push("### Implicit Coupling (no import, but co-changes)");
+    const sorted = [...implicitEdges.entries()].sort((a, b) => b[1].jaccard - a[1].jaccard);
+    for (const [file, info] of sorted.slice(0, MAX_SECTION_ITEMS)) {
+      const pct = Math.round(info.jaccard * 100);
+      lines.push(`- \`${file}\` — co-changes ${pct}% of the time but has no import relationship`);
+    }
+  }
+
+  // Workflow rule matches
+  const matchedRules: string[] = [];
+  for (const file of args.files) {
+    const rules = Q.getWorkflowRules(analysis, file);
+    for (const rule of rules) {
+      const summary = `When modifying \`${rule.trigger}\` → ${rule.action}`;
+      if (!matchedRules.includes(summary)) matchedRules.push(summary);
+    }
+  }
+  if (matchedRules.length > 0) {
+    lines.push("");
+    lines.push("### Workflow Rules");
+    for (const rule of matchedRules.slice(0, 5)) {
+      lines.push(`- ${rule}`);
     }
   }
 
@@ -773,8 +829,8 @@ export function handleDiagnose(
   // 3. Get recent git changes
   const recentChanges = rootDir ? Q.getRecentFileChanges(rootDir) : [];
 
-  // 4. Build suspect list
-  const suspects = Q.buildSuspectList(analysis, errorFileList, recentChanges, args.packagePath);
+  // 4. Build suspect list (pass testFile for test-to-source mapping signal)
+  const suspects = Q.buildSuspectList(analysis, errorFileList, recentChanges, args.packagePath, testFile);
 
   // 5. Format output
   lines.push("## Diagnosis");
@@ -806,15 +862,26 @@ export function handleDiagnose(
     lines.push("");
   }
 
-  // Dependency chain (test → top suspect)
-  if (testFile && suspects.length > 0) {
-    const chain = Q.traceImportChain(analysis, testFile, suspects[0].file, args.packagePath);
-    if (chain) {
-      lines.push("### Dependency Chain");
-      lines.push(chain.map((f) => `\`${f}\``).join(" → "));
-      lines.push("");
+  // Dependency chains (error site → top suspects)
+  const chainSources = testFile ? [testFile, ...errorFileList] : errorFileList;
+  const shownChains = new Set<string>();
+  for (const s of suspects.slice(0, 3)) {
+    for (const source of chainSources) {
+      if (source === s.file) continue;
+      const chain = Q.traceImportChain(analysis, source, s.file, args.packagePath);
+      if (chain && chain.length > 1) {
+        const key = chain.join(" → ");
+        if (!shownChains.has(key)) {
+          shownChains.add(key);
+          if (shownChains.size === 1) {
+            lines.push("### Dependency Chains");
+          }
+          lines.push(chain.map((f) => `\`${f}\``).join(" → "));
+        }
+      }
     }
   }
+  if (shownChains.size > 0) lines.push("");
 
   // Config file changes
   const configChanges = recentChanges.filter((c) => CONFIG_FILES.some((cf) => c.file.endsWith(cf)));

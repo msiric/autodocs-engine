@@ -7,6 +7,7 @@
 // - Warmup error logging: failures visible in stderr
 
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { resolve } from "node:path";
 import { analyze } from "../index.js";
 import type { StructuredAnalysis } from "../types.js";
@@ -20,8 +21,13 @@ export interface CacheMeta {
   isFresh: boolean;
 }
 
+export interface CacheOptions {
+  typeChecking?: boolean;
+}
+
 export class AnalysisCache {
   private projectPath: string;
+  private options: CacheOptions;
   private cached: { analysis: StructuredAnalysis; key: string; analyzedAt: string } | null = null;
   private inflight: Promise<StructuredAnalysis> | null = null;
   private lastCheckAt = 0;
@@ -46,8 +52,9 @@ export class AnalysisCache {
     };
   }
 
-  constructor(projectPath: string) {
+  constructor(projectPath: string, options: CacheOptions = {}) {
     this.projectPath = resolve(projectPath);
+    this.options = options;
   }
 
   /**
@@ -95,7 +102,10 @@ export class AnalysisCache {
     if (this.inflight) return this.inflight;
 
     this.inflight = (async () => {
-      const analysis = await analyze({ packages: [this.projectPath] });
+      const analysis = await analyze({
+        packages: [this.projectPath],
+        typeChecking: this.options.typeChecking,
+      });
       this.cached = { analysis, key: this.getCacheKey(), analyzedAt: new Date().toISOString() };
       return analysis;
     })();
@@ -133,10 +143,7 @@ export class AnalysisCache {
 
     // Hash git status output (no -uno: includes untracked files)
     const status = this.safeGit(["status", "--porcelain"]) ?? "";
-    let hash = 0;
-    for (let i = 0; i < status.length; i++) {
-      hash = ((hash << 5) - hash + status.charCodeAt(i)) | 0;
-    }
+    const hash = createHash("sha256").update(status).digest("hex").slice(0, 12);
     return `${head}:${hash}`;
   }
 

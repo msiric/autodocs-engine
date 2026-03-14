@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { buildPublicAPI } from "../src/analysis-builder.js";
 import { parseFile } from "../src/ast-parser.js";
 import type { ParsedFile, ResolvedExport, SymbolGraph, Warning } from "../src/types.js";
+import { createImport, createParsedFile } from "./helpers/fixtures.js";
 
 const FIXTURE_DIR = join(import.meta.dirname ?? __dirname, ".fixtures-temp");
 
@@ -98,29 +99,12 @@ export function useSignal() {
 describe("Fix B: buildPublicAPI also applies React check", () => {
   it("reclassifies use-prefixed export as function when source file has no React import", () => {
     const parsedFiles: ParsedFile[] = [
-      {
+      createParsedFile({
         relativePath: "src/middleware.ts",
         exports: [{ name: "useMiddleware", kind: "unknown", isReExport: false, isTypeOnly: false }],
-        imports: [{ moduleSpecifier: "hono", importedNames: ["Hono"], isTypeOnly: false, isDynamic: false }],
-        contentSignals: {
-          tryCatchCount: 0,
-          useMemoCount: 0,
-          useCallbackCount: 0,
-          useEffectCount: 0,
-          useStateCount: 0,
-          useQueryCount: 0,
-          useMutationCount: 0,
-          jestMockCount: 0,
-          hasDisplayName: false,
-          hasErrorBoundary: false,
-        },
+        imports: [createImport({ moduleSpecifier: "hono", importedNames: ["Hono"] })],
         lineCount: 10,
-        isTestFile: false,
-        isGeneratedFile: false,
-        hasJSX: false,
-        hasCJS: false,
-        hasSyntaxErrors: false,
-      },
+      }),
     ];
 
     const symbolGraph: SymbolGraph = {
@@ -179,29 +163,13 @@ describe("Fix C: Export cap ranking by importance", () => {
     // Parsed files that import from react (so hooks stay as hooks)
     const parsedFiles: ParsedFile[] = [];
     for (let i = 0; i < 30; i++) {
-      parsedFiles.push({
-        relativePath: `src/hooks/use-hook-${i}.ts`,
-        exports: [],
-        imports: [{ moduleSpecifier: "react", importedNames: ["useState"], isTypeOnly: false, isDynamic: false }],
-        contentSignals: {
-          tryCatchCount: 0,
-          useMemoCount: 0,
-          useCallbackCount: 0,
-          useEffectCount: 0,
-          useStateCount: 0,
-          useQueryCount: 0,
-          useMutationCount: 0,
-          jestMockCount: 0,
-          hasDisplayName: false,
-          hasErrorBoundary: false,
-        },
-        lineCount: 10,
-        isTestFile: false,
-        isGeneratedFile: false,
-        hasJSX: false,
-        hasCJS: false,
-        hasSyntaxErrors: false,
-      });
+      parsedFiles.push(
+        createParsedFile({
+          relativePath: `src/hooks/use-hook-${i}.ts`,
+          imports: [createImport({ moduleSpecifier: "react", importedNames: ["useState"] })],
+          lineCount: 10,
+        }),
+      );
     }
 
     const symbolGraph: SymbolGraph = {

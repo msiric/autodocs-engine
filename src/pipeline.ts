@@ -18,6 +18,7 @@ import { detectExistingDocs } from "./existing-docs.js";
 import { discoverFiles } from "./file-discovery.js";
 import { generateCoChangeRules, mineGitHistory } from "./git-history.js";
 import { classifyImpacts } from "./impact-classifier.js";
+import { detectImplicitCoupling } from "./implicit-coupling.js";
 import { computeImportChain, generateImportChainRules } from "./import-chain.js";
 import { generateDependencyDiagram } from "./mermaid-generator.js";
 import { detectMetaTool } from "./meta-tool-detector.js";
@@ -25,6 +26,8 @@ import { fingerprintTopExports } from "./pattern-fingerprinter.js";
 import { inferRole } from "./role-inferrer.js";
 import { buildSymbolGraph } from "./symbol-graph.js";
 import { classifyTiers } from "./tier-classifier.js";
+import { enrichExports } from "./type-enricher.js";
+import { createTypeResolver } from "./type-resolver.js";
 import type { PackageAnalysis, ResolvedConfig, StructuredAnalysis, Warning } from "./types.js";
 import { generateWorkflowRules } from "./workflow-rules.js";
 
@@ -59,6 +62,14 @@ export async function runPipeline(config: ResolvedConfig): Promise<StructuredAna
           verbose,
           `  Git co-change: ${pkgGitHistory.coChangeEdges.length} edges (${pkgGitHistory.totalCommitsAnalyzed} commits analyzed)`,
         );
+
+        // Compute implicit coupling (co-change pairs with no import relationship)
+        if (analysis.importChain && pkgGitHistory.coChangeEdges.length > 0) {
+          analysis.implicitCoupling = detectImplicitCoupling(pkgGitHistory.coChangeEdges, analysis.importChain);
+          if (analysis.implicitCoupling.length > 0) {
+            vlog(verbose, `  Implicit coupling: ${analysis.implicitCoupling.length} pairs with no import relationship`);
+          }
+        }
       }
       packageAnalyses.push(analysis);
     } catch (err: unknown) {
@@ -218,6 +229,22 @@ function analyzePackage(pkgPath: string, config: ResolvedConfig, warnings: Warni
   // E-31: Compute publicAPI BEFORE Architecture Detector
   const publicAPI = buildPublicAPI(symbolGraph, parsed, config.maxPublicAPIEntries, warnings);
   vlog(verbose, `  Public API: ${publicAPI.length} exports`);
+
+  // Phase 3: Type-aware enrichment (opt-in)
+  if (config.typeChecking) {
+    const resolver = createTypeResolver(pkgPath, warnings);
+    if (resolver) {
+      const enrichments = enrichExports(resolver.checker, resolver.program, publicAPI, pkgPath, warnings);
+      for (const [name, info] of enrichments) {
+        const entry = publicAPI.find((e) => e.name === name);
+        if (entry) {
+          entry.parameterTypes = info.parameterTypes;
+          entry.returnType = info.returnType;
+        }
+      }
+      vlog(verbose, `  Type enrichment: ${enrichments.size} exports enriched in ${resolver.timingMs}ms`);
+    }
+  }
 
   // Steps 5-7: Run analysis modules (E-39: pass warnings)
   // Improvement 1 & 2: Config and dependency analysis needed before convention extraction

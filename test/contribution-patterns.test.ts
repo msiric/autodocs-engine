@@ -1,50 +1,25 @@
 import { describe, expect, it } from "vitest";
 import { detectContributionPatterns } from "../src/contribution-patterns.js";
 import type { DirectoryInfo, ParsedFile, PublicAPIEntry, TierInfo } from "../src/types.js";
-
-function makeParsedFile(
-  relativePath: string,
-  exports: { name: string; kind: string }[] = [],
-  isTestFile = false,
-): ParsedFile {
-  return {
-    relativePath,
-    exports: exports.map((e) => ({
-      name: e.name,
-      kind: e.kind as any,
-      isReExport: false,
-      isTypeOnly: false,
-    })),
-    imports: [],
-    contentSignals: {
-      tryCatchCount: 0,
-      useMemoCount: 0,
-      useCallbackCount: 0,
-      useEffectCount: 0,
-      useStateCount: 0,
-      useQueryCount: 0,
-      useMutationCount: 0,
-      jestMockCount: 0,
-      hasDisplayName: false,
-      hasErrorBoundary: false,
-    },
-    lineCount: 50,
-    isTestFile,
-    isGeneratedFile: false,
-    hasJSX: false,
-    hasCJS: false,
-    hasSyntaxErrors: false,
-  };
-}
+import { createExport, createParsedFile } from "./helpers/fixtures.js";
 
 describe("detectContributionPatterns", () => {
   it("detects hook contribution pattern from directory with 3+ T1 hook files", () => {
     const parsedFiles: ParsedFile[] = [
-      makeParsedFile("src/hooks/use-create-tab.ts", [{ name: "useCreateTab", kind: "hook" }]),
-      makeParsedFile("src/hooks/use-update-tab.ts", [{ name: "useUpdateTab", kind: "hook" }]),
-      makeParsedFile("src/hooks/use-delete-tab.ts", [{ name: "useDeleteTab", kind: "hook" }]),
-      makeParsedFile("src/hooks/use-create-tab.test.ts", [], true),
-      makeParsedFile("src/hooks/use-update-tab.test.ts", [], true),
+      createParsedFile({
+        relativePath: "src/hooks/use-create-tab.ts",
+        exports: [createExport({ name: "useCreateTab", kind: "hook" })],
+      }),
+      createParsedFile({
+        relativePath: "src/hooks/use-update-tab.ts",
+        exports: [createExport({ name: "useUpdateTab", kind: "hook" })],
+      }),
+      createParsedFile({
+        relativePath: "src/hooks/use-delete-tab.ts",
+        exports: [createExport({ name: "useDeleteTab", kind: "hook" })],
+      }),
+      createParsedFile({ relativePath: "src/hooks/use-create-tab.test.ts", isTestFile: true }),
+      createParsedFile({ relativePath: "src/hooks/use-update-tab.test.ts", isTestFile: true }),
     ];
 
     const publicAPI: PublicAPIEntry[] = [
@@ -101,8 +76,14 @@ describe("detectContributionPatterns", () => {
 
   it("returns empty array when no directories have 3+ T1 files", () => {
     const parsedFiles: ParsedFile[] = [
-      makeParsedFile("src/utils/helper.ts", [{ name: "helper", kind: "function" }]),
-      makeParsedFile("src/utils/other.ts", [{ name: "other", kind: "function" }]),
+      createParsedFile({
+        relativePath: "src/utils/helper.ts",
+        exports: [createExport({ name: "helper", kind: "function" })],
+      }),
+      createParsedFile({
+        relativePath: "src/utils/other.ts",
+        exports: [createExport({ name: "other", kind: "function" })],
+      }),
     ];
 
     const tiers = new Map<string, TierInfo>([
@@ -120,9 +101,18 @@ describe("detectContributionPatterns", () => {
 
   it("includes barrel re-export step when barrel file exists", () => {
     const parsedFiles: ParsedFile[] = [
-      makeParsedFile("src/commands/create.ts", [{ name: "createCommand", kind: "function" }]),
-      makeParsedFile("src/commands/delete.ts", [{ name: "deleteCommand", kind: "function" }]),
-      makeParsedFile("src/commands/update.ts", [{ name: "updateCommand", kind: "function" }]),
+      createParsedFile({
+        relativePath: "src/commands/create.ts",
+        exports: [createExport({ name: "createCommand", kind: "function" })],
+      }),
+      createParsedFile({
+        relativePath: "src/commands/delete.ts",
+        exports: [createExport({ name: "deleteCommand", kind: "function" })],
+      }),
+      createParsedFile({
+        relativePath: "src/commands/update.ts",
+        exports: [createExport({ name: "updateCommand", kind: "function" })],
+      }),
     ];
 
     const tiers = new Map<string, TierInfo>([

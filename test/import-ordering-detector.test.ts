@@ -1,26 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { importOrderingDetector } from "../src/detectors/import-ordering.js";
 import type { ParsedFile, TierInfo } from "../src/types.js";
+import { createImport, createParsedFile } from "./helpers/fixtures.js";
 
 function makeFile(relativePath: string, imports: { specifier: string }[]): ParsedFile {
-  return {
+  return createParsedFile({
     relativePath,
-    exports: [],
-    imports: imports.map((i) => ({
-      moduleSpecifier: i.specifier,
-      importedNames: ["x"],
-      isTypeOnly: false,
-      isDynamic: false,
-    })),
-    contentSignals: {} as any,
-    lineCount: 50,
-    isTestFile: false,
-    isGeneratedFile: false,
-    hasJSX: false,
-    hasCJS: false,
-    hasSyntaxErrors: false,
-    callReferences: [],
-  };
+    imports: imports.map((i) =>
+      createImport({
+        moduleSpecifier: i.specifier,
+        importedNames: ["x"],
+      }),
+    ),
+  });
 }
 
 const tiers = new Map<string, TierInfo>([

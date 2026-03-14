@@ -30,6 +30,29 @@ const INVERSION_RULES: {
     rule: () => "Do NOT return arrays from hooks (use { value, setter } not [value, setter])",
     reason: (c) => `${c.confidence.description} return objects from hooks`,
   },
+  // Phase 1A: Error handling inversions (project-relative, not prescriptive)
+  {
+    match: /typed error class hierarchy/i,
+    rule: (c) =>
+      `Do NOT use inline new Error() for domain errors — use typed error subclasses (${c.examples?.[0] ?? "see existing error classes"})`,
+    reason: (c) => `${c.confidence.description} define typed error class hierarchies`,
+  },
+  {
+    match: /Result\/Either pattern|Custom Result type/i,
+    rule: () => "Do NOT throw exceptions for expected failures — use Result types",
+    reason: (c) => `${c.confidence.description} use Result/Either types for error handling`,
+  },
+  // Phase 1B: Async pattern inversions
+  {
+    match: /Promise\.all concurrent/i,
+    rule: () => "Do NOT await independent async operations sequentially — use Promise.all/allSettled",
+    reason: (c) => `${c.confidence.description} use Promise.all for concurrent operations`,
+  },
+  {
+    match: /Sequential await in loops/i,
+    rule: () => "Do NOT use await inside loops for independent operations — batch with Promise.all",
+    reason: (c) => `${c.confidence.description} contain sequential await in loops`,
+  },
 ];
 
 /**

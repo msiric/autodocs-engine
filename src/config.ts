@@ -28,6 +28,8 @@ export interface ParsedArgs {
   minimal?: boolean;
   // Telemetry
   telemetry?: boolean;
+  // Type-aware analysis
+  typeChecking?: boolean;
   // Benchmark-specific
   full?: boolean;
   model?: string;
@@ -55,6 +57,7 @@ const DEFAULTS: ResolvedConfig = {
   verbose: false,
   metaToolThreshold: 5,
   noMetaTool: false,
+  typeChecking: false,
 };
 
 /**
@@ -90,6 +93,7 @@ export function resolveConfig(args: ParsedArgs, warnings: Warning[] = []): Resol
     verbose: args.verbose,
     metaToolThreshold: fileConfig?.metaToolThreshold ?? DEFAULTS.metaToolThreshold,
     noMetaTool: args.noMetaTool ?? fileConfig?.noMetaTool ?? DEFAULTS.noMetaTool,
+    typeChecking: args.typeChecking ?? fileConfig?.typeChecking ?? DEFAULTS.typeChecking,
   };
 
   // Decision #11: Auto-detect format based on API key availability
@@ -193,6 +197,7 @@ export async function parseCliArgs(argv: string[]): Promise<ParsedArgs> {
       "full",
       "minimal",
       "telemetry",
+      "type-checking",
     ],
     string: ["format", "output", "config", "root", "diff", "llm-synthesis", "model", "max-tasks", "mode"],
   });
@@ -216,6 +221,7 @@ export async function parseCliArgs(argv: string[]): Promise<ParsedArgs> {
     saveBaseline: args["save-baseline"] ?? undefined,
     minimal: args.minimal ?? undefined,
     telemetry: args.telemetry ?? undefined,
+    typeChecking: args["type-checking"] ?? undefined,
     full: args.full ?? undefined,
     model: args.model ?? undefined,
     maxTasks: args["max-tasks"] ? parseInt(args["max-tasks"] as string, 10) : undefined,

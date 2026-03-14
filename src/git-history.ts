@@ -12,8 +12,11 @@ import { SOURCE_EXTENSIONS } from "./types.js";
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const MIN_COMMITS = 10;
-const MAX_COMMITS = 500;
-const MAX_DAYS = 90;
+const INITIAL_MAX_COMMITS = 500;
+const EXPANDED_MAX_COMMITS = 1000;
+const FULL_MAX_COMMITS = 2000;
+const MAX_DAYS = 365; // expanded from 90 — recency decay handles old data
+const MIN_USEFUL_EDGES = 5; // minimum co-change edges before expanding
 const MAX_FILES_PER_COMMIT = 30;
 const HUB_FILE_THRESHOLD = 0.7;
 const HUB_FILE_THRESHOLD_YOUNG = 0.9;
@@ -66,16 +69,23 @@ export function mineGitHistory(
     return null;
   }
 
-  const maxCommits = options.maxCommits ?? MAX_COMMITS;
   const maxDays = options.maxDays ?? MAX_DAYS;
-
-  const raw = runGitLog(absRepoDir, maxCommits, maxDays);
-  if (raw === null) return null;
 
   const gitRoot = resolveGitRoot(absRepoDir);
   if (gitRoot === null) return null;
 
-  const allCommits = parseGitLog(raw);
+  // Adaptive windowing: start with 500 commits, expand if insufficient signal
+  const commitTargets = [options.maxCommits ?? INITIAL_MAX_COMMITS, EXPANDED_MAX_COMMITS, FULL_MAX_COMMITS];
+  let allCommits: ParsedCommit[] = [];
+
+  for (const target of commitTargets) {
+    if (allCommits.length >= target) break; // already have enough from prior expansion
+    const raw = runGitLog(absRepoDir, target, maxDays);
+    if (raw === null) return null;
+    allCommits = parseGitLog(raw);
+    if (allCommits.length >= target * 0.8) break; // got most of what we asked for — no point expanding
+  }
+
   if (allCommits.length < MIN_COMMITS) {
     warnings.push({
       level: "info",
