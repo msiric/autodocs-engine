@@ -1,0 +1,506 @@
+{
+  "repo": "changesets",
+  "packageName": "@changesets/cli",
+  "importChain": [
+    {
+      "importer": "src/commands/publish/publishPackages.ts",
+      "source": "src/commands/publish/npm-utils.ts",
+      "symbolCount": 6,
+      "symbols": [
+        "isCustomRegistry",
+        "getCorrectRegistry",
+        "getTokenIsRequired",
+        "publish",
+        "infoAllow404"
+      ]
+    },
+    {
+      "importer": "src/commands/add/__tests__/add.ts",
+      "source": "src/utils/cli-utilities.ts",
+      "symbolCount": 5,
+      "symbols": [
+        "askCheckboxPlus",
+        "askConfirm",
+        "askQuestionWithEditor",
+        "askQuestion",
+        "askList"
+      ]
+    },
+    {
+      "importer": "src/commands/publish/index.ts",
+      "source": "src/commands/publish/publishPackages.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "publishPackages",
+        "PublishedResult"
+      ]
+    },
+    {
+      "importer": "src/commands/add/__tests__/add.ts",
+      "source": "src/commands/add/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "addChangeset"
+      ]
+    },
+    {
+      "importer": "src/commands/add/index.ts",
+      "source": "src/commit/getCommitFunctions.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "getCommitFunctions"
+      ]
+    },
+    {
+      "importer": "src/commands/add/index.ts",
+      "source": "src/utils/versionablePackages.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "getVersionableChangedPackages"
+      ]
+    },
+    {
+      "importer": "src/commands/add/index.ts",
+      "source": "src/commands/add/createChangeset.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "createChangeset"
+      ]
+    },
+    {
+      "importer": "src/commands/add/index.ts",
+      "source": "src/commands/add/messages.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "printConfirmationMessage"
+      ]
+    },
+    {
+      "importer": "src/commands/init/__tests__/command.ts",
+      "source": "src/commands/init/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "initializeCommand"
+      ]
+    },
+    {
+      "importer": "src/commands/pre/index.test.ts",
+      "source": "src/commands/pre/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "pre"
+      ]
+    },
+    {
+      "importer": "src/commands/publish/__tests__/index.test.ts",
+      "source": "src/commands/publish/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "publishCommand"
+      ]
+    },
+    {
+      "importer": "src/commands/publish/__tests__/publishPackages.test.ts",
+      "source": "src/commands/publish/publishPackages.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "publishPackages"
+      ]
+    },
+    {
+      "importer": "src/commands/publish/__tests__/releaseCommand.test.ts",
+      "source": "src/commands/publish/publishPackages.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "publishPackages"
+      ]
+    },
+    {
+      "importer": "src/commands/publish/__tests__/releaseCommand.test.ts",
+      "source": "src/commands/publish/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "runRelease"
+      ]
+    },
+    {
+      "importer": "src/commands/publish/index.ts",
+      "source": "src/utils/getUntaggedPackages.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "getUntaggedPackages"
+      ]
+    },
+    {
+      "importer": "src/commands/publish/npm-utils.ts",
+      "source": "src/utils/createPromiseQueue.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "createPromiseQueue"
+      ]
+    },
+    {
+      "importer": "src/commands/publish/npm-utils.ts",
+      "source": "src/utils/types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TwoFactorState"
+      ]
+    },
+    {
+      "importer": "src/commands/publish/npm-utils.ts",
+      "source": "src/utils/getLastJsonObjectFromString.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "getLastJsonObjectFromString"
+      ]
+    },
+    {
+      "importer": "src/commands/publish/npm-utils.ts",
+      "source": "src/commands/publish/publishPackages.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "requiresDelegatedAuth"
+      ]
+    },
+    {
+      "importer": "src/commands/publish/publishPackages.ts",
+      "source": "src/utils/types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TwoFactorState"
+      ]
+    },
+    {
+      "importer": "src/commands/status/__tests__/status.ts",
+      "source": "src/commands/status/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "status"
+      ]
+    },
+    {
+      "importer": "src/commands/status/index.ts",
+      "source": "src/utils/versionablePackages.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "getVersionableChangedPackages"
+      ]
+    },
+    {
+      "importer": "src/commands/tag/__tests__/index.test.ts",
+      "source": "src/commands/tag/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "tag"
+      ]
+    },
+    {
+      "importer": "src/commands/tag/index.ts",
+      "source": "src/utils/getUntaggedPackages.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "getUntaggedPackages"
+      ]
+    },
+    {
+      "importer": "src/commands/version/index.ts",
+      "source": "src/utils/v1-legacy/removeFolders.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "removeEmptyFolders"
+      ]
+    },
+    {
+      "importer": "src/commands/version/index.ts",
+      "source": "src/commit/getCommitFunctions.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "getCommitFunctions"
+      ]
+    },
+    {
+      "importer": "src/commands/version/version.test.ts",
+      "source": "src/commands/pre/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "pre"
+      ]
+    },
+    {
+      "importer": "src/commands/version/version.test.ts",
+      "source": "src/commands/version/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "version"
+      ]
+    },
+    {
+      "importer": "src/commit/commit.test.ts",
+      "source": "src/commit/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "defaultCommitFunctions"
+      ]
+    },
+    {
+      "importer": "src/index.ts",
+      "source": "src/run.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "run"
+      ]
+    },
+    {
+      "importer": "src/run.test.ts",
+      "source": "src/commands/add/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "add"
+      ]
+    },
+    {
+      "importer": "src/run.test.ts",
+      "source": "src/run.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "run"
+      ]
+    },
+    {
+      "importer": "src/run.ts",
+      "source": "src/commands/add/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "add"
+      ]
+    },
+    {
+      "importer": "src/run.ts",
+      "source": "src/commands/init/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "init"
+      ]
+    },
+    {
+      "importer": "src/run.ts",
+      "source": "src/commands/pre/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "pre"
+      ]
+    },
+    {
+      "importer": "src/run.ts",
+      "source": "src/commands/publish/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "publish"
+      ]
+    },
+    {
+      "importer": "src/run.ts",
+      "source": "src/commands/status/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "status"
+      ]
+    },
+    {
+      "importer": "src/run.ts",
+      "source": "src/commands/tag/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "tagCommand"
+      ]
+    },
+    {
+      "importer": "src/run.ts",
+      "source": "src/commands/version/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "version"
+      ]
+    },
+    {
+      "importer": "src/run.ts",
+      "source": "src/types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "CliOptions"
+      ]
+    },
+    {
+      "importer": "src/utils/createPromiseQueue.test.ts",
+      "source": "src/utils/createPromiseQueue.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "createPromiseQueue"
+      ]
+    },
+    {
+      "importer": "src/utils/getLastJsonObjectFromString.test.ts",
+      "source": "src/utils/getLastJsonObjectFromString.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "getLastJsonObjectFromString"
+      ]
+    },
+    {
+      "importer": "src/utils/getUntaggedPackages.ts",
+      "source": "src/commands/publish/publishPackages.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PublishedResult"
+      ]
+    }
+  ],
+  "coChangeEdges": [
+    {
+      "file1": "src/commands/add/__tests__/add.ts",
+      "file2": "src/index.ts",
+      "coChangeCount": 2,
+      "file1Commits": 2,
+      "file2Commits": 2,
+      "jaccard": 1,
+      "lastCoChangeTimestamp": 1771923210
+    },
+    {
+      "file1": "src/run.test.ts",
+      "file2": "src/run.ts",
+      "coChangeCount": 4,
+      "file1Commits": 4,
+      "file2Commits": 5,
+      "jaccard": 0.8,
+      "lastCoChangeTimestamp": 1772458983
+    },
+    {
+      "file1": "src/commands/publish/npm-utils.ts",
+      "file2": "src/commands/publish/publishPackages.ts",
+      "coChangeCount": 2,
+      "file1Commits": 2,
+      "file2Commits": 3,
+      "jaccard": 0.6666666666666666,
+      "lastCoChangeTimestamp": 1771801317
+    },
+    {
+      "file1": "src/commands/add/__tests__/add.ts",
+      "file2": "src/commands/add/index.ts",
+      "coChangeCount": 2,
+      "file1Commits": 2,
+      "file2Commits": 4,
+      "jaccard": 0.5,
+      "lastCoChangeTimestamp": 1771923210
+    },
+    {
+      "file1": "src/commands/add/index.ts",
+      "file2": "src/index.ts",
+      "coChangeCount": 2,
+      "file1Commits": 4,
+      "file2Commits": 2,
+      "jaccard": 0.5,
+      "lastCoChangeTimestamp": 1771923210
+    },
+    {
+      "file1": "src/commands/add/__tests__/add.ts",
+      "file2": "src/run.ts",
+      "coChangeCount": 2,
+      "file1Commits": 2,
+      "file2Commits": 5,
+      "jaccard": 0.4,
+      "lastCoChangeTimestamp": 1771923210
+    },
+    {
+      "file1": "src/index.ts",
+      "file2": "src/run.ts",
+      "coChangeCount": 2,
+      "file1Commits": 2,
+      "file2Commits": 5,
+      "jaccard": 0.4,
+      "lastCoChangeTimestamp": 1771923210
+    },
+    {
+      "file1": "src/commands/add/index.ts",
+      "file2": "src/run.ts",
+      "coChangeCount": 2,
+      "file1Commits": 4,
+      "file2Commits": 5,
+      "jaccard": 0.2857142857142857,
+      "lastCoChangeTimestamp": 1771923210
+    }
+  ],
+  "callGraph": [
+    {
+      "from": "run",
+      "to": "publish",
+      "fromFile": "src/run.ts",
+      "toFile": "src/commands/publish/npm-utils.ts"
+    }
+  ],
+  "workflowRules": [
+    {
+      "trigger": "After modifying source files",
+      "action": "Run `yarn test` to verify changes",
+      "source": "Test framework detected",
+      "impact": "high"
+    },
+    {
+      "trigger": "When modifying any of: `src/commands/add/__tests__/add.ts`, `src/commands/add/index.ts`, `src/index.ts`, `src/run.ts`",
+      "action": "Check all files in this co-change cluster — they frequently change together",
+      "source": "Git co-change analysis — 4 files form a co-change cluster",
+      "impact": "high"
+    }
+  ],
+  "commits": [
+    {
+      "repo": "changesets",
+      "commitSha": "a8f8b4853d57",
+      "commitMessage": "fix(cli): typo in `changeset pre enter` when tag is not passed (#1344)",
+      "testFiles": [
+        "src/run.test.ts"
+      ],
+      "sourceFiles": [
+        "src/run.ts"
+      ],
+      "expectedRootCause": "src/run.ts"
+    },
+    {
+      "repo": "changesets",
+      "commitSha": "5e9d33a2e659",
+      "commitMessage": "Fixed a regression that caused `changeset version` to fail on packages having a dev dependency on a skipped package (#13",
+      "testFiles": [
+        "src/run.test.ts"
+      ],
+      "sourceFiles": [
+        "src/run.ts"
+      ],
+      "expectedRootCause": "src/run.ts"
+    },
+    {
+      "repo": "changesets",
+      "commitSha": "d8f0e6851bdd",
+      "commitMessage": "Fixed an issue with parsing `--json` output when publishing (#676)",
+      "testFiles": [
+        "src/utils/getLastJsonObjectFromString.test.ts"
+      ],
+      "sourceFiles": [
+        "src/commands/publish/npm-utils.ts",
+        "src/utils/getLastJsonObjectFromString.ts"
+      ],
+      "expectedRootCause": "src/commands/publish/npm-utils.ts"
+    },
+    {
+      "repo": "changesets",
+      "commitSha": "efd01d9b7a46",
+      "commitMessage": "Fix version command not committing when commit config option is set (#437)",
+      "testFiles": [
+        "src/commands/version/version.test.ts"
+      ],
+      "sourceFiles": [
+        "src/commands/version/index.ts"
+      ],
+      "expectedRootCause": "src/commands/version/index.ts"
+    }
+  ]
+}
