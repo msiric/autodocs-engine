@@ -255,7 +255,7 @@ describe("buildSuspectList", () => {
       { file: "src/types.ts", hoursAgo: 2, commitMessage: "refactor: split User type", isUncommitted: false },
     ];
 
-    const suspects = Q.buildSuspectList(analysis, ["src/pipeline.ts"], recentChanges);
+    const { suspects } = Q.buildSuspectList(analysis, ["src/pipeline.ts"], recentChanges);
 
     expect(suspects.length).toBeGreaterThan(0);
     // validator.ts should rank high due to missing co-change
@@ -269,7 +269,7 @@ describe("buildSuspectList", () => {
     const analysis = makeAnalysis();
     const recentChanges: Q.FileChange[] = [{ file: "src/types.ts", hoursAgo: 0, isUncommitted: true }];
 
-    const suspects = Q.buildSuspectList(analysis, ["src/pipeline.ts"], recentChanges);
+    const { suspects } = Q.buildSuspectList(analysis, ["src/pipeline.ts"], recentChanges);
     const types = suspects.find((s) => s.file === "src/types.ts");
     expect(types).toBeDefined();
     expect(types!.signals.recency).toBe(1.0); // e^(-0.05 * 0) = 1.0, max(0.05, 1.0) = 1.0
@@ -278,7 +278,7 @@ describe("buildSuspectList", () => {
   it("uses coupling-dominant weights when no recent changes", () => {
     const analysis = makeAnalysis();
     // No recent changes at all
-    const suspects = Q.buildSuspectList(analysis, ["src/pipeline.ts"], []);
+    const { suspects } = Q.buildSuspectList(analysis, ["src/pipeline.ts"], []);
 
     // With coupling-dominant weights, files with high co-change should rank higher
     // All suspects should have recency=0 and missingCoChange=0
@@ -294,7 +294,7 @@ describe("buildSuspectList", () => {
       { file: "src/validator.ts", hoursAgo: 1, commitMessage: "fix validation", isUncommitted: false },
     ];
 
-    const suspects = Q.buildSuspectList(analysis, ["src/pipeline.ts"], recentChanges);
+    const { suspects } = Q.buildSuspectList(analysis, ["src/pipeline.ts"], recentChanges);
 
     // validator.ts has a call graph edge to pipeline.ts (error site) and is NOT the error site
     const validator = suspects.find((s) => s.file === "src/validator.ts");
@@ -310,7 +310,7 @@ describe("buildSuspectList", () => {
 
   it("returns at most 5 suspects", () => {
     const analysis = makeAnalysis();
-    const suspects = Q.buildSuspectList(
+    const { suspects } = Q.buildSuspectList(
       analysis,
       ["src/types.ts"],
       [{ file: "src/types.ts", hoursAgo: 0, isUncommitted: true }],
@@ -320,7 +320,7 @@ describe("buildSuspectList", () => {
 
   it("filters out zero-score suspects", () => {
     const analysis = makeAnalysis();
-    const suspects = Q.buildSuspectList(analysis, ["src/pipeline.ts"], []);
+    const { suspects } = Q.buildSuspectList(analysis, ["src/pipeline.ts"], []);
     for (const s of suspects) {
       expect(s.score).toBeGreaterThan(0);
     }

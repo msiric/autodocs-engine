@@ -273,7 +273,7 @@ describe("MCP accuracy: diagnose", () => {
   it("buildSuspectList returns scored suspects for a real file", () => {
     const rootDir = analysis.meta?.rootDir;
     const changes = rootDir ? Q.getRecentFileChanges(rootDir) : [];
-    const suspects = Q.buildSuspectList(analysis, ["src/types.ts"], changes);
+    const { suspects } = Q.buildSuspectList(analysis, ["src/types.ts"], changes);
 
     expect(suspects.length).toBeGreaterThan(0);
     expect(suspects.length).toBeLessThanOrEqual(5);

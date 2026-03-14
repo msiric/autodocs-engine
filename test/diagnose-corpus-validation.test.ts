@@ -124,7 +124,7 @@ describe("diagnose corpus validation", () => {
         const testFile = commit.testFiles[0] ?? null;
 
         // No recent changes — test pure structural scoring
-        const suspects = Q.buildSuspectList(analysis, errorFiles, [], undefined, testFile);
+        const { suspects } = Q.buildSuspectList(analysis, errorFiles, [], undefined, testFile);
         const suspectFiles = suspects.map((s) => s.file);
 
         // Check if any of the actual fix files appear in suspects
@@ -205,7 +205,7 @@ describe("diagnose corpus validation", () => {
           isUncommitted: false,
         }));
 
-        const suspects = Q.buildSuspectList(analysis, errorFiles, recentChanges, undefined, testFile);
+        const { suspects } = Q.buildSuspectList(analysis, errorFiles, recentChanges, undefined, testFile);
         const suspectFiles = suspects.map((s) => s.file);
         const rank = suspectFiles.findIndex((f) => commit.sourceFiles.includes(f));
 
