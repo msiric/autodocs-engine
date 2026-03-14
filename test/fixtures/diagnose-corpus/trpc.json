@@ -1,0 +1,3035 @@
+{
+  "repo": "trpc",
+  "packageName": "@trpc/server",
+  "importChain": [
+    {
+      "importer": "src/adapters/ws.ts",
+      "source": "src/@trpc/server/index.ts",
+      "symbolCount": 8,
+      "symbols": [
+        "AnyRouter",
+        "CreateContextCallback",
+        "inferRouterContext",
+        "callTRPCProcedure",
+        "getErrorShape"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/procedureBuilder.ts",
+      "source": "src/unstable-core-do-not-import/procedure.ts",
+      "symbolCount": 8,
+      "symbols": [
+        "AnyMutationProcedure",
+        "AnyProcedure",
+        "AnyQueryProcedure",
+        "LegacyObservableSubscriptionProcedure",
+        "MutationProcedure"
+      ]
+    },
+    {
+      "importer": "src/adapters/standalone.ts",
+      "source": "src/adapters/node-http/index.ts",
+      "symbolCount": 7,
+      "symbols": [
+        "NodeHTTPCreateContextFnOptions",
+        "NodeHTTPHandlerOptions",
+        "NodeHTTPRequest",
+        "NodeHTTPResponse",
+        "createURL"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/initTRPC.ts",
+      "source": "src/unstable-core-do-not-import/router.ts",
+      "symbolCount": 7,
+      "symbols": [
+        "AnyRouter",
+        "MergeRouters",
+        "RouterBuilder",
+        "RouterCallerFactory",
+        "createCallerFactory"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/procedureBuilder.ts",
+      "source": "src/unstable-core-do-not-import/middleware.ts",
+      "symbolCount": 7,
+      "symbols": [
+        "AnyMiddlewareFunction",
+        "MiddlewareBuilder",
+        "MiddlewareFunction",
+        "MiddlewareResult",
+        "createInputMiddleware"
+      ]
+    },
+    {
+      "importer": "src/adapters/ws.ts",
+      "source": "src/@trpc/server/rpc.ts",
+      "symbolCount": 6,
+      "symbols": [
+        "parseTRPCMessage",
+        "TRPCClientOutgoingMessage",
+        "TRPCConnectionParamsMessage",
+        "TRPCReconnectNotification",
+        "TRPCResponseMessage"
+      ]
+    },
+    {
+      "importer": "src/adapters/ws.ts",
+      "source": "src/unstable-core-do-not-import.ts",
+      "symbolCount": 6,
+      "symbols": [
+        "isAsyncIterable",
+        "isObject",
+        "isTrackedEnvelope",
+        "run",
+        "MaybePromise"
+      ]
+    },
+    {
+      "importer": "src/observable/observable.ts",
+      "source": "src/observable/types.ts",
+      "symbolCount": 6,
+      "symbols": [
+        "Observable",
+        "Observer",
+        "OperatorFunction",
+        "TeardownLogic",
+        "UnaryFunction"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/procedureBuilder.ts",
+      "source": "src/unstable-core-do-not-import/types.ts",
+      "symbolCount": 5,
+      "symbols": [
+        "GetRawInputFn",
+        "MaybePromise",
+        "Overwrite",
+        "Simplify",
+        "TypeError"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/router.ts",
+      "source": "src/unstable-core-do-not-import/procedure.ts",
+      "symbolCount": 5,
+      "symbols": [
+        "AnyProcedure",
+        "ErrorHandlerOptions",
+        "inferProcedureInput",
+        "inferProcedureOutput",
+        "LegacyObservableSubscriptionProcedure"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/jsonl.ts",
+      "source": "src/unstable-core-do-not-import/utils.ts",
+      "symbolCount": 5,
+      "symbols": [
+        "emptyObject",
+        "isAsyncIterable",
+        "isFunction",
+        "isObject",
+        "run"
+      ]
+    },
+    {
+      "importer": "src/adapters/aws-lambda/index.ts",
+      "source": "src/@trpc/server/http.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "HTTPBaseHandlerOptions",
+        "ResolveHTTPRequestOptionsContextFn",
+        "TRPCRequestInfo",
+        "resolveResponse"
+      ]
+    },
+    {
+      "importer": "src/adapters/express.ts",
+      "source": "src/adapters/node-http/index.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "NodeHTTPCreateContextFnOptions",
+        "NodeHTTPHandlerOptions",
+        "internal_exceptionHandler",
+        "nodeHTTPRequestHandler"
+      ]
+    },
+    {
+      "importer": "src/adapters/next.ts",
+      "source": "src/adapters/node-http/index.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "NodeHTTPCreateContextFnOptions",
+        "NodeHTTPHandlerOptions",
+        "internal_exceptionHandler",
+        "nodeHTTPRequestHandler"
+      ]
+    },
+    {
+      "importer": "src/observable/operators.test.ts",
+      "source": "src/observable/operators.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "distinctUntilChanged",
+        "distinctUntilDeepChanged",
+        "map",
+        "share"
+      ]
+    },
+    {
+      "importer": "src/observable/operators.ts",
+      "source": "src/observable/types.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "MonoTypeOperatorFunction",
+        "Observer",
+        "OperatorFunction",
+        "Unsubscribable"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/resolveResponse.ts",
+      "source": "src/unstable-core-do-not-import/utils.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "abortSignalsAnyPonyfill",
+        "isAsyncIterable",
+        "isObject",
+        "run"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/initTRPC.ts",
+      "source": "src/unstable-core-do-not-import/rootConfig.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "AnyRootTypes",
+        "CreateRootTypes",
+        "isServerDefault",
+        "RootConfig"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/router.ts",
+      "source": "src/unstable-core-do-not-import/utils.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "emptyObject",
+        "isFunction",
+        "isObject",
+        "mergeWithoutOverrides"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/jsonl.test.ts",
+      "source": "src/unstable-core-do-not-import/stream/jsonl.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "ConsumerOnError",
+        "ProducerOnError",
+        "jsonlStreamConsumer",
+        "jsonlStreamProducer"
+      ]
+    },
+    {
+      "importer": "src/vendor/unpromise/unpromise.ts",
+      "source": "src/vendor/unpromise/types.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "PromiseExecutor",
+        "PromiseWithResolvers",
+        "ProxyPromise",
+        "SubscribedPromise"
+      ]
+    },
+    {
+      "importer": "src/adapters/aws-lambda/index.ts",
+      "source": "src/@trpc/server/index.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "AnyRouter",
+        "CreateContextCallback",
+        "inferRouterContext"
+      ]
+    },
+    {
+      "importer": "src/adapters/aws-lambda/index.ts",
+      "source": "src/adapters/aws-lambda/getPlanner.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "inferAPIGWReturn",
+        "LambdaEvent",
+        "getPlanner"
+      ]
+    },
+    {
+      "importer": "src/adapters/fastify/fastifyRequestHandler.ts",
+      "source": "src/@trpc/server/http.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "resolveResponse",
+        "HTTPBaseHandlerOptions",
+        "ResolveHTTPRequestOptionsContextFn"
+      ]
+    },
+    {
+      "importer": "src/adapters/fastify/fastifyRequestHandler.ts",
+      "source": "src/adapters/node-http/index.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "NodeHTTPRequest",
+        "incomingMessageToRequest",
+        "NodeHTTPCreateContextOption"
+      ]
+    },
+    {
+      "importer": "src/adapters/fastify/fastifyTRPCPlugin.ts",
+      "source": "src/adapters/ws.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "getWSConnectionHandler",
+        "handleKeepAlive",
+        "WSSHandlerOptions"
+      ]
+    },
+    {
+      "importer": "src/adapters/fetch/types.ts",
+      "source": "src/@trpc/server/index.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "AnyRouter",
+        "CreateContextCallback",
+        "inferRouterContext"
+      ]
+    },
+    {
+      "importer": "src/adapters/next-app-dir/nextAppDirCaller.ts",
+      "source": "src/@trpc/server/index.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "CreateContextCallback",
+        "getTRPCErrorFromUnknown",
+        "TRPCError"
+      ]
+    },
+    {
+      "importer": "src/adapters/node-http/nodeHTTPRequestHandler.ts",
+      "source": "src/@trpc/server/index.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "getTRPCErrorFromUnknown",
+        "transformTRPCResponse",
+        "AnyRouter"
+      ]
+    },
+    {
+      "importer": "src/adapters/node-http/nodeHTTPRequestHandler.ts",
+      "source": "src/adapters/node-http/types.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "NodeHTTPRequest",
+        "NodeHTTPRequestHandlerOptions",
+        "NodeHTTPResponse"
+      ]
+    },
+    {
+      "importer": "src/adapters/node-http/types.ts",
+      "source": "src/@trpc/server/index.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "AnyRouter",
+        "CreateContextCallback",
+        "inferRouterContext"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/clientish/inference.ts",
+      "source": "src/unstable-core-do-not-import/procedure.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "AnyProcedure",
+        "inferProcedureInput",
+        "inferProcedureOutput"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/clientish/inference.ts",
+      "source": "src/unstable-core-do-not-import/clientish/inferrable.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "AnyClientTypes",
+        "inferClientTypes",
+        "InferrableClientTypes"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/error/formatter.ts",
+      "source": "src/unstable-core-do-not-import/rpc/index.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "TRPC_ERROR_CODE_KEY",
+        "TRPC_ERROR_CODE_NUMBER",
+        "TRPCErrorShape"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/getHTTPStatusCode.ts",
+      "source": "src/unstable-core-do-not-import/rpc/index.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "TRPC_ERROR_CODES_BY_KEY",
+        "TRPCResponse",
+        "TRPC_ERROR_CODES_BY_NUMBER"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/resolveResponse.ts",
+      "source": "src/unstable-core-do-not-import/router.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "AnyRouter",
+        "inferRouterContext",
+        "inferRouterError"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/resolveResponse.ts",
+      "source": "src/unstable-core-do-not-import/http/types.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "HTTPBaseHandlerOptions",
+        "ResolveHTTPRequestOptionsContextFn",
+        "TRPCRequestInfo"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/types.ts",
+      "source": "src/unstable-core-do-not-import/procedure.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "AnyProcedure",
+        "ErrorHandlerOptions",
+        "ProcedureType"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/types.ts",
+      "source": "src/unstable-core-do-not-import/router.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "AnyRouter",
+        "inferRouterContext",
+        "inferRouterError"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/initTRPC.ts",
+      "source": "src/unstable-core-do-not-import/error/formatter.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "defaultFormatter",
+        "DefaultErrorShape",
+        "ErrorFormatter"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/initTRPC.ts",
+      "source": "src/unstable-core-do-not-import/middleware.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "MiddlewareBuilder",
+        "MiddlewareFunction",
+        "createMiddlewareFactory"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/initTRPC.ts",
+      "source": "src/unstable-core-do-not-import/transformer.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "DataTransformerOptions",
+        "defaultTransformer",
+        "getDataTransformer"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/middleware.ts",
+      "source": "src/unstable-core-do-not-import/types.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "GetRawInputFn",
+        "Overwrite",
+        "Simplify"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/procedureBuilder.ts",
+      "source": "src/unstable-core-do-not-import/parser.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "inferParser",
+        "Parser",
+        "getParseFn"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/sse.test.ts",
+      "source": "src/unstable-core-do-not-import/stream/sse.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "sseHeaders",
+        "sseStreamConsumer",
+        "sseStreamProducer"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/sse.test.ts",
+      "source": "src/unstable-core-do-not-import/stream/tracked.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "isTrackedEnvelope",
+        "sse",
+        "tracked"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/sse.ts",
+      "source": "src/unstable-core-do-not-import/utils.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "emptyObject",
+        "identity",
+        "run"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/transformer.ts",
+      "source": "src/unstable-core-do-not-import/rpc/index.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "TRPCResponse",
+        "TRPCResponseMessage",
+        "TRPCResultMessage"
+      ]
+    },
+    {
+      "importer": "src/adapters/fastify/fastifyTRPCPlugin.ts",
+      "source": "src/adapters/fastify/fastifyRequestHandler.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "FastifyHandlerOptions",
+        "fastifyRequestHandler"
+      ]
+    },
+    {
+      "importer": "src/adapters/fetch/fetchRequestHandler.ts",
+      "source": "src/@trpc/server/http.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "ResolveHTTPRequestOptionsContextFn",
+        "resolveResponse"
+      ]
+    },
+    {
+      "importer": "src/adapters/fetch/types.ts",
+      "source": "src/@trpc/server/http.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "HTTPBaseHandlerOptions",
+        "TRPCRequestInfo"
+      ]
+    },
+    {
+      "importer": "src/adapters/next-app-dir.test.ts",
+      "source": "src/@trpc/server/index.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "experimental_trpcMiddleware",
+        "initTRPC"
+      ]
+    },
+    {
+      "importer": "src/adapters/next-app-dir/nextAppDirCaller.ts",
+      "source": "src/unstable-core-do-not-import/types.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MaybePromise",
+        "Simplify"
+      ]
+    },
+    {
+      "importer": "src/adapters/next.ts",
+      "source": "src/@trpc/server/index.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "AnyRouter",
+        "TRPCError"
+      ]
+    },
+    {
+      "importer": "src/adapters/node-http/incomingMessageToRequest.ts",
+      "source": "src/adapters/node-http/types.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "NodeHTTPRequest",
+        "NodeHTTPResponse"
+      ]
+    },
+    {
+      "importer": "src/adapters/node-http/nodeHTTPRequestHandler.ts",
+      "source": "src/@trpc/server/http.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "ResolveHTTPRequestOptionsContextFn",
+        "resolveResponse"
+      ]
+    },
+    {
+      "importer": "src/adapters/node-http/nodeHTTPRequestHandler.ts",
+      "source": "src/unstable-core-do-not-import.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "getErrorShape",
+        "run"
+      ]
+    },
+    {
+      "importer": "src/adapters/node-http/types.ts",
+      "source": "src/@trpc/server/http.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "HTTPBaseHandlerOptions",
+        "TRPCRequestInfo"
+      ]
+    },
+    {
+      "importer": "src/adapters/node-http/types.ts",
+      "source": "src/unstable-core-do-not-import.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "DistributiveOmit",
+        "MaybePromise"
+      ]
+    },
+    {
+      "importer": "src/adapters/ws.ts",
+      "source": "src/@trpc/server/http.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "TRPCRequestInfo",
+        "BaseHandlerOptions"
+      ]
+    },
+    {
+      "importer": "src/adapters/ws.ts",
+      "source": "src/observable/index.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "isObservable",
+        "observableToAsyncIterable"
+      ]
+    },
+    {
+      "importer": "src/adapters/ws.ts",
+      "source": "src/adapters/node-http/index.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "createURL",
+        "NodeHTTPCreateContextFnOptions"
+      ]
+    },
+    {
+      "importer": "src/adapters/ws.ts",
+      "source": "src/adapters/wsEncoder.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "Encoder",
+        "jsonEncoder"
+      ]
+    },
+    {
+      "importer": "src/observable/behaviorSubject.ts",
+      "source": "src/observable/types.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "Observable",
+        "Observer"
+      ]
+    },
+    {
+      "importer": "src/observable/observable.test.ts",
+      "source": "src/observable/observable.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "observable",
+        "observableToAsyncIterable"
+      ]
+    },
+    {
+      "importer": "src/observable/observable.test.ts",
+      "source": "src/observable/operators.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "share",
+        "tap"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/clientish/inference.ts",
+      "source": "src/unstable-core-do-not-import/router.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "AnyRouter",
+        "RouterRecord"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/clientish/serialize.ts",
+      "source": "src/unstable-core-do-not-import/types.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "Simplify",
+        "WithoutIndexSignature"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/error/getErrorShape.ts",
+      "source": "src/unstable-core-do-not-import/rootConfig.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "AnyRootTypes",
+        "RootConfig"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/contentType.ts",
+      "source": "src/unstable-core-do-not-import/router.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "getProcedureAtPath",
+        "AnyRouter"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/contentType.ts",
+      "source": "src/unstable-core-do-not-import/utils.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "emptyObject",
+        "isObject"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/contentType.ts",
+      "source": "src/unstable-core-do-not-import/http/types.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "TRPCAcceptHeader",
+        "TRPCRequestInfo"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/getHTTPStatusCode.ts",
+      "source": "src/unstable-core-do-not-import/types.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "InvertKeyValue",
+        "ValueOf"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/resolveResponse.ts",
+      "source": "src/observable/observable.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "isObservable",
+        "observableToAsyncIterable"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/resolveResponse.ts",
+      "source": "src/unstable-core-do-not-import/error/TRPCError.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "getTRPCErrorFromUnknown",
+        "TRPCError"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/resolveResponse.ts",
+      "source": "src/unstable-core-do-not-import/stream/jsonl.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "isPromise",
+        "jsonlStreamProducer"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/resolveResponse.ts",
+      "source": "src/unstable-core-do-not-import/stream/sse.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "sseHeaders",
+        "sseStreamProducer"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/initTRPC.test.ts",
+      "source": "src/unstable-core-do-not-import/transformer.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "CombinedDataTransformer",
+        "DataTransformerOptions"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/initTRPC.ts",
+      "source": "src/unstable-core-do-not-import/procedureBuilder.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "ProcedureBuilder",
+        "createBuilder"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/initTRPC.ts",
+      "source": "src/unstable-core-do-not-import/types.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "Unwrap",
+        "ValidateShape"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/procedureBuilder.ts",
+      "source": "src/observable/index.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "inferObservableValue",
+        "Observable"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/procedureBuilder.ts",
+      "source": "src/unstable-core-do-not-import/error/TRPCError.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "getTRPCErrorFromUnknown",
+        "TRPCError"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/procedureBuilder.ts",
+      "source": "src/unstable-core-do-not-import/utils.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "UnsetMarker",
+        "mergeWithoutOverrides"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/rootConfig.ts",
+      "source": "src/unstable-core-do-not-import/error/formatter.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "DefaultErrorShape",
+        "ErrorFormatter"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/router.mergeRouters.test.ts",
+      "source": "src/@trpc/server/index.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "TRPCRouterRecord",
+        "initTRPC"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/router.ts",
+      "source": "src/unstable-core-do-not-import/error/TRPCError.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "getTRPCErrorFromUnknown",
+        "TRPCError"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/router.ts",
+      "source": "src/unstable-core-do-not-import/rootConfig.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "AnyRootTypes",
+        "RootConfig"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/router.ts",
+      "source": "src/unstable-core-do-not-import/types.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MaybePromise",
+        "ValueOf"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/rpc/codes.ts",
+      "source": "src/unstable-core-do-not-import/types.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "InvertKeyValue",
+        "ValueOf"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/rpc/parseTRPCMessage.ts",
+      "source": "src/unstable-core-do-not-import/procedure.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "procedureTypes",
+        "ProcedureType"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/jsonl.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/createDeferred.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "Deferred",
+        "createDeferred"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/jsonl.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/withPing.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PING_SYM",
+        "withPing"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/sse.test.ts",
+      "source": "src/unstable-core-do-not-import/types.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "inferAsyncIterableYield",
+        "Maybe"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/sse.test.ts",
+      "source": "src/unstable-core-do-not-import/utils.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "run",
+        "sleep"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/sse.ts",
+      "source": "src/unstable-core-do-not-import/stream/tracked.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "inferTrackedOutput",
+        "isTrackedEnvelope"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/sse.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/timerResource.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "disposablePromiseTimerResult",
+        "timerResource"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/sse.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/withPing.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PING_SYM",
+        "withPing"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/utils/asyncIterable.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/timerResource.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "disposablePromiseTimerResult",
+        "timerResource"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/utils/withPing.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/timerResource.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "disposablePromiseTimerResult",
+        "timerResource"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/transformer.ts",
+      "source": "src/unstable-core-do-not-import/rootConfig.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "AnyRootTypes",
+        "RootConfig"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/transformer.ts",
+      "source": "src/unstable-core-do-not-import/router.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "AnyRouter",
+        "inferRouterError"
+      ]
+    },
+    {
+      "importer": "src/__tests__/fakeTimersResource.ts",
+      "source": "src/unstable-core-do-not-import.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "makeResource"
+      ]
+    },
+    {
+      "importer": "src/__tests__/fetchServerResource.ts",
+      "source": "src/adapters/node-http/incomingMessageToRequest.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "incomingMessageToRequest"
+      ]
+    },
+    {
+      "importer": "src/__tests__/fetchServerResource.ts",
+      "source": "src/adapters/node-http/writeResponse.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "writeResponse"
+      ]
+    },
+    {
+      "importer": "src/__tests__/fetchServerResource.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/disposable.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "makeAsyncResource"
+      ]
+    },
+    {
+      "importer": "src/__tests__/fetchServerResource.ts",
+      "source": "src/unstable-core-do-not-import/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "run"
+      ]
+    },
+    {
+      "importer": "src/__tests__/trpcServerResource.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/disposable.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "makeAsyncResource"
+      ]
+    },
+    {
+      "importer": "src/adapters/aws-lambda/getPlanner.ts",
+      "source": "src/vendor/cookie-es/set-cookie/split.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "splitSetCookieString"
+      ]
+    },
+    {
+      "importer": "src/adapters/express.ts",
+      "source": "src/@trpc/server/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "AnyRouter"
+      ]
+    },
+    {
+      "importer": "src/adapters/express.ts",
+      "source": "src/unstable-core-do-not-import.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "run"
+      ]
+    },
+    {
+      "importer": "src/adapters/fastify/fastifyRequestHandler.ts",
+      "source": "src/@trpc/server/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "AnyRouter"
+      ]
+    },
+    {
+      "importer": "src/adapters/fastify/fastifyTRPCPlugin.ts",
+      "source": "src/@trpc/server/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "AnyRouter"
+      ]
+    },
+    {
+      "importer": "src/adapters/fastify/fastifyTRPCPlugin.ts",
+      "source": "src/adapters/node-http/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "NodeHTTPCreateContextFnOptions"
+      ]
+    },
+    {
+      "importer": "src/adapters/fetch/fetchRequestHandler.ts",
+      "source": "src/@trpc/server/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "AnyRouter"
+      ]
+    },
+    {
+      "importer": "src/adapters/fetch/fetchRequestHandler.ts",
+      "source": "src/adapters/fetch/types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "FetchHandlerRequestOptions"
+      ]
+    },
+    {
+      "importer": "src/adapters/next-app-dir.test.ts",
+      "source": "src/adapters/next-app-dir/nextAppDirCaller.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "nextAppDirCaller"
+      ]
+    },
+    {
+      "importer": "src/adapters/next-app-dir/nextAppDirCaller.ts",
+      "source": "src/unstable-core-do-not-import.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "formDataToObject"
+      ]
+    },
+    {
+      "importer": "src/adapters/next-app-dir/nextAppDirCaller.ts",
+      "source": "src/unstable-core-do-not-import/procedure.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "ErrorHandlerOptions"
+      ]
+    },
+    {
+      "importer": "src/adapters/next-app-dir/nextAppDirCaller.ts",
+      "source": "src/unstable-core-do-not-import/procedureBuilder.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "CallerOverride"
+      ]
+    },
+    {
+      "importer": "src/adapters/next-app-dir/nextAppDirCaller.ts",
+      "source": "src/adapters/next-app-dir/redirect.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TRPCRedirectError"
+      ]
+    },
+    {
+      "importer": "src/adapters/next-app-dir/nextAppDirCaller.ts",
+      "source": "src/adapters/next-app-dir/rethrowNextErrors.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "rethrowNextErrors"
+      ]
+    },
+    {
+      "importer": "src/adapters/next-app-dir/notFound.ts",
+      "source": "src/@trpc/server/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TRPCError"
+      ]
+    },
+    {
+      "importer": "src/adapters/next-app-dir/redirect.ts",
+      "source": "src/@trpc/server/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TRPCError"
+      ]
+    },
+    {
+      "importer": "src/adapters/next-app-dir/rethrowNextErrors.ts",
+      "source": "src/@trpc/server/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TRPCError"
+      ]
+    },
+    {
+      "importer": "src/adapters/next-app-dir/rethrowNextErrors.ts",
+      "source": "src/adapters/next-app-dir/redirect.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TRPCRedirectError"
+      ]
+    },
+    {
+      "importer": "src/adapters/next.ts",
+      "source": "src/unstable-core-do-not-import.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "run"
+      ]
+    },
+    {
+      "importer": "src/adapters/node-http/incomingMessageToRequest.test.ts",
+      "source": "src/adapters/node-http/incomingMessageToRequest.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "incomingMessageToRequest"
+      ]
+    },
+    {
+      "importer": "src/adapters/node-http/incomingMessageToRequest.ts",
+      "source": "src/@trpc/server/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TRPCError"
+      ]
+    },
+    {
+      "importer": "src/adapters/node-http/nodeHTTPRequestHandler.ts",
+      "source": "src/adapters/node-http/incomingMessageToRequest.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "incomingMessageToRequest"
+      ]
+    },
+    {
+      "importer": "src/adapters/node-http/nodeHTTPRequestHandler.ts",
+      "source": "src/adapters/node-http/writeResponse.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "writeResponse"
+      ]
+    },
+    {
+      "importer": "src/adapters/node-http/writeResponse.ts",
+      "source": "src/unstable-core-do-not-import.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "isAbortError"
+      ]
+    },
+    {
+      "importer": "src/adapters/node-http/writeResponse.ts",
+      "source": "src/adapters/node-http/types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "NodeHTTPResponse"
+      ]
+    },
+    {
+      "importer": "src/adapters/standalone.ts",
+      "source": "src/@trpc/server/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "AnyRouter"
+      ]
+    },
+    {
+      "importer": "src/adapters/standalone.ts",
+      "source": "src/unstable-core-do-not-import.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "run"
+      ]
+    },
+    {
+      "importer": "src/adapters/ws.ts",
+      "source": "src/http.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "parseConnectionParamsFromUnknown"
+      ]
+    },
+    {
+      "importer": "src/adapters/ws.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/asyncIterable.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "iteratorResource"
+      ]
+    },
+    {
+      "importer": "src/adapters/ws.ts",
+      "source": "src/vendor/unpromise/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Unpromise"
+      ]
+    },
+    {
+      "importer": "src/observable/behaviorSubject.test.ts",
+      "source": "src/observable/behaviorSubject.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "behaviorSubject"
+      ]
+    },
+    {
+      "importer": "src/observable/behaviorSubject.ts",
+      "source": "src/observable/observable.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "observable"
+      ]
+    },
+    {
+      "importer": "src/observable/observable.ts",
+      "source": "src/unstable-core-do-not-import.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Result"
+      ]
+    },
+    {
+      "importer": "src/observable/operators.test.ts",
+      "source": "src/observable/observable.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "observable"
+      ]
+    },
+    {
+      "importer": "src/observable/operators.ts",
+      "source": "src/observable/observable.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "observable"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/clientish/inference.test.ts",
+      "source": "src/unstable-core-do-not-import/initTRPC.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "initTRPC"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/clientish/inference.test.ts",
+      "source": "src/unstable-core-do-not-import/clientish/inference.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "inferTransformedProcedureOutput"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/clientish/inference.test.ts",
+      "source": "src/unstable-core-do-not-import/clientish/inferrable.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "inferClientTypes"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/clientish/inference.ts",
+      "source": "src/observable/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "inferObservableValue"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/clientish/inference.ts",
+      "source": "src/unstable-core-do-not-import/clientish/serialize.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Serialize"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/clientish/inferrable.ts",
+      "source": "src/unstable-core-do-not-import/rootConfig.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "AnyRootTypes"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/clientish/serialize.test.ts",
+      "source": "src/unstable-core-do-not-import/clientish/serialize.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Serialize"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/createProxy.test.ts",
+      "source": "src/unstable-core-do-not-import/createProxy.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "createRecursiveProxy"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/createProxy.ts",
+      "source": "src/unstable-core-do-not-import/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "emptyObject"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/error/TRPCError.ts",
+      "source": "src/unstable-core-do-not-import/rpc/codes.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TRPC_ERROR_CODE_KEY"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/error/TRPCError.ts",
+      "source": "src/unstable-core-do-not-import/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "isObject"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/error/formatter.ts",
+      "source": "src/unstable-core-do-not-import/procedure.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "ProcedureType"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/error/formatter.ts",
+      "source": "src/unstable-core-do-not-import/error/TRPCError.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TRPCError"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/error/getErrorShape.ts",
+      "source": "src/unstable-core-do-not-import/http/getHTTPStatusCode.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "getHTTPStatusCodeFromError"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/error/getErrorShape.ts",
+      "source": "src/unstable-core-do-not-import/procedure.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "ProcedureType"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/error/getErrorShape.ts",
+      "source": "src/unstable-core-do-not-import/rpc/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TRPC_ERROR_CODES_BY_KEY"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/error/getErrorShape.ts",
+      "source": "src/unstable-core-do-not-import/error/formatter.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "DefaultErrorShape"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/error/getErrorShape.ts",
+      "source": "src/unstable-core-do-not-import/error/TRPCError.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TRPCError"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/abortError.ts",
+      "source": "src/unstable-core-do-not-import/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "isObject"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/contentType.ts",
+      "source": "src/unstable-core-do-not-import/error/TRPCError.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TRPCError"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/contentType.ts",
+      "source": "src/unstable-core-do-not-import/procedure.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "ProcedureType"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/contentType.ts",
+      "source": "src/unstable-core-do-not-import/http/parseConnectionParams.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "parseConnectionParamsFromString"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/contentTypeParsers.ts",
+      "source": "src/unstable-core-do-not-import/parser.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "ParserZodEsque"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/formDataToObject.test.ts",
+      "source": "src/unstable-core-do-not-import/http/formDataToObject.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "formDataToObject"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/formDataToObject.ts",
+      "source": "src/unstable-core-do-not-import/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "emptyObject"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/getHTTPStatusCode.ts",
+      "source": "src/unstable-core-do-not-import/error/TRPCError.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TRPCError"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/getHTTPStatusCode.ts",
+      "source": "src/unstable-core-do-not-import/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "isObject"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/parseConnectionParams.ts",
+      "source": "src/unstable-core-do-not-import/error/TRPCError.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TRPCError"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/parseConnectionParams.ts",
+      "source": "src/unstable-core-do-not-import/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "isObject"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/parseConnectionParams.ts",
+      "source": "src/unstable-core-do-not-import/http/types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TRPCRequestInfo"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/resolveResponse.ts",
+      "source": "src/unstable-core-do-not-import/error/getErrorShape.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "getErrorShape"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/resolveResponse.ts",
+      "source": "src/unstable-core-do-not-import/procedure.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "ProcedureType"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/resolveResponse.ts",
+      "source": "src/unstable-core-do-not-import/rpc/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TRPCResponse"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/resolveResponse.ts",
+      "source": "src/unstable-core-do-not-import/transformer.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "transformTRPCResponse"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/resolveResponse.ts",
+      "source": "src/unstable-core-do-not-import/http/contentType.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "getRequestInfo"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/resolveResponse.ts",
+      "source": "src/unstable-core-do-not-import/http/getHTTPStatusCode.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "getHTTPStatusCode"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/types.ts",
+      "source": "src/unstable-core-do-not-import/error/TRPCError.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TRPCError"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/types.ts",
+      "source": "src/unstable-core-do-not-import/rpc/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TRPCResponse"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/http/types.ts",
+      "source": "src/unstable-core-do-not-import/types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Dict"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/initTRPC.test.ts",
+      "source": "src/unstable-core-do-not-import/initTRPC.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "initTRPC"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/initTRPC.ts",
+      "source": "src/unstable-core-do-not-import/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "UnsetMarker"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/middleware.ts",
+      "source": "src/unstable-core-do-not-import/error/TRPCError.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TRPCError"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/middleware.ts",
+      "source": "src/unstable-core-do-not-import/parser.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "ParseFn"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/middleware.ts",
+      "source": "src/unstable-core-do-not-import/procedure.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "ProcedureType"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/middleware.ts",
+      "source": "src/unstable-core-do-not-import/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "isObject"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/parser.ts",
+      "source": "src/vendor/standard-schema-v1/error.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "StandardSchemaV1Error"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/parser.ts",
+      "source": "src/vendor/standard-schema-v1/spec.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "StandardSchemaV1"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/procedure.ts",
+      "source": "src/unstable-core-do-not-import/error/TRPCError.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TRPCError"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/procedure.ts",
+      "source": "src/unstable-core-do-not-import/parser.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Parser"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/procedure.ts",
+      "source": "src/unstable-core-do-not-import/procedureBuilder.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "ProcedureCallOptions"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/procedureBuilder.test.ts",
+      "source": "src/unstable-core-do-not-import/error/TRPCError.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TRPCError"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/procedureBuilder.test.ts",
+      "source": "src/unstable-core-do-not-import/initTRPC.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "initTRPC"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/procedureBuilder.test.ts",
+      "source": "src/unstable-core-do-not-import/procedureBuilder.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "inferProcedureBuilderResolverOptions"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/procedureBuilder.ts",
+      "source": "src/unstable-core-do-not-import/stream/tracked.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "inferTrackedOutput"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/rootConfig.ts",
+      "source": "src/unstable-core-do-not-import.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "CombinedDataTransformer"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/rootConfig.ts",
+      "source": "src/unstable-core-do-not-import/stream/jsonl.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "JSONLProducerOptions"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/rootConfig.ts",
+      "source": "src/unstable-core-do-not-import/stream/sse.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SSEStreamProducerOptions"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/router.mergeRouters.test.ts",
+      "source": "src/unstable-core-do-not-import.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "inferClientTypes"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/router.test.ts",
+      "source": "src/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "initTRPC"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/router.test.ts",
+      "source": "src/unstable-core-do-not-import/router.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "lazy"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/router.ts",
+      "source": "src/observable/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Observable"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/router.ts",
+      "source": "src/unstable-core-do-not-import/createProxy.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "createRecursiveProxy"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/router.ts",
+      "source": "src/unstable-core-do-not-import/error/formatter.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "defaultFormatter"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/router.ts",
+      "source": "src/unstable-core-do-not-import/procedureBuilder.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "ProcedureCallOptions"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/router.ts",
+      "source": "src/unstable-core-do-not-import/transformer.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "defaultTransformer"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/rpc/envelopes.ts",
+      "source": "src/unstable-core-do-not-import/http/types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TRPCRequestInfo"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/rpc/envelopes.ts",
+      "source": "src/unstable-core-do-not-import/procedure.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "ProcedureType"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/rpc/envelopes.ts",
+      "source": "src/unstable-core-do-not-import/rpc/codes.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TRPC_ERROR_CODE_NUMBER"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/rpc/parseTRPCMessage.ts",
+      "source": "src/unstable-core-do-not-import/transformer.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "CombinedDataTransformer"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/rpc/parseTRPCMessage.ts",
+      "source": "src/unstable-core-do-not-import/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "isObject"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/rpc/parseTRPCMessage.ts",
+      "source": "src/unstable-core-do-not-import/rpc/envelopes.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TRPCClientOutgoingMessage"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/jsonl.test.ts",
+      "source": "src/unstable-core-do-not-import/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "run"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/jsonl.test.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/createDeferred.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "createDeferred"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/jsonl.test.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/disposable.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "makeResource"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/jsonl.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/asyncIterable.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "iteratorResource"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/jsonl.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/disposable.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "makeResource"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/jsonl.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/mergeAsyncIterables.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "mergeAsyncIterables"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/jsonl.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/readableStreamFrom.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "readableStreamFrom"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/sse.ts",
+      "source": "src/vendor/unpromise/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Unpromise"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/sse.ts",
+      "source": "src/unstable-core-do-not-import/error/TRPCError.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "getTRPCErrorFromUnknown"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/sse.ts",
+      "source": "src/unstable-core-do-not-import/http/abortError.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "isAbortError"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/sse.ts",
+      "source": "src/unstable-core-do-not-import/types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MaybePromise"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/sse.ts",
+      "source": "src/unstable-core-do-not-import/stream/sse.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "EventSourceLike"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/sse.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/asyncIterable.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "takeWithGrace"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/sse.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/disposable.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "makeAsyncResource"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/sse.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/readableStreamFrom.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "readableStreamFrom"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/utils/asyncIterable.ts",
+      "source": "src/vendor/unpromise/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Unpromise"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/utils/asyncIterable.ts",
+      "source": "src/unstable-core-do-not-import/http/abortError.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "throwAbortError"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/utils/asyncIterable.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/disposable.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "makeAsyncResource"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/utils/mergeAsyncIterables.test.ts",
+      "source": "src/unstable-core-do-not-import/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "run"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/utils/mergeAsyncIterables.test.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/createDeferred.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "createDeferred"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/utils/mergeAsyncIterables.test.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/mergeAsyncIterables.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "mergeAsyncIterables"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/utils/mergeAsyncIterables.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/createDeferred.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "createDeferred"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/utils/mergeAsyncIterables.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/disposable.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "makeAsyncResource"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/utils/readableStreamFrom.test.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/readableStreamFrom.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "readableStreamFrom"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/utils/timerResource.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/disposable.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "makeResource"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/utils/withPing.test.ts",
+      "source": "src/unstable-core-do-not-import/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "run"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/utils/withPing.test.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/withPing.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "withPing"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/utils/withPing.ts",
+      "source": "src/vendor/unpromise/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Unpromise"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/stream/utils/withPing.ts",
+      "source": "src/unstable-core-do-not-import/stream/utils/asyncIterable.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "iteratorResource"
+      ]
+    },
+    {
+      "importer": "src/unstable-core-do-not-import/transformer.ts",
+      "source": "src/unstable-core-do-not-import/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "isObject"
+      ]
+    },
+    {
+      "importer": "src/vendor/standard-schema-v1/error.ts",
+      "source": "src/vendor/standard-schema-v1/spec.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "StandardSchemaV1"
+      ]
+    }
+  ],
+  "coChangeEdges": [
+    {
+      "file1": "src/unstable-core-do-not-import/http/contentType.ts",
+      "file2": "src/unstable-core-do-not-import/router.ts",
+      "coChangeCount": 3,
+      "file1Commits": 4,
+      "file2Commits": 7,
+      "jaccard": 0.375,
+      "lastCoChangeTimestamp": 1770215949
+    }
+  ],
+  "callGraph": [
+    {
+      "from": "fakeTimersResource",
+      "to": "makeResource",
+      "fromFile": "src/__tests__/fakeTimersResource.ts",
+      "toFile": "src/unstable-core-do-not-import/stream/utils/disposable.ts"
+    },
+    {
+      "from": "fetchServerResource",
+      "to": "run",
+      "fromFile": "src/__tests__/fetchServerResource.ts",
+      "toFile": "src/unstable-core-do-not-import/utils.ts"
+    },
+    {
+      "from": "fetchServerResource",
+      "to": "incomingMessageToRequest",
+      "fromFile": "src/__tests__/fetchServerResource.ts",
+      "toFile": "src/adapters/node-http/incomingMessageToRequest.ts"
+    },
+    {
+      "from": "fetchServerResource",
+      "to": "writeResponse",
+      "fromFile": "src/__tests__/fetchServerResource.ts",
+      "toFile": "src/adapters/node-http/writeResponse.ts"
+    },
+    {
+      "from": "fetchServerResource",
+      "to": "makeAsyncResource",
+      "fromFile": "src/__tests__/fetchServerResource.ts",
+      "toFile": "src/unstable-core-do-not-import/stream/utils/disposable.ts"
+    },
+    {
+      "from": "trpcServerResource",
+      "to": "makeAsyncResource",
+      "fromFile": "src/__tests__/trpcServerResource.ts",
+      "toFile": "src/unstable-core-do-not-import/stream/utils/disposable.ts"
+    },
+    {
+      "from": "awsLambdaRequestHandler",
+      "to": "getPlanner",
+      "fromFile": "src/adapters/aws-lambda/index.ts",
+      "toFile": "src/adapters/aws-lambda/getPlanner.ts"
+    },
+    {
+      "from": "awsLambdaRequestHandler",
+      "to": "resolveResponse",
+      "fromFile": "src/adapters/aws-lambda/index.ts",
+      "toFile": "src/@trpc/server/http.ts"
+    },
+    {
+      "from": "awsLambdaStreamingRequestHandler",
+      "to": "getPlanner",
+      "fromFile": "src/adapters/aws-lambda/index.ts",
+      "toFile": "src/adapters/aws-lambda/getPlanner.ts"
+    },
+    {
+      "from": "awsLambdaStreamingRequestHandler",
+      "to": "resolveResponse",
+      "fromFile": "src/adapters/aws-lambda/index.ts",
+      "toFile": "src/@trpc/server/http.ts"
+    },
+    {
+      "from": "createExpressMiddleware",
+      "to": "run",
+      "fromFile": "src/adapters/express.ts",
+      "toFile": "src/unstable-core-do-not-import/utils.ts"
+    },
+    {
+      "from": "createExpressMiddleware",
+      "to": "nodeHTTPRequestHandler",
+      "fromFile": "src/adapters/express.ts",
+      "toFile": "src/adapters/node-http/nodeHTTPRequestHandler.ts"
+    },
+    {
+      "from": "createExpressMiddleware",
+      "to": "internal_exceptionHandler",
+      "fromFile": "src/adapters/express.ts",
+      "toFile": "src/adapters/node-http/nodeHTTPRequestHandler.ts"
+    },
+    {
+      "from": "fastifyRequestHandler",
+      "to": "incomingMessageToRequest",
+      "fromFile": "src/adapters/fastify/fastifyRequestHandler.ts",
+      "toFile": "src/adapters/node-http/incomingMessageToRequest.ts"
+    },
+    {
+      "from": "fastifyRequestHandler",
+      "to": "resolveResponse",
+      "fromFile": "src/adapters/fastify/fastifyRequestHandler.ts",
+      "toFile": "src/@trpc/server/http.ts"
+    },
+    {
+      "from": "fastifyTRPCPlugin",
+      "to": "fastifyRequestHandler",
+      "fromFile": "src/adapters/fastify/fastifyTRPCPlugin.ts",
+      "toFile": "src/adapters/fastify/fastifyRequestHandler.ts"
+    },
+    {
+      "from": "fastifyTRPCPlugin",
+      "to": "getWSConnectionHandler",
+      "fromFile": "src/adapters/fastify/fastifyTRPCPlugin.ts",
+      "toFile": "src/adapters/ws.ts"
+    },
+    {
+      "from": "fastifyTRPCPlugin",
+      "to": "handleKeepAlive",
+      "fromFile": "src/adapters/fastify/fastifyTRPCPlugin.ts",
+      "toFile": "src/adapters/ws.ts"
+    },
+    {
+      "from": "fetchRequestHandler",
+      "to": "resolveResponse",
+      "fromFile": "src/adapters/fetch/fetchRequestHandler.ts",
+      "toFile": "src/@trpc/server/http.ts"
+    },
+    {
+      "from": "nextAppDirCaller",
+      "to": "getTRPCErrorFromUnknown",
+      "fromFile": "src/adapters/next-app-dir/nextAppDirCaller.ts",
+      "toFile": "src/@trpc/server/index.ts"
+    },
+    {
+      "from": "nextAppDirCaller",
+      "to": "rethrowNextErrors",
+      "fromFile": "src/adapters/next-app-dir/nextAppDirCaller.ts",
+      "toFile": "src/adapters/next-app-dir.ts"
+    },
+    {
+      "from": "nextAppDirCaller",
+      "to": "formDataToObject",
+      "fromFile": "src/adapters/next-app-dir/nextAppDirCaller.ts",
+      "toFile": "src/unstable-core-do-not-import/http/formDataToObject.ts"
+    },
+    {
+      "from": "createNextApiHandler",
+      "to": "run",
+      "fromFile": "src/adapters/next.ts",
+      "toFile": "src/unstable-core-do-not-import/utils.ts"
+    },
+    {
+      "from": "createNextApiHandler",
+      "to": "nodeHTTPRequestHandler",
+      "fromFile": "src/adapters/next.ts",
+      "toFile": "src/adapters/node-http/nodeHTTPRequestHandler.ts"
+    },
+    {
+      "from": "createNextApiHandler",
+      "to": "internal_exceptionHandler",
+      "fromFile": "src/adapters/next.ts",
+      "toFile": "src/adapters/node-http/nodeHTTPRequestHandler.ts"
+    },
+    {
+      "from": "internal_exceptionHandler",
+      "to": "getTRPCErrorFromUnknown",
+      "fromFile": "src/adapters/node-http/nodeHTTPRequestHandler.ts",
+      "toFile": "src/@trpc/server/index.ts"
+    },
+    {
+      "from": "internal_exceptionHandler",
+      "to": "getErrorShape",
+      "fromFile": "src/adapters/node-http/nodeHTTPRequestHandler.ts",
+      "toFile": "src/@trpc/server/index.ts"
+    },
+    {
+      "from": "internal_exceptionHandler",
+      "to": "transformTRPCResponse",
+      "fromFile": "src/adapters/node-http/nodeHTTPRequestHandler.ts",
+      "toFile": "src/@trpc/server/index.ts"
+    },
+    {
+      "from": "nodeHTTPRequestHandler",
+      "to": "run",
+      "fromFile": "src/adapters/node-http/nodeHTTPRequestHandler.ts",
+      "toFile": "src/unstable-core-do-not-import/utils.ts"
+    },
+    {
+      "from": "nodeHTTPRequestHandler",
+      "to": "incomingMessageToRequest",
+      "fromFile": "src/adapters/node-http/nodeHTTPRequestHandler.ts",
+      "toFile": "src/adapters/node-http/incomingMessageToRequest.ts"
+    },
+    {
+      "from": "nodeHTTPRequestHandler",
+      "to": "resolveResponse",
+      "fromFile": "src/adapters/node-http/nodeHTTPRequestHandler.ts",
+      "toFile": "src/@trpc/server/http.ts"
+    },
+    {
+      "from": "nodeHTTPRequestHandler",
+      "to": "getTRPCErrorFromUnknown",
+      "fromFile": "src/adapters/node-http/nodeHTTPRequestHandler.ts",
+      "toFile": "src/@trpc/server/index.ts"
+    },
+    {
+      "from": "nodeHTTPRequestHandler",
+      "to": "writeResponse",
+      "fromFile": "src/adapters/node-http/nodeHTTPRequestHandler.ts",
+      "toFile": "src/adapters/node-http/writeResponse.ts"
+    },
+    {
+      "from": "writeResponseBody",
+      "to": "isAbortError",
+      "fromFile": "src/adapters/node-http/writeResponse.ts",
+      "toFile": "src/unstable-core-do-not-import/http/abortError.ts"
+    },
+    {
+      "from": "getWSConnectionHandler",
+      "to": "transformTRPCResponse",
+      "fromFile": "src/adapters/ws.ts",
+      "toFile": "src/@trpc/server/index.ts"
+    },
+    {
+      "from": "getWSConnectionHandler",
+      "to": "run",
+      "fromFile": "src/adapters/ws.ts",
+      "toFile": "src/unstable-core-do-not-import/utils.ts"
+    },
+    {
+      "from": "getWSConnectionHandler",
+      "to": "getTRPCErrorFromUnknown",
+      "fromFile": "src/adapters/ws.ts",
+      "toFile": "src/@trpc/server/index.ts"
+    },
+    {
+      "from": "getWSConnectionHandler",
+      "to": "getErrorShape",
+      "fromFile": "src/adapters/ws.ts",
+      "toFile": "src/@trpc/server/index.ts"
+    },
+    {
+      "from": "getWSConnectionHandler",
+      "to": "createURL",
+      "fromFile": "src/adapters/ws.ts",
+      "toFile": "src/adapters/node-http/incomingMessageToRequest.ts"
+    },
+    {
+      "from": "getWSConnectionHandler",
+      "to": "isObject",
+      "fromFile": "src/adapters/ws.ts",
+      "toFile": "src/unstable-core-do-not-import/utils.ts"
+    },
+    {
+      "from": "getWSConnectionHandler",
+      "to": "callTRPCProcedure",
+      "fromFile": "src/adapters/ws.ts",
+      "toFile": "src/@trpc/server/index.ts"
+    },
+    {
+      "from": "getWSConnectionHandler",
+      "to": "isAsyncIterable",
+      "fromFile": "src/adapters/ws.ts",
+      "toFile": "src/unstable-core-do-not-import/utils.ts"
+    },
+    {
+      "from": "getWSConnectionHandler",
+      "to": "isObservable",
+      "fromFile": "src/adapters/ws.ts",
+      "toFile": "src/observable/index.ts"
+    },
+    {
+      "from": "getWSConnectionHandler",
+      "to": "observableToAsyncIterable",
+      "fromFile": "src/adapters/ws.ts",
+      "toFile": "src/observable/index.ts"
+    },
+    {
+      "from": "getWSConnectionHandler",
+      "to": "iteratorResource",
+      "fromFile": "src/adapters/ws.ts",
+      "toFile": "src/unstable-core-do-not-import/stream/utils/asyncIterable.ts"
+    },
+    {
+      "from": "getWSConnectionHandler",
+      "to": "isTrackedEnvelope",
+      "fromFile": "src/adapters/ws.ts",
+      "toFile": "src/@trpc/server/index.ts"
+    },
+    {
+      "from": "getWSConnectionHandler",
+      "to": "parseConnectionParamsFromUnknown",
+      "fromFile": "src/adapters/ws.ts",
+      "toFile": "src/@trpc/server/http.ts"
+    },
+    {
+      "from": "getWSConnectionHandler",
+      "to": "parseTRPCMessage",
+      "fromFile": "src/adapters/ws.ts",
+      "toFile": "src/@trpc/server/rpc.ts"
+    },
+    {
+      "from": "behaviorSubject",
+      "to": "observable",
+      "fromFile": "src/observable/behaviorSubject.ts",
+      "toFile": "src/observable/index.ts"
+    },
+    {
+      "from": "map",
+      "to": "observable",
+      "fromFile": "src/observable/operators.ts",
+      "toFile": "src/observable/index.ts"
+    },
+    {
+      "from": "share",
+      "to": "observable",
+      "fromFile": "src/observable/operators.ts",
+      "toFile": "src/observable/index.ts"
+    },
+    {
+      "from": "tap",
+      "to": "observable",
+      "fromFile": "src/observable/operators.ts",
+      "toFile": "src/observable/index.ts"
+    },
+    {
+      "from": "distinctUntilChanged",
+      "to": "observable",
+      "fromFile": "src/observable/operators.ts",
+      "toFile": "src/observable/index.ts"
+    },
+    {
+      "from": "createRecursiveProxy",
+      "to": "emptyObject",
+      "fromFile": "src/unstable-core-do-not-import/createProxy.ts",
+      "toFile": "src/unstable-core-do-not-import/utils.ts"
+    },
+    {
+      "from": "getCauseFromUnknown",
+      "to": "isObject",
+      "fromFile": "src/unstable-core-do-not-import/error/TRPCError.ts",
+      "toFile": "src/unstable-core-do-not-import/utils.ts"
+    },
+    {
+      "from": "getErrorShape",
+      "to": "getHTTPStatusCodeFromError",
+      "fromFile": "src/unstable-core-do-not-import/error/getErrorShape.ts",
+      "toFile": "src/@trpc/server/http.ts"
+    },
+    {
+      "from": "isAbortError",
+      "to": "isObject",
+      "fromFile": "src/unstable-core-do-not-import/http/abortError.ts",
+      "toFile": "src/unstable-core-do-not-import/utils.ts"
+    },
+    {
+      "from": "formDataToObject",
+      "to": "emptyObject",
+      "fromFile": "src/unstable-core-do-not-import/http/formDataToObject.ts",
+      "toFile": "src/unstable-core-do-not-import/utils.ts"
+    },
+    {
+      "from": "getHTTPStatusCode",
+      "to": "isObject",
+      "fromFile": "src/unstable-core-do-not-import/http/getHTTPStatusCode.ts",
+      "toFile": "src/unstable-core-do-not-import/utils.ts"
+    },
+    {
+      "from": "parseConnectionParamsFromUnknown",
+      "to": "isObject",
+      "fromFile": "src/unstable-core-do-not-import/http/parseConnectionParams.ts",
+      "toFile": "src/unstable-core-do-not-import/utils.ts"
+    },
+    {
+      "from": "resolveResponse",
+      "to": "run",
+      "fromFile": "src/unstable-core-do-not-import/http/resolveResponse.ts",
+      "toFile": "src/unstable-core-do-not-import/utils.ts"
+    },
+    {
+      "from": "resolveResponse",
+      "to": "getRequestInfo",
+      "fromFile": "src/unstable-core-do-not-import/http/resolveResponse.ts",
+      "toFile": "src/unstable-core-do-not-import/http/contentType.ts"
+    },
+    {
+      "from": "resolveResponse",
+      "to": "getTRPCErrorFromUnknown",
+      "fromFile": "src/unstable-core-do-not-import/http/resolveResponse.ts",
+      "toFile": "src/@trpc/server/index.ts"
+    },
+    {
+      "from": "resolveResponse",
+      "to": "getErrorShape",
+      "fromFile": "src/unstable-core-do-not-import/http/resolveResponse.ts",
+      "toFile": "src/@trpc/server/index.ts"
+    },
+    {
+      "from": "resolveResponse",
+      "to": "transformTRPCResponse",
+      "fromFile": "src/unstable-core-do-not-import/http/resolveResponse.ts",
+      "toFile": "src/@trpc/server/index.ts"
+    },
+    {
+      "from": "resolveResponse",
+      "to": "isObservable",
+      "fromFile": "src/unstable-core-do-not-import/http/resolveResponse.ts",
+      "toFile": "src/observable/index.ts"
+    },
+    {
+      "from": "resolveResponse",
+      "to": "isAsyncIterable",
+      "fromFile": "src/unstable-core-do-not-import/http/resolveResponse.ts",
+      "toFile": "src/unstable-core-do-not-import/utils.ts"
+    },
+    {
+      "from": "resolveResponse",
+      "to": "observableToAsyncIterable",
+      "fromFile": "src/unstable-core-do-not-import/http/resolveResponse.ts",
+      "toFile": "src/observable/index.ts"
+    },
+    {
+      "from": "resolveResponse",
+      "to": "sseStreamProducer",
+      "fromFile": "src/unstable-core-do-not-import/http/resolveResponse.ts",
+      "toFile": "src/unstable-core-do-not-import/stream/sse.ts"
+    },
+    {
+      "from": "resolveResponse",
+      "to": "jsonlStreamProducer",
+      "fromFile": "src/unstable-core-do-not-import/http/resolveResponse.ts",
+      "toFile": "src/unstable-core-do-not-import/stream/jsonl.ts"
+    },
+    {
+      "from": "createInputMiddleware",
+      "to": "isObject",
+      "fromFile": "src/unstable-core-do-not-import/middleware.ts",
+      "toFile": "src/unstable-core-do-not-import/utils.ts"
+    },
+    {
+      "from": "createBuilder",
+      "to": "getParseFn",
+      "fromFile": "src/unstable-core-do-not-import/procedureBuilder.ts",
+      "toFile": "src/unstable-core-do-not-import/parser.ts"
+    },
+    {
+      "from": "createBuilder",
+      "to": "createInputMiddleware",
+      "fromFile": "src/unstable-core-do-not-import/procedureBuilder.ts",
+      "toFile": "src/unstable-core-do-not-import/middleware.ts"
+    },
+    {
+      "from": "createBuilder",
+      "to": "createOutputMiddleware",
+      "fromFile": "src/unstable-core-do-not-import/procedureBuilder.ts",
+      "toFile": "src/unstable-core-do-not-import/middleware.ts"
+    },
+    {
+      "from": "createRouterFactory",
+      "to": "emptyObject",
+      "fromFile": "src/unstable-core-do-not-import/router.ts",
+      "toFile": "src/unstable-core-do-not-import/utils.ts"
+    },
+    {
+      "from": "createCallerFactory",
+      "to": "createRecursiveProxy",
+      "fromFile": "src/unstable-core-do-not-import/router.ts",
+      "toFile": "src/unstable-core-do-not-import/createProxy.ts"
+    },
+    {
+      "from": "createCallerFactory",
+      "to": "isFunction",
+      "fromFile": "src/unstable-core-do-not-import/router.ts",
+      "toFile": "src/unstable-core-do-not-import/utils.ts"
+    },
+    {
+      "from": "createCallerFactory",
+      "to": "getTRPCErrorFromUnknown",
+      "fromFile": "src/unstable-core-do-not-import/router.ts",
+      "toFile": "src/@trpc/server/index.ts"
+    },
+    {
+      "from": "mergeRouters",
+      "to": "mergeWithoutOverrides",
+      "fromFile": "src/unstable-core-do-not-import/router.ts",
+      "toFile": "src/unstable-core-do-not-import/utils.ts"
+    },
+    {
+      "from": "isPromise",
+      "to": "isObject",
+      "fromFile": "src/unstable-core-do-not-import/stream/jsonl.ts",
+      "toFile": "src/unstable-core-do-not-import/utils.ts"
+    },
+    {
+      "from": "isPromise",
+      "to": "isFunction",
+      "fromFile": "src/unstable-core-do-not-import/stream/jsonl.ts",
+      "toFile": "src/unstable-core-do-not-import/utils.ts"
+    },
+    {
+      "from": "jsonlStreamProducer",
+      "to": "readableStreamFrom",
+      "fromFile": "src/unstable-core-do-not-import/stream/jsonl.ts",
+      "toFile": "src/unstable-core-do-not-import/stream/utils/readableStreamFrom.ts"
+    },
+    {
+      "from": "jsonlStreamConsumer",
+      "to": "createDeferred",
+      "fromFile": "src/unstable-core-do-not-import/stream/jsonl.ts",
+      "toFile": "src/unstable-core-do-not-import/stream/utils/createDeferred.ts"
+    },
+    {
+      "from": "jsonlStreamConsumer",
+      "to": "run",
+      "fromFile": "src/unstable-core-do-not-import/stream/jsonl.ts",
+      "toFile": "src/unstable-core-do-not-import/utils.ts"
+    },
+    {
+      "from": "sseStreamProducer",
+      "to": "takeWithGrace",
+      "fromFile": "src/unstable-core-do-not-import/stream/sse.ts",
+      "toFile": "src/unstable-core-do-not-import/stream/utils/asyncIterable.ts"
+    },
+    {
+      "from": "sseStreamProducer",
+      "to": "withPing",
+      "fromFile": "src/unstable-core-do-not-import/stream/sse.ts",
+      "toFile": "src/unstable-core-do-not-import/stream/utils/withPing.ts"
+    },
+    {
+      "from": "sseStreamProducer",
+      "to": "isTrackedEnvelope",
+      "fromFile": "src/unstable-core-do-not-import/stream/sse.ts",
+      "toFile": "src/@trpc/server/index.ts"
+    },
+    {
+      "from": "sseStreamProducer",
+      "to": "isAbortError",
+      "fromFile": "src/unstable-core-do-not-import/stream/sse.ts",
+      "toFile": "src/unstable-core-do-not-import/http/abortError.ts"
+    },
+    {
+      "from": "sseStreamProducer",
+      "to": "getTRPCErrorFromUnknown",
+      "fromFile": "src/unstable-core-do-not-import/stream/sse.ts",
+      "toFile": "src/@trpc/server/index.ts"
+    },
+    {
+      "from": "sseStreamProducer",
+      "to": "readableStreamFrom",
+      "fromFile": "src/unstable-core-do-not-import/stream/sse.ts",
+      "toFile": "src/unstable-core-do-not-import/stream/utils/readableStreamFrom.ts"
+    },
+    {
+      "from": "sseStreamConsumer",
+      "to": "emptyObject",
+      "fromFile": "src/unstable-core-do-not-import/stream/sse.ts",
+      "toFile": "src/unstable-core-do-not-import/utils.ts"
+    },
+    {
+      "from": "sseStreamConsumer",
+      "to": "makeAsyncResource",
+      "fromFile": "src/unstable-core-do-not-import/stream/sse.ts",
+      "toFile": "src/unstable-core-do-not-import/stream/utils/disposable.ts"
+    },
+    {
+      "from": "sseStreamConsumer",
+      "to": "run",
+      "fromFile": "src/unstable-core-do-not-import/stream/sse.ts",
+      "toFile": "src/unstable-core-do-not-import/utils.ts"
+    },
+    {
+      "from": "iteratorResource",
+      "to": "makeAsyncResource",
+      "fromFile": "src/unstable-core-do-not-import/stream/utils/asyncIterable.ts",
+      "toFile": "src/unstable-core-do-not-import/stream/utils/disposable.ts"
+    },
+    {
+      "from": "takeWithGrace",
+      "to": "timerResource",
+      "fromFile": "src/unstable-core-do-not-import/stream/utils/asyncIterable.ts",
+      "toFile": "src/unstable-core-do-not-import/stream/utils/timerResource.ts"
+    },
+    {
+      "from": "takeWithGrace",
+      "to": "throwAbortError",
+      "fromFile": "src/unstable-core-do-not-import/stream/utils/asyncIterable.ts",
+      "toFile": "src/unstable-core-do-not-import/http/abortError.ts"
+    },
+    {
+      "from": "mergeAsyncIterables",
+      "to": "createDeferred",
+      "fromFile": "src/unstable-core-do-not-import/stream/utils/mergeAsyncIterables.ts",
+      "toFile": "src/unstable-core-do-not-import/stream/utils/createDeferred.ts"
+    },
+    {
+      "from": "mergeAsyncIterables",
+      "to": "makeAsyncResource",
+      "fromFile": "src/unstable-core-do-not-import/stream/utils/mergeAsyncIterables.ts",
+      "toFile": "src/unstable-core-do-not-import/stream/utils/disposable.ts"
+    },
+    {
+      "from": "timerResource",
+      "to": "makeResource",
+      "fromFile": "src/unstable-core-do-not-import/stream/utils/timerResource.ts",
+      "toFile": "src/unstable-core-do-not-import/stream/utils/disposable.ts"
+    },
+    {
+      "from": "withPing",
+      "to": "iteratorResource",
+      "fromFile": "src/unstable-core-do-not-import/stream/utils/withPing.ts",
+      "toFile": "src/unstable-core-do-not-import/stream/utils/asyncIterable.ts"
+    },
+    {
+      "from": "withPing",
+      "to": "timerResource",
+      "fromFile": "src/unstable-core-do-not-import/stream/utils/withPing.ts",
+      "toFile": "src/unstable-core-do-not-import/stream/utils/timerResource.ts"
+    },
+    {
+      "from": "transformResult",
+      "to": "isObject",
+      "fromFile": "src/unstable-core-do-not-import/transformer.ts",
+      "toFile": "src/unstable-core-do-not-import/utils.ts"
+    }
+  ],
+  "workflowRules": [
+    {
+      "trigger": "After modifying schema.prisma",
+      "action": "Run `pnpm generate` then `pnpm migrate-dev`",
+      "source": "Prisma detected + generate/migrate-dev",
+      "impact": "high"
+    },
+    {
+      "trigger": "For running build/test/lint tasks",
+      "action": "Use `turbo run <task>`, not `pnpm run <script>` — Turbo caches and parallelizes",
+      "source": "Turbo detected in build tool config",
+      "impact": "high"
+    },
+    {
+      "trigger": "After modifying source files",
+      "action": "Run `pnpm test` to verify changes",
+      "source": "Test framework detected",
+      "impact": "high"
+    },
+    {
+      "trigger": "When modifying `src/internals/types.ts`",
+      "action": "Also check: `src/internals/createOptionsProxy.ts` (9 symbols), `src/internals/utils.ts` (9 symbols), `src/internals/infiniteQueryOptions.ts` (7 symbols), and 3 more",
+      "source": "Import chain analysis — 6 files have high coupling to this module",
+      "impact": "high"
+    },
+    {
+      "trigger": "When modifying `src/shared/index.ts`",
+      "action": "Also check: `src/internals/context.tsx` (9 symbols), `src/server/ssgProxy.ts` (6 symbols), `src/createTRPCReact.tsx` (5 symbols), and 1 more",
+      "source": "Import chain analysis — 4 files have high coupling to this module",
+      "impact": "high"
+    },
+    {
+      "trigger": "When modifying any of: `test/infiniteQueryOptions.test.tsx`, `test/queryOptions.test.tsx`, `test/skipToken.test.tsx`",
+      "action": "Check all files in this co-change cluster — they frequently change together",
+      "source": "Git co-change analysis — 3 files form a co-change cluster",
+      "impact": "high"
+    },
+    {
+      "trigger": "When modifying any of: `src/TRPCClientError.ts`, `src/links/localLink.test.ts`, `src/links/localLink.ts`",
+      "action": "Check all files in this co-change cluster — they frequently change together",
+      "source": "Git co-change analysis — 3 files form a co-change cluster",
+      "impact": "high"
+    },
+    {
+      "trigger": "When modifying any of: `src/components/sponsors/script.output.ts`, `src/components/sponsors/script.pull.ts`, `src/components/sponsors/script.push.ts`",
+      "action": "Check all files in this co-change cluster — they frequently change together",
+      "source": "Git co-change analysis — 3 files form a co-change cluster",
+      "impact": "high"
+    },
+    {
+      "trigger": "When modifying `server/adapters/fastify.test.ts`",
+      "action": "Also check: `server/streaming.test.ts` (co-changed in 80% of its commits), `server/adapters/express.test.tsx` (co-changed in 100% of its commits), `server/adapters/awsLambda.test.tsx` (co-changed in 75% of its commits)",
+      "source": "Git co-change analysis — 3 files frequently change together with this module",
+      "impact": "high"
+    }
+  ],
+  "commits": [
+    {
+      "repo": "trpc",
+      "commitSha": "dad1281917a6",
+      "commitMessage": "fix: SSE subscriptions don't reconnect after maxDurationMs (#7094) (#7207)",
+      "testFiles": [
+        "packages/tests/server/httpSubscriptionLink.test.ts"
+      ],
+      "sourceFiles": [
+        "src/unstable-core-do-not-import/http/resolveResponse.ts"
+      ],
+      "expectedRootCause": "src/unstable-core-do-not-import/http/resolveResponse.ts"
+    },
+    {
+      "repo": "trpc",
+      "commitSha": "b802056b6f21",
+      "commitMessage": "fix(server): fastify form-data type (#6974)",
+      "testFiles": [
+        "packages/tests/server/adapters/fastify.test.ts"
+      ],
+      "sourceFiles": [
+        "src/adapters/fastify/fastifyTRPCPlugin.ts",
+        "src/adapters/node-http/incomingMessageToRequest.ts"
+      ],
+      "expectedRootCause": "src/adapters/fastify/fastifyTRPCPlugin.ts"
+    },
+    {
+      "repo": "trpc",
+      "commitSha": "172b6aa1ac2c",
+      "commitMessage": "fix(server): pass maxDurationMs timeout signal to subscription handlers (#7037)",
+      "testFiles": [
+        "packages/tests/server/httpSubscriptionLink.test.ts"
+      ],
+      "sourceFiles": [
+        "src/unstable-core-do-not-import/http/resolveResponse.ts",
+        "src/unstable-core-do-not-import/stream/sse.ts",
+        "src/unstable-core-do-not-import/stream/utils/asyncIterable.ts"
+      ],
+      "expectedRootCause": "src/unstable-core-do-not-import/http/resolveResponse.ts"
+    },
+    {
+      "repo": "trpc",
+      "commitSha": "9b274114cfe8",
+      "commitMessage": "fix(client): `httpBatchStreamLink` in React Native \"stream ends with TypeError\" (#6960)",
+      "testFiles": [
+        "src/unstable-core-do-not-import/stream/jsonl.test.ts",
+        "packages/tests/server/links.test.ts"
+      ],
+      "sourceFiles": [
+        "src/unstable-core-do-not-import/stream/jsonl.ts"
+      ],
+      "expectedRootCause": "src/unstable-core-do-not-import/stream/jsonl.ts"
+    },
+    {
+      "repo": "trpc",
+      "commitSha": "aac35fbdc55c",
+      "commitMessage": "fix(client): fix \"stream is not in a state that permits close\" in RN (#6957)",
+      "testFiles": [
+        "packages/tests/server/streaming.test.ts"
+      ],
+      "sourceFiles": [
+        "src/unstable-core-do-not-import/stream/jsonl.ts"
+      ],
+      "expectedRootCause": "src/unstable-core-do-not-import/stream/jsonl.ts"
+    },
+    {
+      "repo": "trpc",
+      "commitSha": "b90d5097262b",
+      "commitMessage": "fix: prefer Standard Schema for input/output type inference (#6888)",
+      "testFiles": [
+        "packages/tests/server/validators.test.ts"
+      ],
+      "sourceFiles": [
+        "src/unstable-core-do-not-import/parser.ts"
+      ],
+      "expectedRootCause": "src/unstable-core-do-not-import/parser.ts"
+    },
+    {
+      "repo": "trpc",
+      "commitSha": "2bba173fc16a",
+      "commitMessage": "fix(server): fix `MaxListenersExceededWarning` when socket is reused in fastify adapter (#6842)",
+      "testFiles": [
+        "src/adapters/node-http/incomingMessageToRequest.test.ts",
+        "packages/tests/server/httpSubscriptionLink.test.ts"
+      ],
+      "sourceFiles": [
+        "src/adapters/node-http/incomingMessageToRequest.ts",
+        "src/unstable-core-do-not-import/stream/tracked.ts"
+      ],
+      "expectedRootCause": "src/adapters/node-http/incomingMessageToRequest.ts"
+    },
+    {
+      "repo": "trpc",
+      "commitSha": "59644414da15",
+      "commitMessage": "fix(client): inference fix when serializing of json-like return types like `z.json()` (#6810)",
+      "testFiles": [
+        "src/unstable-core-do-not-import/clientish/serialize.test.ts",
+        "packages/tests/server/regression/issue-4985-serialize-type.test.ts",
+        "packages/tests/server/regression/issue-5075-complex-zod-serialized-inference.test.ts",
+        "packages/tests/server/regression/issue-5197-output-with-index-signature-and-record.test.ts"
+      ],
+      "sourceFiles": [
+        "src/unstable-core-do-not-import/clientish/serialize.ts"
+      ],
+      "expectedRootCause": "src/unstable-core-do-not-import/clientish/serialize.ts"
+    },
+    {
+      "repo": "trpc",
+      "commitSha": "249b40d256a7",
+      "commitMessage": "fix: recognize `effect` standard-schema parsers 3.14.2 (#6634)",
+      "testFiles": [
+        "packages/tests/server/validators.test.ts"
+      ],
+      "sourceFiles": [
+        "src/unstable-core-do-not-import/parser.ts"
+      ],
+      "expectedRootCause": "src/unstable-core-do-not-import/parser.ts"
+    },
+    {
+      "repo": "trpc",
+      "commitSha": "122e94814a99",
+      "commitMessage": "fix(server): fix concat (#6616)",
+      "testFiles": [
+        "src/unstable-core-do-not-import/procedureBuilder.test.ts"
+      ],
+      "sourceFiles": [
+        "src/unstable-core-do-not-import/middleware.ts",
+        "src/unstable-core-do-not-import/procedureBuilder.ts"
+      ],
+      "expectedRootCause": "src/unstable-core-do-not-import/middleware.ts"
+    },
+    {
+      "repo": "trpc",
+      "commitSha": "1becc23d9f13",
+      "commitMessage": "fix(`server/aws-lambda`): Update cookie splitting for lambda adapter (#6569)",
+      "testFiles": [
+        "packages/tests/server/adapters/awsLambda.test.tsx"
+      ],
+      "sourceFiles": [
+        "src/adapters/aws-lambda/getPlanner.ts",
+        "src/vendor/cookie-es/set-cookie/split.ts"
+      ],
+      "expectedRootCause": "src/adapters/aws-lambda/getPlanner.ts"
+    },
+    {
+      "repo": "trpc",
+      "commitSha": "358ea8ec7a3c",
+      "commitMessage": "chore(server): fix flaky jsonl test (#6475)",
+      "testFiles": [
+        "src/unstable-core-do-not-import/stream/jsonl.test.ts",
+        "src/unstable-core-do-not-import/stream/utils/mergeAsyncIterables.test.ts",
+        "packages/tests/server/adapters/next.test.ts",
+        "packages/tests/server/httpSubscriptionLink.test.ts",
+        "packages/tests/server/react/queryOptions.test.tsx",
+        "packages/tests/server/react/useQuery.test.tsx",
+        "packages/tests/server/streaming.test.ts",
+        "packages/tests/server/websockets.test.ts"
+      ],
+      "sourceFiles": [
+        "src/unstable-core-do-not-import/stream/utils/createDeferred.ts",
+        "src/unstable-core-do-not-import/stream/utils/mergeAsyncIterables.ts"
+      ],
+      "expectedRootCause": "src/unstable-core-do-not-import/stream/utils/createDeferred.ts"
+    },
+    {
+      "repo": "trpc",
+      "commitSha": "e31a1f59920f",
+      "commitMessage": "fix(server): parallel load calls of lazy router (#6473)",
+      "testFiles": [
+        "src/unstable-core-do-not-import/router.test.ts"
+      ],
+      "sourceFiles": [
+        "src/unstable-core-do-not-import/router.ts"
+      ],
+      "expectedRootCause": "src/unstable-core-do-not-import/router.ts"
+    },
+    {
+      "repo": "trpc",
+      "commitSha": "64714681ca12",
+      "commitMessage": "fix(client): ending a stream with the correct error (#6462)",
+      "testFiles": [
+        "src/unstable-core-do-not-import/stream/jsonl.test.ts",
+        "packages/tests/server/regression/issue-6461-stream-error.test.ts",
+        "packages/tests/server/streaming.test.ts"
+      ],
+      "sourceFiles": [
+        "src/unstable-core-do-not-import/stream/jsonl.ts"
+      ],
+      "expectedRootCause": "src/unstable-core-do-not-import/stream/jsonl.ts"
+    },
+    {
+      "repo": "trpc",
+      "commitSha": "6ab0f06e288b",
+      "commitMessage": "fix(server): transformer at top level for `httpBatchStreamLink` (#6457)",
+      "testFiles": [
+        "src/unstable-core-do-not-import/stream/jsonl.test.ts"
+      ],
+      "sourceFiles": [
+        "src/unstable-core-do-not-import/stream/jsonl.ts"
+      ],
+      "expectedRootCause": "src/unstable-core-do-not-import/stream/jsonl.ts"
+    },
+    {
+      "repo": "trpc",
+      "commitSha": "87ea49ed1da1",
+      "commitMessage": "fix(server): encode the SSE messages as bytes instead (#6361)",
+      "testFiles": [
+        "src/unstable-core-do-not-import/stream/sse.test.ts"
+      ],
+      "sourceFiles": [
+        "src/unstable-core-do-not-import/stream/sse.ts"
+      ],
+      "expectedRootCause": "src/unstable-core-do-not-import/stream/sse.ts"
+    }
+  ]
+}

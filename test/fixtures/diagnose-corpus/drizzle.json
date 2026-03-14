@@ -1,0 +1,7829 @@
+{
+  "repo": "drizzle",
+  "packageName": "drizzle-orm",
+  "importChain": [
+    {
+      "importer": "src/relations.ts",
+      "source": "src/sql/expressions/index.ts",
+      "symbolCount": 23,
+      "symbols": [
+        "and",
+        "asc",
+        "between",
+        "desc",
+        "eq"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/select.ts",
+      "source": "src/mysql-core/query-builders/select.types.ts",
+      "symbolCount": 19,
+      "symbols": [
+        "AnyMySqlSelect",
+        "CreateMySqlSelectFromBuilderMode",
+        "GetMySqlSetOperators",
+        "LockConfig",
+        "LockStrength"
+      ]
+    },
+    {
+      "importer": "src/pg-core/query-builders/select.ts",
+      "source": "src/pg-core/query-builders/select.types.ts",
+      "symbolCount": 19,
+      "symbols": [
+        "AnyPgSelect",
+        "CreatePgSelectFromBuilderMode",
+        "GetPgSetOperators",
+        "LockConfig",
+        "LockStrength"
+      ]
+    },
+    {
+      "importer": "src/gel-core/query-builders/select.ts",
+      "source": "src/gel-core/query-builders/select.types.ts",
+      "symbolCount": 18,
+      "symbols": [
+        "AnyGelSelect",
+        "CreateGelSelectFromBuilderMode",
+        "GelCreateSetOperatorFn",
+        "GelSelectConfig",
+        "GelSelectCrossJoinFn"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/query-builders/select.ts",
+      "source": "src/singlestore-core/query-builders/select.types.ts",
+      "symbolCount": 18,
+      "symbols": [
+        "AnySingleStoreSelect",
+        "CreateSingleStoreSelectFromBuilderMode",
+        "GetSingleStoreSetOperators",
+        "LockConfig",
+        "LockStrength"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/select.ts",
+      "source": "src/sqlite-core/query-builders/select.types.ts",
+      "symbolCount": 17,
+      "symbols": [
+        "AnySQLiteSelect",
+        "CreateSQLiteSelectFromBuilderMode",
+        "GetSQLiteSetOperators",
+        "SelectedFields",
+        "SetOperatorRightSelect"
+      ]
+    },
+    {
+      "importer": "src/sql/expressions/conditions.ts",
+      "source": "src/sql/sql.ts",
+      "symbolCount": 10,
+      "symbols": [
+        "isDriverValueEncoder",
+        "isSQLWrapper",
+        "Param",
+        "Placeholder",
+        "SQL"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/db.ts",
+      "source": "src/mysql-core/session.ts",
+      "symbolCount": 7,
+      "symbols": [
+        "Mode",
+        "MySqlQueryResultHKT",
+        "MySqlQueryResultKind",
+        "MySqlSession",
+        "MySqlTransaction"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/db.ts",
+      "source": "src/singlestore-core/session.ts",
+      "symbolCount": 6,
+      "symbols": [
+        "PreparedQueryHKTBase",
+        "SingleStoreQueryResultHKT",
+        "SingleStoreQueryResultKind",
+        "SingleStoreSession",
+        "SingleStoreTransaction"
+      ]
+    },
+    {
+      "importer": "src/column.ts",
+      "source": "src/column-builder.ts",
+      "symbolCount": 5,
+      "symbols": [
+        "ColumnBuilderBaseConfig",
+        "ColumnBuilderRuntimeConfig",
+        "ColumnDataType",
+        "GeneratedColumnConfig",
+        "GeneratedIdentityConfig"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/db.ts",
+      "source": "src/mysql-core/query-builders/index.ts",
+      "symbolCount": 5,
+      "symbols": [
+        "MySqlDeleteBase",
+        "MySqlInsertBuilder",
+        "MySqlSelectBuilder",
+        "MySqlUpdateBuilder",
+        "QueryBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/query.ts",
+      "source": "src/mysql-core/session.ts",
+      "symbolCount": 5,
+      "symbols": [
+        "Mode",
+        "MySqlPreparedQueryConfig",
+        "MySqlSession",
+        "PreparedQueryHKTBase",
+        "PreparedQueryKind"
+      ]
+    },
+    {
+      "importer": "src/relations.ts",
+      "source": "src/utils.ts",
+      "symbolCount": 5,
+      "symbols": [
+        "Assume",
+        "ColumnsWithTable",
+        "Equal",
+        "Simplify",
+        "ValueOrArray"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/db.ts",
+      "source": "src/singlestore-core/query-builders/index.ts",
+      "symbolCount": 5,
+      "symbols": [
+        "QueryBuilder",
+        "SingleStoreDeleteBase",
+        "SingleStoreInsertBuilder",
+        "SingleStoreSelectBuilder",
+        "SingleStoreUpdateBuilder"
+      ]
+    },
+    {
+      "importer": "type-tests/pg/select.ts",
+      "source": "type-tests/pg/tables.ts",
+      "symbolCount": 5,
+      "symbols": [
+        "cities",
+        "classes",
+        "newYorkers",
+        "newYorkers2",
+        "users"
+      ]
+    },
+    {
+      "importer": "src/aws-data-api/pg/driver.ts",
+      "source": "src/aws-data-api/pg/session.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "AwsDataApiClient",
+        "AwsDataApiPgQueryResult",
+        "AwsDataApiPgQueryResultHKT",
+        "AwsDataApiSession"
+      ]
+    },
+    {
+      "importer": "src/gel-core/table.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "GelColumn",
+        "GelColumnBuilder",
+        "GelColumnBuilderBase",
+        "GelExtraConfigColumn"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/all.ts",
+      "source": "src/mysql-core/columns/text.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "longtext",
+        "mediumtext",
+        "text",
+        "tinytext"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/dialect.ts",
+      "source": "src/mysql-core/query-builders/select.types.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "AnyMySqlSelectQueryBuilder",
+        "MySqlSelectConfig",
+        "MySqlSelectJoinConfig",
+        "SelectedFieldsOrdered"
+      ]
+    },
+    {
+      "importer": "src/mysql2/driver.ts",
+      "source": "src/mysql2/session.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "MySql2Client",
+        "MySql2PreparedQueryHKT",
+        "MySql2QueryResultHKT",
+        "MySql2Session"
+      ]
+    },
+    {
+      "importer": "src/pg-core/query-builders/update.ts",
+      "source": "src/pg-core/query-builders/select.types.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "PgSelectJoinConfig",
+        "SelectedFields",
+        "SelectedFieldsOrdered",
+        "TableLikeHasEmptySelection"
+      ]
+    },
+    {
+      "importer": "src/pg-core/schema.ts",
+      "source": "src/pg-core/columns/enum.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "PgEnum",
+        "PgEnumObject",
+        "pgEnumObjectWithSchema",
+        "pgEnumWithSchema"
+      ]
+    },
+    {
+      "importer": "src/pg-core/schema.ts",
+      "source": "src/pg-core/view.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "pgMaterializedView",
+        "pgMaterializedViewWithSchema",
+        "pgView",
+        "pgViewWithSchema"
+      ]
+    },
+    {
+      "importer": "src/pg-core/table.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "ExtraConfigColumn",
+        "PgColumn",
+        "PgColumnBuilder",
+        "PgColumnBuilderBase"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/all.ts",
+      "source": "src/singlestore-core/columns/text.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "longtext",
+        "mediumtext",
+        "text",
+        "tinytext"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/query-builders/query.ts",
+      "source": "src/singlestore-core/session.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "PreparedQueryHKTBase",
+        "PreparedQueryKind",
+        "SingleStorePreparedQueryConfig",
+        "SingleStoreSession"
+      ]
+    },
+    {
+      "importer": "src/singlestore/driver.ts",
+      "source": "src/singlestore/session.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "SingleStoreDriverClient",
+        "SingleStoreDriverPreparedQueryHKT",
+        "SingleStoreDriverQueryResultHKT",
+        "SingleStoreDriverSession"
+      ]
+    },
+    {
+      "importer": "src/sqlite-proxy/session.ts",
+      "source": "src/sqlite-proxy/driver.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "AsyncBatchRemoteCallback",
+        "AsyncRemoteCallback",
+        "RemoteCallback",
+        "SqliteRemoteResult"
+      ]
+    },
+    {
+      "importer": "src/utils.ts",
+      "source": "src/sql/sql.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "Param",
+        "SQL",
+        "View",
+        "DriverValueDecoder"
+      ]
+    },
+    {
+      "importer": "type-tests/mysql/select.ts",
+      "source": "type-tests/mysql/tables.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "cities",
+        "classes",
+        "newYorkers",
+        "users"
+      ]
+    },
+    {
+      "importer": "type-tests/mysql/set-operators.ts",
+      "source": "type-tests/mysql/tables.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "cities",
+        "classes",
+        "newYorkers",
+        "users"
+      ]
+    },
+    {
+      "importer": "type-tests/pg/set-operators.ts",
+      "source": "type-tests/pg/tables.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "cities",
+        "classes",
+        "newYorkers",
+        "users"
+      ]
+    },
+    {
+      "importer": "type-tests/sqlite/select.ts",
+      "source": "type-tests/sqlite/tables.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "cities",
+        "classes",
+        "newYorkers",
+        "users"
+      ]
+    },
+    {
+      "importer": "type-tests/sqlite/set-operators.ts",
+      "source": "type-tests/sqlite/tables.ts",
+      "symbolCount": 4,
+      "symbols": [
+        "cities",
+        "classes",
+        "newYorkers",
+        "users"
+      ]
+    },
+    {
+      "importer": "src/alias.ts",
+      "source": "src/sql/sql.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "View",
+        "SQL",
+        "sql"
+      ]
+    },
+    {
+      "importer": "src/column-builder.ts",
+      "source": "src/pg-core/index.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "ExtraConfigColumn",
+        "PgColumn",
+        "PgSequenceOptions"
+      ]
+    },
+    {
+      "importer": "src/column.ts",
+      "source": "src/sql/sql.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "DriverValueMapper",
+        "SQL",
+        "SQLWrapper"
+      ]
+    },
+    {
+      "importer": "src/gel-core/indexes.ts",
+      "source": "src/gel-core/columns/index.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "GelColumn",
+        "GelExtraConfigColumn",
+        "IndexedColumn"
+      ]
+    },
+    {
+      "importer": "src/gel-core/query-builders/query.ts",
+      "source": "src/gel-core/session.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "GelPreparedQuery",
+        "GelSession",
+        "PreparedQueryConfig"
+      ]
+    },
+    {
+      "importer": "src/gel-core/query-builders/update.ts",
+      "source": "src/gel-core/query-builders/select.types.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "GelSelectJoinConfig",
+        "SelectedFields",
+        "SelectedFieldsOrdered"
+      ]
+    },
+    {
+      "importer": "src/gel-core/utils.ts",
+      "source": "src/gel-core/view.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "GelMaterializedView",
+        "GelMaterializedViewConfig",
+        "GelView"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/select.ts",
+      "source": "src/mysql-core/utils.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "convertIndexToString",
+        "extractUsedTable",
+        "toArray"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/select.types.ts",
+      "source": "src/mysql-core/session.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "MySqlPreparedQueryConfig",
+        "PreparedQueryHKTBase",
+        "PreparedQueryKind"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/select.types.ts",
+      "source": "src/mysql-core/query-builders/select.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "IndexConfig",
+        "MySqlSelectBase",
+        "MySqlSelectQueryBuilderBase"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/table.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "MySqlColumn",
+        "MySqlColumnBuilder",
+        "MySqlColumnBuilderBase"
+      ]
+    },
+    {
+      "importer": "src/mysql-proxy/driver.ts",
+      "source": "src/mysql-proxy/session.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "MySqlRemotePreparedQueryHKT",
+        "MySqlRemoteQueryResultHKT",
+        "MySqlRemoteSession"
+      ]
+    },
+    {
+      "importer": "src/neon-http/driver.ts",
+      "source": "src/neon-http/session.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "NeonHttpClient",
+        "NeonHttpQueryResultHKT",
+        "NeonHttpSession"
+      ]
+    },
+    {
+      "importer": "src/neon-serverless/driver.ts",
+      "source": "src/neon-serverless/session.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "NeonClient",
+        "NeonQueryResultHKT",
+        "NeonSession"
+      ]
+    },
+    {
+      "importer": "src/node-postgres/driver.ts",
+      "source": "src/node-postgres/session.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "NodePgClient",
+        "NodePgQueryResultHKT",
+        "NodePgSession"
+      ]
+    },
+    {
+      "importer": "src/pg-core/indexes.ts",
+      "source": "src/pg-core/columns/index.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "ExtraConfigColumn",
+        "PgColumn",
+        "IndexedColumn"
+      ]
+    },
+    {
+      "importer": "src/pg-core/query-builders/query.ts",
+      "source": "src/pg-core/session.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "PgPreparedQuery",
+        "PgSession",
+        "PreparedQueryConfig"
+      ]
+    },
+    {
+      "importer": "src/pg-core/utils.ts",
+      "source": "src/pg-core/view.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "PgMaterializedView",
+        "PgMaterializedViewConfig",
+        "PgView"
+      ]
+    },
+    {
+      "importer": "src/pglite/driver.ts",
+      "source": "src/pglite/session.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "PgliteClient",
+        "PgliteQueryResultHKT",
+        "PgliteSession"
+      ]
+    },
+    {
+      "importer": "src/planetscale-serverless/driver.ts",
+      "source": "src/planetscale-serverless/session.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "PlanetScalePreparedQueryHKT",
+        "PlanetscaleQueryResultHKT",
+        "PlanetscaleSession"
+      ]
+    },
+    {
+      "importer": "src/prisma/mysql/driver.ts",
+      "source": "src/prisma/mysql/session.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "PrismaMySqlPreparedQueryHKT",
+        "PrismaMySqlQueryResultHKT",
+        "PrismaMySqlSession"
+      ]
+    },
+    {
+      "importer": "src/relations.ts",
+      "source": "src/sql/sql.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "Placeholder",
+        "SQL",
+        "sql"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/vector.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "SingleStoreColumn",
+        "SingleStoreColumnBuilder",
+        "SingleStoreGeneratedColumnConfig"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/dialect.ts",
+      "source": "src/singlestore-core/query-builders/select.types.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "SelectedFieldsOrdered",
+        "SingleStoreSelectConfig",
+        "SingleStoreSelectJoinConfig"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/query-builders/select.types.ts",
+      "source": "src/singlestore-core/session.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "PreparedQueryHKTBase",
+        "PreparedQueryKind",
+        "SingleStorePreparedQueryConfig"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/table.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "SingleStoreColumn",
+        "SingleStoreColumnBuilder",
+        "SingleStoreColumnBuilderBase"
+      ]
+    },
+    {
+      "importer": "src/singlestore-proxy/driver.ts",
+      "source": "src/singlestore-proxy/session.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "SingleStoreRemotePreparedQueryHKT",
+        "SingleStoreRemoteQueryResultHKT",
+        "SingleStoreRemoteSession"
+      ]
+    },
+    {
+      "importer": "src/sql/expressions/select.ts",
+      "source": "src/sql/sql.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "SQL",
+        "SQLWrapper",
+        "sql"
+      ]
+    },
+    {
+      "importer": "src/sql/functions/aggregate.ts",
+      "source": "src/sql/sql.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "SQL",
+        "sql",
+        "SQLWrapper"
+      ]
+    },
+    {
+      "importer": "src/sql/functions/vector.ts",
+      "source": "src/sql/sql.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "SQL",
+        "sql",
+        "SQLWrapper"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/dialect.ts",
+      "source": "src/sqlite-core/query-builders/select.types.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "SelectedFieldsOrdered",
+        "SQLiteSelectConfig",
+        "SQLiteSelectJoinConfig"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/query.ts",
+      "source": "src/sqlite-core/session.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "PreparedQueryConfig",
+        "SQLitePreparedQuery",
+        "SQLiteSession"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/update.ts",
+      "source": "src/sqlite-core/query-builders/select.types.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "SelectedFields",
+        "SelectedFieldsOrdered",
+        "SQLiteSelectJoinConfig"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/table.ts",
+      "source": "src/sqlite-core/columns/common.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "SQLiteColumn",
+        "SQLiteColumnBuilder",
+        "SQLiteColumnBuilderBase"
+      ]
+    },
+    {
+      "importer": "src/tidb-serverless/driver.ts",
+      "source": "src/tidb-serverless/session.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "TiDBServerlessPreparedQueryHKT",
+        "TiDBServerlessQueryResultHKT",
+        "TiDBServerlessSession"
+      ]
+    },
+    {
+      "importer": "src/vercel-postgres/driver.ts",
+      "source": "src/vercel-postgres/session.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "VercelPgClient",
+        "VercelPgQueryResultHKT",
+        "VercelPgSession"
+      ]
+    },
+    {
+      "importer": "src/xata-http/driver.ts",
+      "source": "src/xata-http/session.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "XataHttpClient",
+        "XataHttpQueryResultHKT",
+        "XataHttpSession"
+      ]
+    },
+    {
+      "importer": "type-tests/geldb/select.ts",
+      "source": "type-tests/geldb/tables.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "cities",
+        "classes",
+        "users"
+      ]
+    },
+    {
+      "importer": "type-tests/geldb/set-operators.ts",
+      "source": "type-tests/geldb/tables.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "cities",
+        "classes",
+        "users"
+      ]
+    },
+    {
+      "importer": "type-tests/geldb/update.ts",
+      "source": "type-tests/geldb/tables.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "cities",
+        "salEmp",
+        "users"
+      ]
+    },
+    {
+      "importer": "type-tests/pg/update.ts",
+      "source": "type-tests/pg/tables.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "cities",
+        "salEmp",
+        "users"
+      ]
+    },
+    {
+      "importer": "type-tests/singlestore/select.ts",
+      "source": "type-tests/singlestore/tables.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "cities",
+        "classes",
+        "users"
+      ]
+    },
+    {
+      "importer": "type-tests/singlestore/set-operators.ts",
+      "source": "type-tests/singlestore/tables.ts",
+      "symbolCount": 3,
+      "symbols": [
+        "cities",
+        "classes",
+        "users"
+      ]
+    },
+    {
+      "importer": "src/alias.ts",
+      "source": "src/column.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "AnyColumn",
+        "Column"
+      ]
+    },
+    {
+      "importer": "src/alias.ts",
+      "source": "src/entity.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "entityKind",
+        "is"
+      ]
+    },
+    {
+      "importer": "src/aws-data-api/pg/session.ts",
+      "source": "src/aws-data-api/common/index.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "getValueFromDataApi",
+        "toValueParam"
+      ]
+    },
+    {
+      "importer": "src/bun-sql/driver.ts",
+      "source": "src/bun-sql/session.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "BunSQLQueryResultHKT",
+        "BunSQLSession"
+      ]
+    },
+    {
+      "importer": "src/column-builder.ts",
+      "source": "src/gel-core/index.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "GelColumn",
+        "GelExtraConfigColumn"
+      ]
+    },
+    {
+      "importer": "src/column-builder.ts",
+      "source": "src/utils.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "Assume",
+        "Simplify"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/boolean.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "GelColumn",
+        "GelColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/bytes.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "GelColumn",
+        "GelColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/custom.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "GelColumn",
+        "GelColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/date-duration.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "GelColumn",
+        "GelColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/decimal.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "GelColumn",
+        "GelColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/double-precision.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "GelColumn",
+        "GelColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/duration.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "GelColumn",
+        "GelColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/json.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "GelColumn",
+        "GelColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/real.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "GelColumn",
+        "GelColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/relative-duration.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "GelColumn",
+        "GelColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/text.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "GelColumn",
+        "GelColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/uuid.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "GelColumn",
+        "GelColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/foreign-keys.ts",
+      "source": "src/gel-core/columns/index.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "AnyGelColumn",
+        "GelColumn"
+      ]
+    },
+    {
+      "importer": "src/gel-core/primary-keys.ts",
+      "source": "src/gel-core/columns/index.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "AnyGelColumn",
+        "GelColumn"
+      ]
+    },
+    {
+      "importer": "src/gel-core/query-builders/delete.ts",
+      "source": "src/gel-core/query-builders/select.types.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SelectedFieldsFlat",
+        "SelectedFieldsOrdered"
+      ]
+    },
+    {
+      "importer": "src/gel-core/query-builders/insert.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "AnyGelColumn",
+        "GelColumn"
+      ]
+    },
+    {
+      "importer": "src/gel-core/query-builders/insert.ts",
+      "source": "src/gel-core/query-builders/select.types.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SelectedFieldsFlat",
+        "SelectedFieldsOrdered"
+      ]
+    },
+    {
+      "importer": "src/gel-core/query-builders/select.types.ts",
+      "source": "src/gel-core/session.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "GelPreparedQuery",
+        "PreparedQueryConfig"
+      ]
+    },
+    {
+      "importer": "src/gel-core/query-builders/select.types.ts",
+      "source": "src/gel-core/query-builders/select.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "GelSelectBase",
+        "GelSelectQueryBuilderBase"
+      ]
+    },
+    {
+      "importer": "src/gel-core/schema.ts",
+      "source": "src/gel-core/sequence.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "gelSequence",
+        "gelSequenceWithSchema"
+      ]
+    },
+    {
+      "importer": "src/gel-core/schema.ts",
+      "source": "src/gel-core/table.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "GelTableFn",
+        "gelTableWithSchema"
+      ]
+    },
+    {
+      "importer": "src/gel-core/table.ts",
+      "source": "src/gel-core/columns/all.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "GelColumnsBuilders",
+        "getGelColumnBuilders"
+      ]
+    },
+    {
+      "importer": "src/gel-core/table.ts",
+      "source": "src/gel-core/foreign-keys.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "ForeignKey",
+        "ForeignKeyBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/utils.ts",
+      "source": "src/gel-core/checks.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "Check",
+        "CheckBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/utils.ts",
+      "source": "src/gel-core/foreign-keys.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "ForeignKey",
+        "ForeignKeyBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/utils.ts",
+      "source": "src/gel-core/indexes.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "Index",
+        "IndexBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/utils.ts",
+      "source": "src/gel-core/primary-keys.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PrimaryKey",
+        "PrimaryKeyBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/utils.ts",
+      "source": "src/gel-core/unique-constraint.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "UniqueConstraint",
+        "UniqueConstraintBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/view.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "GelColumn",
+        "GelColumnBuilderBase"
+      ]
+    },
+    {
+      "importer": "src/gel/driver.ts",
+      "source": "src/gel/session.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "GelClient",
+        "GelDbSession"
+      ]
+    },
+    {
+      "importer": "src/libsql/driver.ts",
+      "source": "src/libsql/driver-core.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "construct",
+        "LibSQLDatabase"
+      ]
+    },
+    {
+      "importer": "src/libsql/http/index.ts",
+      "source": "src/libsql/driver-core.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "construct",
+        "LibSQLDatabase"
+      ]
+    },
+    {
+      "importer": "src/libsql/node/index.ts",
+      "source": "src/libsql/driver-core.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "construct",
+        "LibSQLDatabase"
+      ]
+    },
+    {
+      "importer": "src/libsql/sqlite3/index.ts",
+      "source": "src/libsql/driver-core.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "construct",
+        "LibSQLDatabase"
+      ]
+    },
+    {
+      "importer": "src/libsql/wasm/index.ts",
+      "source": "src/libsql/driver-core.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "construct",
+        "LibSQLDatabase"
+      ]
+    },
+    {
+      "importer": "src/libsql/web/index.ts",
+      "source": "src/libsql/driver-core.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "construct",
+        "LibSQLDatabase"
+      ]
+    },
+    {
+      "importer": "src/libsql/ws/index.ts",
+      "source": "src/libsql/driver-core.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "construct",
+        "LibSQLDatabase"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/bigint.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlColumnBuilderWithAutoIncrement",
+        "MySqlColumnWithAutoIncrement"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/binary.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlColumn",
+        "MySqlColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/boolean.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlColumn",
+        "MySqlColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/char.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlColumn",
+        "MySqlColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/custom.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlColumn",
+        "MySqlColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/date.common.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlColumn",
+        "MySqlColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/date.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlColumn",
+        "MySqlColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/datetime.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlColumn",
+        "MySqlColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/decimal.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlColumnBuilderWithAutoIncrement",
+        "MySqlColumnWithAutoIncrement"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/double.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlColumnBuilderWithAutoIncrement",
+        "MySqlColumnWithAutoIncrement"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/enum.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlColumn",
+        "MySqlColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/float.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlColumnBuilderWithAutoIncrement",
+        "MySqlColumnWithAutoIncrement"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/int.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlColumnBuilderWithAutoIncrement",
+        "MySqlColumnWithAutoIncrement"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/json.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlColumn",
+        "MySqlColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/mediumint.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlColumnBuilderWithAutoIncrement",
+        "MySqlColumnWithAutoIncrement"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/real.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlColumnBuilderWithAutoIncrement",
+        "MySqlColumnWithAutoIncrement"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/serial.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlColumnBuilderWithAutoIncrement",
+        "MySqlColumnWithAutoIncrement"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/smallint.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlColumnBuilderWithAutoIncrement",
+        "MySqlColumnWithAutoIncrement"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/text.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlColumn",
+        "MySqlColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/time.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlColumn",
+        "MySqlColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/timestamp.ts",
+      "source": "src/mysql-core/columns/date.common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlDateBaseColumn",
+        "MySqlDateColumnBaseBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/tinyint.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlColumnBuilderWithAutoIncrement",
+        "MySqlColumnWithAutoIncrement"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/varbinary.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlColumn",
+        "MySqlColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/varchar.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlColumn",
+        "MySqlColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/year.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlColumn",
+        "MySqlColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/foreign-keys.ts",
+      "source": "src/mysql-core/columns/index.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "AnyMySqlColumn",
+        "MySqlColumn"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/indexes.ts",
+      "source": "src/mysql-core/columns/index.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "AnyMySqlColumn",
+        "MySqlColumn"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/primary-keys.ts",
+      "source": "src/mysql-core/columns/index.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "AnyMySqlColumn",
+        "MySqlColumn"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/schema.ts",
+      "source": "src/mysql-core/table.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlTableFn",
+        "mysqlTableWithSchema"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/schema.ts",
+      "source": "src/mysql-core/view.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "mysqlView",
+        "mysqlViewWithSchema"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/table.ts",
+      "source": "src/mysql-core/columns/all.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "getMySqlColumnBuilders",
+        "MySqlColumnBuilders"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/table.ts",
+      "source": "src/mysql-core/foreign-keys.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "ForeignKey",
+        "ForeignKeyBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/utils.ts",
+      "source": "src/mysql-core/checks.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "Check",
+        "CheckBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/utils.ts",
+      "source": "src/mysql-core/foreign-keys.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "ForeignKey",
+        "ForeignKeyBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/utils.ts",
+      "source": "src/mysql-core/indexes.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "Index",
+        "IndexBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/utils.ts",
+      "source": "src/mysql-core/primary-keys.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PrimaryKey",
+        "PrimaryKeyBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/utils.ts",
+      "source": "src/mysql-core/unique-constraint.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "UniqueConstraint",
+        "UniqueConstraintBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/view.ts",
+      "source": "src/mysql-core/columns/index.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "MySqlColumn",
+        "MySqlColumnBuilderBase"
+      ]
+    },
+    {
+      "importer": "src/operations.ts",
+      "source": "src/column.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "AnyColumn",
+        "Column"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/bigserial.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/boolean.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/char.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/cidr.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/common.ts",
+      "source": "src/pg-core/utils/array.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "makePgArray",
+        "parsePgArray"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/custom.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/double-precision.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/enum.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/inet.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/interval.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/json.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/jsonb.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/line.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/macaddr.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/macaddr8.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/numeric.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/point.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/postgis_extension/geometry.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/real.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/serial.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/smallserial.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/text.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/uuid.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/varchar.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/vector_extension/bit.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/vector_extension/halfvec.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/vector_extension/sparsevec.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/vector_extension/vector.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/foreign-keys.ts",
+      "source": "src/pg-core/columns/index.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "AnyPgColumn",
+        "PgColumn"
+      ]
+    },
+    {
+      "importer": "src/pg-core/primary-keys.ts",
+      "source": "src/pg-core/columns/index.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "AnyPgColumn",
+        "PgColumn"
+      ]
+    },
+    {
+      "importer": "src/pg-core/query-builders/delete.ts",
+      "source": "src/pg-core/query-builders/select.types.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SelectedFieldsFlat",
+        "SelectedFieldsOrdered"
+      ]
+    },
+    {
+      "importer": "src/pg-core/query-builders/insert.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "AnyPgColumn",
+        "PgColumn"
+      ]
+    },
+    {
+      "importer": "src/pg-core/query-builders/insert.ts",
+      "source": "src/pg-core/query-builders/select.types.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SelectedFieldsFlat",
+        "SelectedFieldsOrdered"
+      ]
+    },
+    {
+      "importer": "src/pg-core/query-builders/select.types.ts",
+      "source": "src/pg-core/session.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgPreparedQuery",
+        "PreparedQueryConfig"
+      ]
+    },
+    {
+      "importer": "src/pg-core/query-builders/select.types.ts",
+      "source": "src/pg-core/query-builders/select.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgSelectBase",
+        "PgSelectQueryBuilderBase"
+      ]
+    },
+    {
+      "importer": "src/pg-core/schema.ts",
+      "source": "src/pg-core/sequence.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "pgSequence",
+        "pgSequenceWithSchema"
+      ]
+    },
+    {
+      "importer": "src/pg-core/schema.ts",
+      "source": "src/pg-core/table.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgTableFn",
+        "pgTableWithSchema"
+      ]
+    },
+    {
+      "importer": "src/pg-core/table.ts",
+      "source": "src/pg-core/columns/all.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "getPgColumnBuilders",
+        "PgColumnsBuilders"
+      ]
+    },
+    {
+      "importer": "src/pg-core/table.ts",
+      "source": "src/pg-core/foreign-keys.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "ForeignKey",
+        "ForeignKeyBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/utils.ts",
+      "source": "src/pg-core/checks.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "Check",
+        "CheckBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/utils.ts",
+      "source": "src/pg-core/foreign-keys.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "ForeignKey",
+        "ForeignKeyBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/utils.ts",
+      "source": "src/pg-core/indexes.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "Index",
+        "IndexBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/utils.ts",
+      "source": "src/pg-core/primary-keys.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PrimaryKey",
+        "PrimaryKeyBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/utils.ts",
+      "source": "src/pg-core/unique-constraint.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "UniqueConstraint",
+        "UniqueConstraintBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/view.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgColumn",
+        "PgColumnBuilderBase"
+      ]
+    },
+    {
+      "importer": "src/pg-proxy/driver.ts",
+      "source": "src/pg-proxy/session.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PgRemoteQueryResultHKT",
+        "PgRemoteSession"
+      ]
+    },
+    {
+      "importer": "src/postgres-js/driver.ts",
+      "source": "src/postgres-js/session.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PostgresJsQueryResultHKT",
+        "PostgresJsSession"
+      ]
+    },
+    {
+      "importer": "src/prisma/pg/driver.ts",
+      "source": "src/prisma/pg/session.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PrismaPgQueryResultHKT",
+        "PrismaPgSession"
+      ]
+    },
+    {
+      "importer": "src/relations.ts",
+      "source": "src/column.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "AnyColumn",
+        "Column"
+      ]
+    },
+    {
+      "importer": "src/relations.ts",
+      "source": "src/entity.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "entityKind",
+        "is"
+      ]
+    },
+    {
+      "importer": "src/selection-proxy.ts",
+      "source": "src/alias.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "ColumnAliasProxyHandler",
+        "TableAliasProxyHandler"
+      ]
+    },
+    {
+      "importer": "src/selection-proxy.ts",
+      "source": "src/entity.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "entityKind",
+        "is"
+      ]
+    },
+    {
+      "importer": "src/selection-proxy.ts",
+      "source": "src/sql/sql.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SQL",
+        "View"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/bigint.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreColumnBuilderWithAutoIncrement",
+        "SingleStoreColumnWithAutoIncrement"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/binary.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreColumn",
+        "SingleStoreColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/boolean.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreColumn",
+        "SingleStoreColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/char.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreColumn",
+        "SingleStoreColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/custom.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreColumn",
+        "SingleStoreColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/date.common.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreColumn",
+        "SingleStoreColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/date.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreColumn",
+        "SingleStoreColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/datetime.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreColumn",
+        "SingleStoreColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/decimal.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreColumnBuilderWithAutoIncrement",
+        "SingleStoreColumnWithAutoIncrement"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/double.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreColumnBuilderWithAutoIncrement",
+        "SingleStoreColumnWithAutoIncrement"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/enum.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreColumn",
+        "SingleStoreColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/float.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreColumnBuilderWithAutoIncrement",
+        "SingleStoreColumnWithAutoIncrement"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/int.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreColumnBuilderWithAutoIncrement",
+        "SingleStoreColumnWithAutoIncrement"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/json.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreColumn",
+        "SingleStoreColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/mediumint.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreColumnBuilderWithAutoIncrement",
+        "SingleStoreColumnWithAutoIncrement"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/real.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreColumnBuilderWithAutoIncrement",
+        "SingleStoreColumnWithAutoIncrement"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/serial.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreColumnBuilderWithAutoIncrement",
+        "SingleStoreColumnWithAutoIncrement"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/smallint.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreColumnBuilderWithAutoIncrement",
+        "SingleStoreColumnWithAutoIncrement"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/text.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreColumn",
+        "SingleStoreColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/time.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreColumn",
+        "SingleStoreColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/timestamp.ts",
+      "source": "src/singlestore-core/columns/date.common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreDateBaseColumn",
+        "SingleStoreDateColumnBaseBuilder"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/tinyint.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreColumnBuilderWithAutoIncrement",
+        "SingleStoreColumnWithAutoIncrement"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/varbinary.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreColumn",
+        "SingleStoreColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/varchar.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreColumn",
+        "SingleStoreColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/year.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreColumn",
+        "SingleStoreColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/indexes.ts",
+      "source": "src/singlestore-core/columns/index.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "AnySingleStoreColumn",
+        "SingleStoreColumn"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/primary-keys.ts",
+      "source": "src/singlestore-core/columns/index.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "AnySingleStoreColumn",
+        "SingleStoreColumn"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/query-builders/insert.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "AnySingleStoreColumn",
+        "SingleStoreColumn"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/query-builders/select.types.ts",
+      "source": "src/singlestore-core/query-builders/select.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreSelectBase",
+        "SingleStoreSelectQueryBuilderBase"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/schema.ts",
+      "source": "src/singlestore-core/table.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreTableFn",
+        "singlestoreTableWithSchema"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/table.ts",
+      "source": "src/singlestore-core/columns/all.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "getSingleStoreColumnBuilders",
+        "SingleStoreColumnBuilders"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/utils.ts",
+      "source": "src/singlestore-core/indexes.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "Index",
+        "IndexBuilder"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/utils.ts",
+      "source": "src/singlestore-core/primary-keys.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PrimaryKey",
+        "PrimaryKeyBuilder"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/utils.ts",
+      "source": "src/singlestore-core/unique-constraint.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "UniqueConstraint",
+        "UniqueConstraintBuilder"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/view.ts",
+      "source": "src/singlestore-core/columns/index.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SingleStoreColumn",
+        "SingleStoreColumnBuilderBase"
+      ]
+    },
+    {
+      "importer": "src/sql/sql.ts",
+      "source": "src/column.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "AnyColumn",
+        "Column"
+      ]
+    },
+    {
+      "importer": "src/sql/sql.ts",
+      "source": "src/table.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "IsAlias",
+        "Table"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/columns/blob.ts",
+      "source": "src/sqlite-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SQLiteColumn",
+        "SQLiteColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/columns/custom.ts",
+      "source": "src/sqlite-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SQLiteColumn",
+        "SQLiteColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/columns/integer.ts",
+      "source": "src/sqlite-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SQLiteColumn",
+        "SQLiteColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/columns/numeric.ts",
+      "source": "src/sqlite-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SQLiteColumn",
+        "SQLiteColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/columns/real.ts",
+      "source": "src/sqlite-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SQLiteColumn",
+        "SQLiteColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/columns/text.ts",
+      "source": "src/sqlite-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SQLiteColumn",
+        "SQLiteColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/foreign-keys.ts",
+      "source": "src/sqlite-core/columns/index.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "AnySQLiteColumn",
+        "SQLiteColumn"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/primary-keys.ts",
+      "source": "src/sqlite-core/columns/index.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "AnySQLiteColumn",
+        "SQLiteColumn"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/delete.ts",
+      "source": "src/sqlite-core/query-builders/select.types.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SelectedFieldsFlat",
+        "SelectedFieldsOrdered"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/insert.ts",
+      "source": "src/sqlite-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "AnySQLiteColumn",
+        "SQLiteColumn"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/insert.ts",
+      "source": "src/sqlite-core/query-builders/select.types.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SelectedFieldsFlat",
+        "SelectedFieldsOrdered"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/select.types.ts",
+      "source": "src/sqlite-core/query-builders/select.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SQLiteSelectBase",
+        "SQLiteSelectQueryBuilderBase"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/table.ts",
+      "source": "src/sqlite-core/columns/all.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "getSQLiteColumnBuilders",
+        "SQLiteColumnBuilders"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/table.ts",
+      "source": "src/sqlite-core/foreign-keys.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "ForeignKey",
+        "ForeignKeyBuilder"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/utils.ts",
+      "source": "src/sqlite-core/checks.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "Check",
+        "CheckBuilder"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/utils.ts",
+      "source": "src/sqlite-core/foreign-keys.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "ForeignKey",
+        "ForeignKeyBuilder"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/utils.ts",
+      "source": "src/sqlite-core/indexes.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "Index",
+        "IndexBuilder"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/utils.ts",
+      "source": "src/sqlite-core/primary-keys.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "PrimaryKey",
+        "PrimaryKeyBuilder"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/utils.ts",
+      "source": "src/sqlite-core/unique-constraint.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "UniqueConstraint",
+        "UniqueConstraintBuilder"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/view.ts",
+      "source": "src/sqlite-core/columns/common.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SQLiteColumn",
+        "SQLiteColumnBuilderBase"
+      ]
+    },
+    {
+      "importer": "src/subquery.ts",
+      "source": "src/sql/sql.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "SQL",
+        "SQLWrapper"
+      ]
+    },
+    {
+      "importer": "src/table.ts",
+      "source": "src/column.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "Column",
+        "GetColumnData"
+      ]
+    },
+    {
+      "importer": "src/table.ts",
+      "source": "src/operations.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "OptionalKeyOnly",
+        "RequiredKeyOnly"
+      ]
+    },
+    {
+      "importer": "src/table.ts",
+      "source": "src/utils.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "Simplify",
+        "Update"
+      ]
+    },
+    {
+      "importer": "src/utils.ts",
+      "source": "src/column.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "AnyColumn",
+        "Column"
+      ]
+    },
+    {
+      "importer": "src/utils.ts",
+      "source": "src/table.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "getTableName",
+        "Table"
+      ]
+    },
+    {
+      "importer": "type-tests/geldb/insert.ts",
+      "source": "type-tests/geldb/tables.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "identityColumnsTable",
+        "users"
+      ]
+    },
+    {
+      "importer": "type-tests/pg/insert.ts",
+      "source": "type-tests/pg/tables.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "identityColumnsTable",
+        "users"
+      ]
+    },
+    {
+      "importer": "type-tests/sqlite/delete.ts",
+      "source": "type-tests/sqlite/db.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "bunDb",
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/sqlite/insert.ts",
+      "source": "type-tests/sqlite/db.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "bunDb",
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/sqlite/insert.ts",
+      "source": "type-tests/sqlite/tables.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "NewUser",
+        "users"
+      ]
+    },
+    {
+      "importer": "type-tests/sqlite/update.ts",
+      "source": "type-tests/sqlite/db.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "bunDb",
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/sqlite/update.ts",
+      "source": "type-tests/sqlite/tables.ts",
+      "symbolCount": 2,
+      "symbols": [
+        "cities",
+        "users"
+      ]
+    },
+    {
+      "importer": "src/alias.ts",
+      "source": "src/relations.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Relation"
+      ]
+    },
+    {
+      "importer": "src/alias.ts",
+      "source": "src/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Table"
+      ]
+    },
+    {
+      "importer": "src/alias.ts",
+      "source": "src/view-common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "ViewBaseConfig"
+      ]
+    },
+    {
+      "importer": "src/aws-data-api/pg/migrator.ts",
+      "source": "src/aws-data-api/pg/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "AwsDataApiPgDatabase"
+      ]
+    },
+    {
+      "importer": "src/batch.ts",
+      "source": "src/column-builder.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Dialect"
+      ]
+    },
+    {
+      "importer": "src/batch.ts",
+      "source": "src/runnable-query.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "RunnableQuery"
+      ]
+    },
+    {
+      "importer": "src/better-sqlite3/driver.ts",
+      "source": "src/better-sqlite3/session.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "BetterSQLiteSession"
+      ]
+    },
+    {
+      "importer": "src/better-sqlite3/migrator.ts",
+      "source": "src/better-sqlite3/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "BetterSQLite3Database"
+      ]
+    },
+    {
+      "importer": "src/bun-sql/migrator.ts",
+      "source": "src/bun-sql/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "BunSQLDatabase"
+      ]
+    },
+    {
+      "importer": "src/bun-sqlite/driver.ts",
+      "source": "src/bun-sqlite/session.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteBunSession"
+      ]
+    },
+    {
+      "importer": "src/bun-sqlite/migrator.ts",
+      "source": "src/bun-sqlite/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "BunSQLiteDatabase"
+      ]
+    },
+    {
+      "importer": "src/cache/core/cache.ts",
+      "source": "src/cache/core/types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "CacheConfig"
+      ]
+    },
+    {
+      "importer": "src/cache/upstash/cache.ts",
+      "source": "src/cache/core/types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "CacheConfig"
+      ]
+    },
+    {
+      "importer": "src/casing.ts",
+      "source": "src/entity.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "entityKind"
+      ]
+    },
+    {
+      "importer": "src/casing.ts",
+      "source": "src/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Table"
+      ]
+    },
+    {
+      "importer": "src/casing.ts",
+      "source": "src/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Casing"
+      ]
+    },
+    {
+      "importer": "src/column-builder.ts",
+      "source": "src/column.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Column"
+      ]
+    },
+    {
+      "importer": "src/column-builder.ts",
+      "source": "src/mysql-core/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlColumn"
+      ]
+    },
+    {
+      "importer": "src/column-builder.ts",
+      "source": "src/singlestore-core/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreColumn"
+      ]
+    },
+    {
+      "importer": "src/column-builder.ts",
+      "source": "src/sql/sql.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQL"
+      ]
+    },
+    {
+      "importer": "src/column-builder.ts",
+      "source": "src/sqlite-core/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteColumn"
+      ]
+    },
+    {
+      "importer": "src/column.ts",
+      "source": "src/entity.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "entityKind"
+      ]
+    },
+    {
+      "importer": "src/column.ts",
+      "source": "src/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Table"
+      ]
+    },
+    {
+      "importer": "src/column.ts",
+      "source": "src/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Update"
+      ]
+    },
+    {
+      "importer": "src/d1/driver.ts",
+      "source": "src/d1/session.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteD1Session"
+      ]
+    },
+    {
+      "importer": "src/d1/migrator.ts",
+      "source": "src/d1/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "DrizzleD1Database"
+      ]
+    },
+    {
+      "importer": "src/durable-sqlite/driver.ts",
+      "source": "src/durable-sqlite/session.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteDOSession"
+      ]
+    },
+    {
+      "importer": "src/durable-sqlite/migrator.ts",
+      "source": "src/durable-sqlite/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "DrizzleSqliteDODatabase"
+      ]
+    },
+    {
+      "importer": "src/expo-sqlite/driver.ts",
+      "source": "src/expo-sqlite/session.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "ExpoSQLiteSession"
+      ]
+    },
+    {
+      "importer": "src/expo-sqlite/migrator.ts",
+      "source": "src/expo-sqlite/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "ExpoSQLiteDatabase"
+      ]
+    },
+    {
+      "importer": "src/gel-core/alias.ts",
+      "source": "src/gel-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "BuildAliasTable"
+      ]
+    },
+    {
+      "importer": "src/gel-core/alias.ts",
+      "source": "src/gel-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelTable"
+      ]
+    },
+    {
+      "importer": "src/gel-core/alias.ts",
+      "source": "src/gel-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelViewBase"
+      ]
+    },
+    {
+      "importer": "src/gel-core/checks.ts",
+      "source": "src/gel-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelTable"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/all.ts",
+      "source": "src/gel-core/columns/bigint.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "bigint"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/all.ts",
+      "source": "src/gel-core/columns/bigintT.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "bigintT"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/all.ts",
+      "source": "src/gel-core/columns/boolean.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "boolean"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/all.ts",
+      "source": "src/gel-core/columns/bytes.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "bytes"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/all.ts",
+      "source": "src/gel-core/columns/custom.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "customType"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/all.ts",
+      "source": "src/gel-core/columns/date-duration.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "dateDuration"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/all.ts",
+      "source": "src/gel-core/columns/decimal.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "decimal"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/all.ts",
+      "source": "src/gel-core/columns/double-precision.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "doublePrecision"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/all.ts",
+      "source": "src/gel-core/columns/duration.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "duration"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/all.ts",
+      "source": "src/gel-core/columns/integer.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "integer"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/all.ts",
+      "source": "src/gel-core/columns/json.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "json"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/all.ts",
+      "source": "src/gel-core/columns/localdate.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "localDate"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/all.ts",
+      "source": "src/gel-core/columns/localtime.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "localTime"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/all.ts",
+      "source": "src/gel-core/columns/real.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "real"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/all.ts",
+      "source": "src/gel-core/columns/relative-duration.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "relDuration"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/all.ts",
+      "source": "src/gel-core/columns/smallint.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "smallint"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/all.ts",
+      "source": "src/gel-core/columns/text.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "text"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/all.ts",
+      "source": "src/gel-core/columns/timestamp.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "timestamp"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/all.ts",
+      "source": "src/gel-core/columns/timestamptz.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "timestamptz"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/all.ts",
+      "source": "src/gel-core/columns/uuid.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "uuid"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/bigint.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelColumn"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/bigint.ts",
+      "source": "src/gel-core/columns/int.common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelIntColumnBaseBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/bigintT.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelColumn"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/bigintT.ts",
+      "source": "src/gel-core/columns/int.common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelIntColumnBaseBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/common.ts",
+      "source": "src/gel-core/indexes.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelIndexOpClass"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/common.ts",
+      "source": "src/gel-core/unique-constraint.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "uniqueKeyName"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/date.common.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/int.common.ts",
+      "source": "src/gel-core/sequence.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelSequenceOptions"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/int.common.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/integer.ts",
+      "source": "src/gel-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "AnyGelTable"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/integer.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelColumn"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/integer.ts",
+      "source": "src/gel-core/columns/int.common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelIntColumnBaseBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/localdate.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelColumn"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/localdate.ts",
+      "source": "src/gel-core/columns/date.common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelLocalDateColumnBaseBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/localtime.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelColumn"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/localtime.ts",
+      "source": "src/gel-core/columns/date.common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelLocalDateColumnBaseBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/smallint.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelColumn"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/smallint.ts",
+      "source": "src/gel-core/columns/int.common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelIntColumnBaseBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/timestamp.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelColumn"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/timestamp.ts",
+      "source": "src/gel-core/columns/date.common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelLocalDateColumnBaseBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/timestamptz.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelColumn"
+      ]
+    },
+    {
+      "importer": "src/gel-core/columns/timestamptz.ts",
+      "source": "src/gel-core/columns/date.common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelLocalDateColumnBaseBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/db.ts",
+      "source": "src/gel-core/columns/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelColumn"
+      ]
+    },
+    {
+      "importer": "src/gel-core/db.ts",
+      "source": "src/gel-core/query-builders/count.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelCountBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/db.ts",
+      "source": "src/gel-core/query-builders/query.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "RelationalQueryBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/db.ts",
+      "source": "src/gel-core/query-builders/raw.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelRaw"
+      ]
+    },
+    {
+      "importer": "src/gel-core/db.ts",
+      "source": "src/gel-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SelectedFields"
+      ]
+    },
+    {
+      "importer": "src/gel-core/db.ts",
+      "source": "src/gel-core/subquery.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "WithSubqueryWithSelection"
+      ]
+    },
+    {
+      "importer": "src/gel-core/db.ts",
+      "source": "src/gel-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelViewBase"
+      ]
+    },
+    {
+      "importer": "src/gel-core/dialect.ts",
+      "source": "src/gel-core/columns/timestamp.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelTimestamp"
+      ]
+    },
+    {
+      "importer": "src/gel-core/dialect.ts",
+      "source": "src/gel-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelViewBase"
+      ]
+    },
+    {
+      "importer": "src/gel-core/dialect.ts",
+      "source": "src/gel-core/view.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelMaterializedView"
+      ]
+    },
+    {
+      "importer": "src/gel-core/foreign-keys.ts",
+      "source": "src/gel-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelTable"
+      ]
+    },
+    {
+      "importer": "src/gel-core/indexes.ts",
+      "source": "src/gel-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelTable"
+      ]
+    },
+    {
+      "importer": "src/gel-core/policies.ts",
+      "source": "src/gel-core/roles.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelRole"
+      ]
+    },
+    {
+      "importer": "src/gel-core/policies.ts",
+      "source": "src/gel-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelTable"
+      ]
+    },
+    {
+      "importer": "src/gel-core/primary-keys.ts",
+      "source": "src/gel-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelTable"
+      ]
+    },
+    {
+      "importer": "src/gel-core/query-builders/count.ts",
+      "source": "src/gel-core/session.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelSession"
+      ]
+    },
+    {
+      "importer": "src/gel-core/query-builders/count.ts",
+      "source": "src/gel-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelTable"
+      ]
+    },
+    {
+      "importer": "src/gel-core/query-builders/delete.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelColumn"
+      ]
+    },
+    {
+      "importer": "src/gel-core/query-builders/delete.ts",
+      "source": "src/gel-core/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "extractUsedTable"
+      ]
+    },
+    {
+      "importer": "src/gel-core/query-builders/insert.ts",
+      "source": "src/gel-core/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "extractUsedTable"
+      ]
+    },
+    {
+      "importer": "src/gel-core/query-builders/insert.ts",
+      "source": "src/gel-core/query-builders/query-builder.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "QueryBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/query-builders/insert.ts",
+      "source": "src/gel-core/query-builders/update.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelUpdateSetSource"
+      ]
+    },
+    {
+      "importer": "src/gel-core/query-builders/query-builder.ts",
+      "source": "src/gel-core/columns/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelColumn"
+      ]
+    },
+    {
+      "importer": "src/gel-core/query-builders/query-builder.ts",
+      "source": "src/gel-core/subquery.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "WithSubqueryWithSelection"
+      ]
+    },
+    {
+      "importer": "src/gel-core/query-builders/query-builder.ts",
+      "source": "src/gel-core/query-builders/select.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelSelectBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/query-builders/query-builder.ts",
+      "source": "src/gel-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SelectedFields"
+      ]
+    },
+    {
+      "importer": "src/gel-core/query-builders/query.ts",
+      "source": "src/gel-core/dialect.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelDialect"
+      ]
+    },
+    {
+      "importer": "src/gel-core/query-builders/query.ts",
+      "source": "src/gel-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelTable"
+      ]
+    },
+    {
+      "importer": "src/gel-core/query-builders/select.ts",
+      "source": "src/gel-core/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "extractUsedTable"
+      ]
+    },
+    {
+      "importer": "src/gel-core/query-builders/update.ts",
+      "source": "src/gel-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelColumn"
+      ]
+    },
+    {
+      "importer": "src/gel-core/query-builders/update.ts",
+      "source": "src/gel-core/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "extractUsedTable"
+      ]
+    },
+    {
+      "importer": "src/gel-core/query-builders/update.ts",
+      "source": "src/gel-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelViewBase"
+      ]
+    },
+    {
+      "importer": "src/gel-core/session.ts",
+      "source": "src/gel-core/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelDatabase"
+      ]
+    },
+    {
+      "importer": "src/gel-core/session.ts",
+      "source": "src/gel-core/dialect.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelDialect"
+      ]
+    },
+    {
+      "importer": "src/gel-core/session.ts",
+      "source": "src/gel-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SelectedFieldsOrdered"
+      ]
+    },
+    {
+      "importer": "src/gel-core/table.ts",
+      "source": "src/gel-core/checks.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "CheckBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/table.ts",
+      "source": "src/gel-core/indexes.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "AnyIndexBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/table.ts",
+      "source": "src/gel-core/policies.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelPolicy"
+      ]
+    },
+    {
+      "importer": "src/gel-core/table.ts",
+      "source": "src/gel-core/primary-keys.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PrimaryKeyBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/table.ts",
+      "source": "src/gel-core/unique-constraint.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "UniqueConstraintBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/unique-constraint.ts",
+      "source": "src/gel-core/columns/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelColumn"
+      ]
+    },
+    {
+      "importer": "src/gel-core/unique-constraint.ts",
+      "source": "src/gel-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelTable"
+      ]
+    },
+    {
+      "importer": "src/gel-core/utils.ts",
+      "source": "src/gel-core/columns/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "AnyGelColumn"
+      ]
+    },
+    {
+      "importer": "src/gel-core/utils.ts",
+      "source": "src/gel-core/policies.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelPolicy"
+      ]
+    },
+    {
+      "importer": "src/gel-core/utils.ts",
+      "source": "src/gel-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelTable"
+      ]
+    },
+    {
+      "importer": "src/gel-core/utils.ts",
+      "source": "src/gel-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelViewBase"
+      ]
+    },
+    {
+      "importer": "src/gel-core/utils.ts",
+      "source": "src/gel-core/view-common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelViewConfig"
+      ]
+    },
+    {
+      "importer": "src/gel-core/view.ts",
+      "source": "src/gel-core/query-builders/query-builder.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "QueryBuilder"
+      ]
+    },
+    {
+      "importer": "src/gel-core/view.ts",
+      "source": "src/gel-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "gelTable"
+      ]
+    },
+    {
+      "importer": "src/gel-core/view.ts",
+      "source": "src/gel-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelViewBase"
+      ]
+    },
+    {
+      "importer": "src/gel-core/view.ts",
+      "source": "src/gel-core/view-common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "GelViewConfig"
+      ]
+    },
+    {
+      "importer": "src/libsql/driver-core.ts",
+      "source": "src/libsql/session.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "LibSQLSession"
+      ]
+    },
+    {
+      "importer": "src/libsql/migrator.ts",
+      "source": "src/libsql/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "LibSQLDatabase"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/alias.ts",
+      "source": "src/mysql-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "BuildAliasTable"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/alias.ts",
+      "source": "src/mysql-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlTable"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/alias.ts",
+      "source": "src/mysql-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlViewBase"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/checks.ts",
+      "source": "src/mysql-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlTable"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/all.ts",
+      "source": "src/mysql-core/columns/bigint.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "bigint"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/all.ts",
+      "source": "src/mysql-core/columns/binary.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "binary"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/all.ts",
+      "source": "src/mysql-core/columns/boolean.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "boolean"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/all.ts",
+      "source": "src/mysql-core/columns/char.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "char"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/all.ts",
+      "source": "src/mysql-core/columns/custom.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "customType"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/all.ts",
+      "source": "src/mysql-core/columns/date.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "date"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/all.ts",
+      "source": "src/mysql-core/columns/datetime.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "datetime"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/all.ts",
+      "source": "src/mysql-core/columns/decimal.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "decimal"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/all.ts",
+      "source": "src/mysql-core/columns/double.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "double"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/all.ts",
+      "source": "src/mysql-core/columns/enum.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "mysqlEnum"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/all.ts",
+      "source": "src/mysql-core/columns/float.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "float"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/all.ts",
+      "source": "src/mysql-core/columns/int.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "int"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/all.ts",
+      "source": "src/mysql-core/columns/json.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "json"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/all.ts",
+      "source": "src/mysql-core/columns/mediumint.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "mediumint"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/all.ts",
+      "source": "src/mysql-core/columns/real.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "real"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/all.ts",
+      "source": "src/mysql-core/columns/serial.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "serial"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/all.ts",
+      "source": "src/mysql-core/columns/smallint.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "smallint"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/all.ts",
+      "source": "src/mysql-core/columns/time.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "time"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/all.ts",
+      "source": "src/mysql-core/columns/timestamp.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "timestamp"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/all.ts",
+      "source": "src/mysql-core/columns/tinyint.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "tinyint"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/all.ts",
+      "source": "src/mysql-core/columns/varbinary.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "varbinary"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/all.ts",
+      "source": "src/mysql-core/columns/varchar.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "varchar"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/all.ts",
+      "source": "src/mysql-core/columns/year.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "year"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/common.ts",
+      "source": "src/mysql-core/unique-constraint.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "uniqueKeyName"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/mediumint.ts",
+      "source": "src/mysql-core/columns/int.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlIntConfig"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/smallint.ts",
+      "source": "src/mysql-core/columns/int.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlIntConfig"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/columns/tinyint.ts",
+      "source": "src/mysql-core/columns/int.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlIntConfig"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/db.ts",
+      "source": "src/mysql-core/dialect.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlDialect"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/db.ts",
+      "source": "src/mysql-core/query-builders/count.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlCountBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/db.ts",
+      "source": "src/mysql-core/query-builders/query.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "RelationalQueryBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/db.ts",
+      "source": "src/mysql-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SelectedFields"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/db.ts",
+      "source": "src/mysql-core/subquery.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "WithBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/db.ts",
+      "source": "src/mysql-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlTable"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/db.ts",
+      "source": "src/mysql-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlViewBase"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/dialect.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlColumn"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/dialect.ts",
+      "source": "src/mysql-core/query-builders/delete.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlDeleteConfig"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/dialect.ts",
+      "source": "src/mysql-core/query-builders/insert.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlInsertConfig"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/dialect.ts",
+      "source": "src/mysql-core/query-builders/update.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlUpdateConfig"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/dialect.ts",
+      "source": "src/mysql-core/session.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlSession"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/dialect.ts",
+      "source": "src/mysql-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlTable"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/dialect.ts",
+      "source": "src/mysql-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlViewBase"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/expressions.ts",
+      "source": "src/mysql-core/columns/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlColumn"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/foreign-keys.ts",
+      "source": "src/mysql-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlTable"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/indexes.ts",
+      "source": "src/mysql-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlTable"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/primary-keys.ts",
+      "source": "src/mysql-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlTable"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/count.ts",
+      "source": "src/mysql-core/session.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlSession"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/count.ts",
+      "source": "src/mysql-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlTable"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/count.ts",
+      "source": "src/mysql-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlViewBase"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/delete.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlColumn"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/delete.ts",
+      "source": "src/mysql-core/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "extractUsedTable"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/delete.ts",
+      "source": "src/mysql-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SelectedFieldsOrdered"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/insert.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "AnyMySqlColumn"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/insert.ts",
+      "source": "src/mysql-core/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "extractUsedTable"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/insert.ts",
+      "source": "src/mysql-core/query-builders/query-builder.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "QueryBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/insert.ts",
+      "source": "src/mysql-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SelectedFieldsOrdered"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/insert.ts",
+      "source": "src/mysql-core/query-builders/update.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlUpdateSetSource"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/query-builder.ts",
+      "source": "src/mysql-core/query-builders/select.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlSelectBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/query-builder.ts",
+      "source": "src/mysql-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SelectedFields"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/query.ts",
+      "source": "src/mysql-core/dialect.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlDialect"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/query.ts",
+      "source": "src/mysql-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlTable"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/select.ts",
+      "source": "src/mysql-core/indexes.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "IndexBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/select.ts",
+      "source": "src/mysql-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlViewBase"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/select.types.ts",
+      "source": "src/mysql-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlViewBase"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/select.types.ts",
+      "source": "src/mysql-core/view.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlViewWithSelection"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/update.ts",
+      "source": "src/mysql-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlColumn"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/update.ts",
+      "source": "src/mysql-core/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "extractUsedTable"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/query-builders/update.ts",
+      "source": "src/mysql-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SelectedFieldsOrdered"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/session.ts",
+      "source": "src/mysql-core/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlDatabase"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/session.ts",
+      "source": "src/mysql-core/dialect.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlDialect"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/session.ts",
+      "source": "src/mysql-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SelectedFieldsOrdered"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/subquery.ts",
+      "source": "src/mysql-core/query-builders/query-builder.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "QueryBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/table.ts",
+      "source": "src/mysql-core/checks.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "CheckBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/table.ts",
+      "source": "src/mysql-core/indexes.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "AnyIndexBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/table.ts",
+      "source": "src/mysql-core/primary-keys.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PrimaryKeyBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/table.ts",
+      "source": "src/mysql-core/unique-constraint.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "UniqueConstraintBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/unique-constraint.ts",
+      "source": "src/mysql-core/columns/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlColumn"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/unique-constraint.ts",
+      "source": "src/mysql-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlTable"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/utils.ts",
+      "source": "src/mysql-core/query-builders/select.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "IndexForHint"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/utils.ts",
+      "source": "src/mysql-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlTable"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/utils.ts",
+      "source": "src/mysql-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlViewBase"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/utils.ts",
+      "source": "src/mysql-core/view-common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlViewConfig"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/utils.ts",
+      "source": "src/mysql-core/view.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlView"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/view.ts",
+      "source": "src/mysql-core/query-builders/query-builder.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "QueryBuilder"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/view.ts",
+      "source": "src/mysql-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "mysqlTable"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/view.ts",
+      "source": "src/mysql-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlViewBase"
+      ]
+    },
+    {
+      "importer": "src/mysql-core/view.ts",
+      "source": "src/mysql-core/view-common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlViewConfig"
+      ]
+    },
+    {
+      "importer": "src/mysql-proxy/migrator.ts",
+      "source": "src/mysql-proxy/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySqlRemoteDatabase"
+      ]
+    },
+    {
+      "importer": "src/mysql-proxy/session.ts",
+      "source": "src/mysql-proxy/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "RemoteCallback"
+      ]
+    },
+    {
+      "importer": "src/mysql2/driver.ts",
+      "source": "src/errors.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "DrizzleError"
+      ]
+    },
+    {
+      "importer": "src/mysql2/migrator.ts",
+      "source": "src/mysql2/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "MySql2Database"
+      ]
+    },
+    {
+      "importer": "src/neon-http/migrator.ts",
+      "source": "src/neon-http/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "NeonHttpDatabase"
+      ]
+    },
+    {
+      "importer": "src/neon-serverless/migrator.ts",
+      "source": "src/neon-serverless/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "NeonDatabase"
+      ]
+    },
+    {
+      "importer": "src/node-postgres/migrator.ts",
+      "source": "src/node-postgres/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "NodePgDatabase"
+      ]
+    },
+    {
+      "importer": "src/op-sqlite/driver.ts",
+      "source": "src/op-sqlite/session.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "OPSQLiteSession"
+      ]
+    },
+    {
+      "importer": "src/op-sqlite/migrator.ts",
+      "source": "src/op-sqlite/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "OPSQLiteDatabase"
+      ]
+    },
+    {
+      "importer": "src/operations.ts",
+      "source": "src/sql/sql.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQL"
+      ]
+    },
+    {
+      "importer": "src/operations.ts",
+      "source": "src/subquery.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Subquery"
+      ]
+    },
+    {
+      "importer": "src/operations.ts",
+      "source": "src/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Table"
+      ]
+    },
+    {
+      "importer": "src/pg-core/alias.ts",
+      "source": "src/pg-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "BuildAliasTable"
+      ]
+    },
+    {
+      "importer": "src/pg-core/alias.ts",
+      "source": "src/pg-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgTable"
+      ]
+    },
+    {
+      "importer": "src/pg-core/alias.ts",
+      "source": "src/pg-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgViewBase"
+      ]
+    },
+    {
+      "importer": "src/pg-core/checks.ts",
+      "source": "src/pg-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgTable"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/bigint.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "bigint"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/bigserial.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "bigserial"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/boolean.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "boolean"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/char.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "char"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/cidr.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "cidr"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/custom.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "customType"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/date.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "date"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/double-precision.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "doublePrecision"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/inet.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "inet"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/integer.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "integer"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/interval.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "interval"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/json.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "json"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/jsonb.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "jsonb"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/line.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "line"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/macaddr.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "macaddr"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/macaddr8.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "macaddr8"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/numeric.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "numeric"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/point.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "point"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/postgis_extension/geometry.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "geometry"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/real.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "real"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/serial.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "serial"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/smallint.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "smallint"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/smallserial.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "smallserial"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/text.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "text"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/time.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "time"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/timestamp.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "timestamp"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/uuid.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "uuid"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/varchar.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "varchar"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/vector_extension/bit.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "bit"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/vector_extension/halfvec.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "halfvec"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/vector_extension/sparsevec.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "sparsevec"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/all.ts",
+      "source": "src/pg-core/columns/vector_extension/vector.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "vector"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/bigint.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgColumn"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/bigint.ts",
+      "source": "src/pg-core/columns/int.common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgIntColumnBaseBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/bigserial.ts",
+      "source": "src/pg-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "AnyPgTable"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/cidr.ts",
+      "source": "src/pg-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "AnyPgTable"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/common.ts",
+      "source": "src/pg-core/indexes.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgIndexOpClass"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/common.ts",
+      "source": "src/pg-core/unique-constraint.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "uniqueKeyName"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/date.common.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/date.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgColumn"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/date.ts",
+      "source": "src/pg-core/columns/date.common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgDateColumnBaseBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/inet.ts",
+      "source": "src/pg-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "AnyPgTable"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/int.common.ts",
+      "source": "src/pg-core/sequence.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgSequenceOptions"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/int.common.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgColumnBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/integer.ts",
+      "source": "src/pg-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "AnyPgTable"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/integer.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgColumn"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/integer.ts",
+      "source": "src/pg-core/columns/int.common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgIntColumnBaseBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/interval.ts",
+      "source": "src/pg-core/columns/timestamp.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Precision"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/macaddr.ts",
+      "source": "src/pg-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "AnyPgTable"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/macaddr8.ts",
+      "source": "src/pg-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "AnyPgTable"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/postgis_extension/geometry.ts",
+      "source": "src/pg-core/columns/postgis_extension/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "parseEWKB"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/smallint.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgColumn"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/smallint.ts",
+      "source": "src/pg-core/columns/int.common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgIntColumnBaseBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/time.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgColumn"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/time.ts",
+      "source": "src/pg-core/columns/date.common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgDateColumnBaseBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/time.ts",
+      "source": "src/pg-core/columns/timestamp.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Precision"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/timestamp.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgColumn"
+      ]
+    },
+    {
+      "importer": "src/pg-core/columns/timestamp.ts",
+      "source": "src/pg-core/columns/date.common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgDateColumnBaseBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/db.ts",
+      "source": "src/pg-core/columns/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgColumn"
+      ]
+    },
+    {
+      "importer": "src/pg-core/db.ts",
+      "source": "src/pg-core/query-builders/count.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgCountBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/db.ts",
+      "source": "src/pg-core/query-builders/query.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "RelationalQueryBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/db.ts",
+      "source": "src/pg-core/query-builders/raw.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgRaw"
+      ]
+    },
+    {
+      "importer": "src/pg-core/db.ts",
+      "source": "src/pg-core/query-builders/refresh-materialized-view.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgRefreshMaterializedView"
+      ]
+    },
+    {
+      "importer": "src/pg-core/db.ts",
+      "source": "src/pg-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SelectedFields"
+      ]
+    },
+    {
+      "importer": "src/pg-core/db.ts",
+      "source": "src/pg-core/subquery.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "WithBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/db.ts",
+      "source": "src/pg-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgViewBase"
+      ]
+    },
+    {
+      "importer": "src/pg-core/db.ts",
+      "source": "src/pg-core/view.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgMaterializedView"
+      ]
+    },
+    {
+      "importer": "src/pg-core/dialect.ts",
+      "source": "src/pg-core/session.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgSession"
+      ]
+    },
+    {
+      "importer": "src/pg-core/dialect.ts",
+      "source": "src/pg-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgViewBase"
+      ]
+    },
+    {
+      "importer": "src/pg-core/dialect.ts",
+      "source": "src/pg-core/view.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgMaterializedView"
+      ]
+    },
+    {
+      "importer": "src/pg-core/foreign-keys.ts",
+      "source": "src/pg-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgTable"
+      ]
+    },
+    {
+      "importer": "src/pg-core/indexes.ts",
+      "source": "src/pg-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgTable"
+      ]
+    },
+    {
+      "importer": "src/pg-core/policies.ts",
+      "source": "src/pg-core/roles.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgRole"
+      ]
+    },
+    {
+      "importer": "src/pg-core/policies.ts",
+      "source": "src/pg-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgTable"
+      ]
+    },
+    {
+      "importer": "src/pg-core/primary-keys.ts",
+      "source": "src/pg-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgTable"
+      ]
+    },
+    {
+      "importer": "src/pg-core/query-builders/count.ts",
+      "source": "src/pg-core/session.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgSession"
+      ]
+    },
+    {
+      "importer": "src/pg-core/query-builders/count.ts",
+      "source": "src/pg-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgTable"
+      ]
+    },
+    {
+      "importer": "src/pg-core/query-builders/delete.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgColumn"
+      ]
+    },
+    {
+      "importer": "src/pg-core/query-builders/delete.ts",
+      "source": "src/pg-core/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "extractUsedTable"
+      ]
+    },
+    {
+      "importer": "src/pg-core/query-builders/insert.ts",
+      "source": "src/pg-core/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "extractUsedTable"
+      ]
+    },
+    {
+      "importer": "src/pg-core/query-builders/insert.ts",
+      "source": "src/pg-core/query-builders/query-builder.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "QueryBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/query-builders/insert.ts",
+      "source": "src/pg-core/query-builders/update.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgUpdateSetSource"
+      ]
+    },
+    {
+      "importer": "src/pg-core/query-builders/query-builder.ts",
+      "source": "src/pg-core/columns/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgColumn"
+      ]
+    },
+    {
+      "importer": "src/pg-core/query-builders/query-builder.ts",
+      "source": "src/pg-core/subquery.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "WithBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/query-builders/query-builder.ts",
+      "source": "src/pg-core/query-builders/select.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgSelectBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/query-builders/query-builder.ts",
+      "source": "src/pg-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SelectedFields"
+      ]
+    },
+    {
+      "importer": "src/pg-core/query-builders/query.ts",
+      "source": "src/pg-core/dialect.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgDialect"
+      ]
+    },
+    {
+      "importer": "src/pg-core/query-builders/query.ts",
+      "source": "src/pg-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgTable"
+      ]
+    },
+    {
+      "importer": "src/pg-core/query-builders/select.ts",
+      "source": "src/pg-core/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "extractUsedTable"
+      ]
+    },
+    {
+      "importer": "src/pg-core/query-builders/update.ts",
+      "source": "src/pg-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgColumn"
+      ]
+    },
+    {
+      "importer": "src/pg-core/query-builders/update.ts",
+      "source": "src/pg-core/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "extractUsedTable"
+      ]
+    },
+    {
+      "importer": "src/pg-core/query-builders/update.ts",
+      "source": "src/pg-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgViewBase"
+      ]
+    },
+    {
+      "importer": "src/pg-core/session.ts",
+      "source": "src/pg-core/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgDatabase"
+      ]
+    },
+    {
+      "importer": "src/pg-core/session.ts",
+      "source": "src/pg-core/dialect.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgDialect"
+      ]
+    },
+    {
+      "importer": "src/pg-core/session.ts",
+      "source": "src/pg-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SelectedFieldsOrdered"
+      ]
+    },
+    {
+      "importer": "src/pg-core/subquery.ts",
+      "source": "src/pg-core/query-builders/query-builder.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "QueryBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/table.ts",
+      "source": "src/pg-core/checks.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "CheckBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/table.ts",
+      "source": "src/pg-core/indexes.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "AnyIndexBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/table.ts",
+      "source": "src/pg-core/policies.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgPolicy"
+      ]
+    },
+    {
+      "importer": "src/pg-core/table.ts",
+      "source": "src/pg-core/primary-keys.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PrimaryKeyBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/table.ts",
+      "source": "src/pg-core/unique-constraint.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "UniqueConstraintBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/unique-constraint.ts",
+      "source": "src/pg-core/columns/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgColumn"
+      ]
+    },
+    {
+      "importer": "src/pg-core/unique-constraint.ts",
+      "source": "src/pg-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgTable"
+      ]
+    },
+    {
+      "importer": "src/pg-core/utils.ts",
+      "source": "src/pg-core/columns/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "AnyPgColumn"
+      ]
+    },
+    {
+      "importer": "src/pg-core/utils.ts",
+      "source": "src/pg-core/policies.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgPolicy"
+      ]
+    },
+    {
+      "importer": "src/pg-core/utils.ts",
+      "source": "src/pg-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgViewBase"
+      ]
+    },
+    {
+      "importer": "src/pg-core/utils.ts",
+      "source": "src/pg-core/view-common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgViewConfig"
+      ]
+    },
+    {
+      "importer": "src/pg-core/view.ts",
+      "source": "src/pg-core/query-builders/query-builder.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "QueryBuilder"
+      ]
+    },
+    {
+      "importer": "src/pg-core/view.ts",
+      "source": "src/pg-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "pgTable"
+      ]
+    },
+    {
+      "importer": "src/pg-core/view.ts",
+      "source": "src/pg-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgViewBase"
+      ]
+    },
+    {
+      "importer": "src/pg-core/view.ts",
+      "source": "src/pg-core/view-common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgViewConfig"
+      ]
+    },
+    {
+      "importer": "src/pg-proxy/migrator.ts",
+      "source": "src/pg-proxy/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgRemoteDatabase"
+      ]
+    },
+    {
+      "importer": "src/pg-proxy/session.ts",
+      "source": "src/pg-proxy/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "RemoteCallback"
+      ]
+    },
+    {
+      "importer": "src/pglite/migrator.ts",
+      "source": "src/pglite/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PgliteDatabase"
+      ]
+    },
+    {
+      "importer": "src/planetscale-serverless/migrator.ts",
+      "source": "src/planetscale-serverless/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PlanetScaleDatabase"
+      ]
+    },
+    {
+      "importer": "src/postgres-js/migrator.ts",
+      "source": "src/postgres-js/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PostgresJsDatabase"
+      ]
+    },
+    {
+      "importer": "src/primary-key.ts",
+      "source": "src/column.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "AnyColumn"
+      ]
+    },
+    {
+      "importer": "src/primary-key.ts",
+      "source": "src/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Table"
+      ]
+    },
+    {
+      "importer": "src/prisma/sqlite/driver.ts",
+      "source": "src/prisma/sqlite/session.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PrismaSQLiteSession"
+      ]
+    },
+    {
+      "importer": "src/relations.ts",
+      "source": "src/pg-core/primary-keys.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PrimaryKeyBuilder"
+      ]
+    },
+    {
+      "importer": "src/runnable-query.ts",
+      "source": "src/column-builder.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Dialect"
+      ]
+    },
+    {
+      "importer": "src/runnable-query.ts",
+      "source": "src/session.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PreparedQuery"
+      ]
+    },
+    {
+      "importer": "src/selection-proxy.ts",
+      "source": "src/column.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Column"
+      ]
+    },
+    {
+      "importer": "src/selection-proxy.ts",
+      "source": "src/subquery.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Subquery"
+      ]
+    },
+    {
+      "importer": "src/selection-proxy.ts",
+      "source": "src/view-common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "ViewBaseConfig"
+      ]
+    },
+    {
+      "importer": "src/session.ts",
+      "source": "src/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Query"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/alias.ts",
+      "source": "src/singlestore-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "BuildAliasTable"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/alias.ts",
+      "source": "src/singlestore-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreTable"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/all.ts",
+      "source": "src/singlestore-core/columns/bigint.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "bigint"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/all.ts",
+      "source": "src/singlestore-core/columns/binary.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "binary"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/all.ts",
+      "source": "src/singlestore-core/columns/boolean.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "boolean"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/all.ts",
+      "source": "src/singlestore-core/columns/char.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "char"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/all.ts",
+      "source": "src/singlestore-core/columns/custom.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "customType"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/all.ts",
+      "source": "src/singlestore-core/columns/date.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "date"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/all.ts",
+      "source": "src/singlestore-core/columns/datetime.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "datetime"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/all.ts",
+      "source": "src/singlestore-core/columns/decimal.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "decimal"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/all.ts",
+      "source": "src/singlestore-core/columns/double.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "double"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/all.ts",
+      "source": "src/singlestore-core/columns/enum.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "singlestoreEnum"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/all.ts",
+      "source": "src/singlestore-core/columns/float.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "float"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/all.ts",
+      "source": "src/singlestore-core/columns/int.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "int"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/all.ts",
+      "source": "src/singlestore-core/columns/json.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "json"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/all.ts",
+      "source": "src/singlestore-core/columns/mediumint.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "mediumint"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/all.ts",
+      "source": "src/singlestore-core/columns/real.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "real"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/all.ts",
+      "source": "src/singlestore-core/columns/serial.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "serial"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/all.ts",
+      "source": "src/singlestore-core/columns/smallint.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "smallint"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/all.ts",
+      "source": "src/singlestore-core/columns/time.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "time"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/all.ts",
+      "source": "src/singlestore-core/columns/timestamp.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "timestamp"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/all.ts",
+      "source": "src/singlestore-core/columns/tinyint.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "tinyint"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/all.ts",
+      "source": "src/singlestore-core/columns/varbinary.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "varbinary"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/all.ts",
+      "source": "src/singlestore-core/columns/varchar.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "varchar"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/all.ts",
+      "source": "src/singlestore-core/columns/vector.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "vector"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/all.ts",
+      "source": "src/singlestore-core/columns/year.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "year"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/common.ts",
+      "source": "src/singlestore-core/unique-constraint.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "uniqueKeyName"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/mediumint.ts",
+      "source": "src/singlestore-core/columns/int.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreIntConfig"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/smallint.ts",
+      "source": "src/singlestore-core/columns/int.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreIntConfig"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/columns/tinyint.ts",
+      "source": "src/singlestore-core/columns/int.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreIntConfig"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/db.ts",
+      "source": "src/singlestore-core/dialect.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreDialect"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/db.ts",
+      "source": "src/singlestore-core/query-builders/count.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreCountBuilder"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/db.ts",
+      "source": "src/singlestore-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SelectedFields"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/db.ts",
+      "source": "src/singlestore-core/subquery.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "WithBuilder"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/db.ts",
+      "source": "src/singlestore-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreTable"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/dialect.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreColumn"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/dialect.ts",
+      "source": "src/singlestore-core/query-builders/delete.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreDeleteConfig"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/dialect.ts",
+      "source": "src/singlestore-core/query-builders/insert.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreInsertConfig"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/dialect.ts",
+      "source": "src/singlestore-core/query-builders/update.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreUpdateConfig"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/dialect.ts",
+      "source": "src/singlestore-core/session.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreSession"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/dialect.ts",
+      "source": "src/singlestore-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreTable"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/expressions.ts",
+      "source": "src/singlestore-core/columns/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreColumn"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/indexes.ts",
+      "source": "src/singlestore-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreTable"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/primary-keys.ts",
+      "source": "src/singlestore-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreTable"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/query-builders/count.ts",
+      "source": "src/singlestore-core/session.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreSession"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/query-builders/count.ts",
+      "source": "src/singlestore-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreTable"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/query-builders/delete.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreColumn"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/query-builders/delete.ts",
+      "source": "src/singlestore-core/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "extractUsedTable"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/query-builders/delete.ts",
+      "source": "src/singlestore-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SelectedFieldsOrdered"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/query-builders/insert.ts",
+      "source": "src/singlestore-core/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "extractUsedTable"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/query-builders/insert.ts",
+      "source": "src/singlestore-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SelectedFieldsOrdered"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/query-builders/insert.ts",
+      "source": "src/singlestore-core/query-builders/update.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreUpdateSetSource"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/query-builders/query-builder.ts",
+      "source": "src/singlestore-core/query-builders/select.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreSelectBuilder"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/query-builders/query-builder.ts",
+      "source": "src/singlestore-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SelectedFields"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/query-builders/query.ts",
+      "source": "src/singlestore-core/dialect.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreDialect"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/query-builders/query.ts",
+      "source": "src/singlestore-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreTable"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/query-builders/select.ts",
+      "source": "src/singlestore-core/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "extractUsedTable"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/query-builders/update.ts",
+      "source": "src/singlestore-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreColumn"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/query-builders/update.ts",
+      "source": "src/singlestore-core/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "extractUsedTable"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/query-builders/update.ts",
+      "source": "src/singlestore-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SelectedFieldsOrdered"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/session.ts",
+      "source": "src/singlestore-core/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreDatabase"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/session.ts",
+      "source": "src/singlestore-core/dialect.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreDialect"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/session.ts",
+      "source": "src/singlestore-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SelectedFieldsOrdered"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/subquery.ts",
+      "source": "src/singlestore-core/query-builders/query-builder.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "QueryBuilder"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/table.ts",
+      "source": "src/singlestore-core/indexes.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "AnyIndexBuilder"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/table.ts",
+      "source": "src/singlestore-core/primary-keys.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PrimaryKeyBuilder"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/table.ts",
+      "source": "src/singlestore-core/unique-constraint.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "UniqueConstraintBuilder"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/unique-constraint.ts",
+      "source": "src/singlestore-core/columns/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreColumn"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/unique-constraint.ts",
+      "source": "src/singlestore-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreTable"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/utils.ts",
+      "source": "src/singlestore-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreTable"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/view.ts",
+      "source": "src/singlestore-core/query-builders/query-builder.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "QueryBuilder"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/view.ts",
+      "source": "src/singlestore-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SelectedFields"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/view.ts",
+      "source": "src/singlestore-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "singlestoreTable"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/view.ts",
+      "source": "src/singlestore-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreViewBase"
+      ]
+    },
+    {
+      "importer": "src/singlestore-core/view.ts",
+      "source": "src/singlestore-core/view-common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreViewConfig"
+      ]
+    },
+    {
+      "importer": "src/singlestore-proxy/migrator.ts",
+      "source": "src/singlestore-proxy/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreRemoteDatabase"
+      ]
+    },
+    {
+      "importer": "src/singlestore-proxy/session.ts",
+      "source": "src/singlestore-proxy/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "RemoteCallback"
+      ]
+    },
+    {
+      "importer": "src/singlestore/migrator.ts",
+      "source": "src/singlestore/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SingleStoreDriverDatabase"
+      ]
+    },
+    {
+      "importer": "src/sql-js/driver.ts",
+      "source": "src/sql-js/session.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLJsSession"
+      ]
+    },
+    {
+      "importer": "src/sql-js/migrator.ts",
+      "source": "src/sql-js/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLJsDatabase"
+      ]
+    },
+    {
+      "importer": "src/sql/expressions/select.ts",
+      "source": "src/column.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "AnyColumn"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/alias.ts",
+      "source": "src/sqlite-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "BuildAliasTable"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/alias.ts",
+      "source": "src/sqlite-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteTable"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/alias.ts",
+      "source": "src/sqlite-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteViewBase"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/checks.ts",
+      "source": "src/sqlite-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteTable"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/columns/all.ts",
+      "source": "src/sqlite-core/columns/blob.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "blob"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/columns/all.ts",
+      "source": "src/sqlite-core/columns/custom.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "customType"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/columns/all.ts",
+      "source": "src/sqlite-core/columns/integer.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "integer"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/columns/all.ts",
+      "source": "src/sqlite-core/columns/numeric.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "numeric"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/columns/all.ts",
+      "source": "src/sqlite-core/columns/real.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "real"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/columns/all.ts",
+      "source": "src/sqlite-core/columns/text.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "text"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/columns/common.ts",
+      "source": "src/sqlite-core/unique-constraint.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "uniqueKeyName"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/columns/integer.ts",
+      "source": "src/sqlite-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "AnySQLiteTable"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/columns/real.ts",
+      "source": "src/sqlite-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "AnySQLiteTable"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/db.ts",
+      "source": "src/sqlite-core/query-builders/count.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteCountBuilder"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/db.ts",
+      "source": "src/sqlite-core/query-builders/query.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "RelationalQueryBuilder"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/db.ts",
+      "source": "src/sqlite-core/query-builders/raw.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteRaw"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/db.ts",
+      "source": "src/sqlite-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SelectedFields"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/db.ts",
+      "source": "src/sqlite-core/subquery.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "WithBuilder"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/db.ts",
+      "source": "src/sqlite-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteViewBase"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/dialect.ts",
+      "source": "src/sqlite-core/session.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteSession"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/dialect.ts",
+      "source": "src/sqlite-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteViewBase"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/foreign-keys.ts",
+      "source": "src/sqlite-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteTable"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/indexes.ts",
+      "source": "src/sqlite-core/columns/index.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteColumn"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/indexes.ts",
+      "source": "src/sqlite-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteTable"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/primary-keys.ts",
+      "source": "src/sqlite-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteTable"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/count.ts",
+      "source": "src/sqlite-core/session.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteSession"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/count.ts",
+      "source": "src/sqlite-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteTable"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/count.ts",
+      "source": "src/sqlite-core/view.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteView"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/delete.ts",
+      "source": "src/sqlite-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteColumn"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/delete.ts",
+      "source": "src/sqlite-core/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "extractUsedTable"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/insert.ts",
+      "source": "src/sqlite-core/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "extractUsedTable"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/insert.ts",
+      "source": "src/sqlite-core/query-builders/query-builder.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "QueryBuilder"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/insert.ts",
+      "source": "src/sqlite-core/query-builders/update.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteUpdateSetSource"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/query-builder.ts",
+      "source": "src/sqlite-core/query-builders/select.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteSelectBuilder"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/query-builder.ts",
+      "source": "src/sqlite-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SelectedFields"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/query.ts",
+      "source": "src/sqlite-core/dialect.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteDialect"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/query.ts",
+      "source": "src/sqlite-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteTable"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/raw.ts",
+      "source": "src/sqlite-core/dialect.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteAsyncDialect"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/select.ts",
+      "source": "src/sqlite-core/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "extractUsedTable"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/select.ts",
+      "source": "src/sqlite-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteViewBase"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/select.types.ts",
+      "source": "src/sqlite-core/session.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLitePreparedQuery"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/select.types.ts",
+      "source": "src/sqlite-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteViewBase"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/select.types.ts",
+      "source": "src/sqlite-core/view.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteViewWithSelection"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/update.ts",
+      "source": "src/sqlite-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteColumn"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/update.ts",
+      "source": "src/sqlite-core/utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "extractUsedTable"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/query-builders/update.ts",
+      "source": "src/sqlite-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteViewBase"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/session.ts",
+      "source": "src/sqlite-core/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "BaseSQLiteDatabase"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/session.ts",
+      "source": "src/sqlite-core/query-builders/raw.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteRaw"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/session.ts",
+      "source": "src/sqlite-core/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SelectedFieldsOrdered"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/subquery.ts",
+      "source": "src/sqlite-core/query-builders/query-builder.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "QueryBuilder"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/table.ts",
+      "source": "src/sqlite-core/checks.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "CheckBuilder"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/table.ts",
+      "source": "src/sqlite-core/indexes.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "IndexBuilder"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/table.ts",
+      "source": "src/sqlite-core/primary-keys.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "PrimaryKeyBuilder"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/table.ts",
+      "source": "src/sqlite-core/unique-constraint.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "UniqueConstraintBuilder"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/unique-constraint.ts",
+      "source": "src/sqlite-core/columns/common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteColumn"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/unique-constraint.ts",
+      "source": "src/sqlite-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteTable"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/utils.ts",
+      "source": "src/sqlite-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteTable"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/utils.ts",
+      "source": "src/sqlite-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteViewBase"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/utils.ts",
+      "source": "src/sqlite-core/view.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteView"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/view.ts",
+      "source": "src/sqlite-core/query-builders/query-builder.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "QueryBuilder"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/view.ts",
+      "source": "src/sqlite-core/table.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "sqliteTable"
+      ]
+    },
+    {
+      "importer": "src/sqlite-core/view.ts",
+      "source": "src/sqlite-core/view-base.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteViewBase"
+      ]
+    },
+    {
+      "importer": "src/sqlite-proxy/driver.ts",
+      "source": "src/sqlite-proxy/session.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLiteRemoteSession"
+      ]
+    },
+    {
+      "importer": "src/sqlite-proxy/migrator.ts",
+      "source": "src/sqlite-proxy/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SqliteRemoteDatabase"
+      ]
+    },
+    {
+      "importer": "src/subquery.ts",
+      "source": "src/entity.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "entityKind"
+      ]
+    },
+    {
+      "importer": "src/table.ts",
+      "source": "src/entity.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "entityKind"
+      ]
+    },
+    {
+      "importer": "src/table.ts",
+      "source": "src/sql/sql.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SQLWrapper"
+      ]
+    },
+    {
+      "importer": "src/table.ts",
+      "source": "src/table.utils.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TableName"
+      ]
+    },
+    {
+      "importer": "src/tidb-serverless/migrator.ts",
+      "source": "src/tidb-serverless/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TiDBServerlessDatabase"
+      ]
+    },
+    {
+      "importer": "src/utils.ts",
+      "source": "src/cache/core/cache.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Cache"
+      ]
+    },
+    {
+      "importer": "src/utils.ts",
+      "source": "src/entity.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "is"
+      ]
+    },
+    {
+      "importer": "src/utils.ts",
+      "source": "src/logger.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Logger"
+      ]
+    },
+    {
+      "importer": "src/utils.ts",
+      "source": "src/operations.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "SelectedFieldsOrdered"
+      ]
+    },
+    {
+      "importer": "src/utils.ts",
+      "source": "src/query-builders/select.types.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "TableLike"
+      ]
+    },
+    {
+      "importer": "src/utils.ts",
+      "source": "src/subquery.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "Subquery"
+      ]
+    },
+    {
+      "importer": "src/utils.ts",
+      "source": "src/view-common.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "ViewBaseConfig"
+      ]
+    },
+    {
+      "importer": "src/vercel-postgres/migrator.ts",
+      "source": "src/vercel-postgres/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "VercelPgDatabase"
+      ]
+    },
+    {
+      "importer": "src/xata-http/migrator.ts",
+      "source": "src/xata-http/driver.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "XataHttpDatabase"
+      ]
+    },
+    {
+      "importer": "type-tests/common/aliased-table.ts",
+      "source": "type-tests/mysql/tables.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "mysqlUsers"
+      ]
+    },
+    {
+      "importer": "type-tests/common/aliased-table.ts",
+      "source": "type-tests/pg/tables.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "pgUsers"
+      ]
+    },
+    {
+      "importer": "type-tests/common/aliased-table.ts",
+      "source": "type-tests/sqlite/tables.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "sqliteUsers"
+      ]
+    },
+    {
+      "importer": "type-tests/geldb/count.ts",
+      "source": "type-tests/geldb/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/geldb/delete.ts",
+      "source": "type-tests/geldb/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/geldb/delete.ts",
+      "source": "type-tests/geldb/tables.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "users"
+      ]
+    },
+    {
+      "importer": "type-tests/geldb/generated-columns.ts",
+      "source": "type-tests/geldb/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/geldb/insert.ts",
+      "source": "type-tests/geldb/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/geldb/other.ts",
+      "source": "type-tests/geldb/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/geldb/other.ts",
+      "source": "type-tests/geldb/tables.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "users"
+      ]
+    },
+    {
+      "importer": "type-tests/geldb/select.ts",
+      "source": "type-tests/geldb/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/geldb/set-operators.ts",
+      "source": "type-tests/geldb/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/geldb/subquery.ts",
+      "source": "type-tests/geldb/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/geldb/tables.ts",
+      "source": "type-tests/geldb/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/geldb/update.ts",
+      "source": "type-tests/geldb/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/geldb/with.ts",
+      "source": "type-tests/geldb/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/mysql/count.ts",
+      "source": "type-tests/mysql/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/mysql/delete.ts",
+      "source": "type-tests/mysql/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/mysql/delete.ts",
+      "source": "type-tests/mysql/tables.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "users"
+      ]
+    },
+    {
+      "importer": "type-tests/mysql/generated-columns.ts",
+      "source": "type-tests/mysql/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/mysql/insert.ts",
+      "source": "type-tests/mysql/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/mysql/insert.ts",
+      "source": "type-tests/mysql/tables.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "users"
+      ]
+    },
+    {
+      "importer": "type-tests/mysql/select.ts",
+      "source": "type-tests/mysql/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/mysql/set-operators.ts",
+      "source": "type-tests/mysql/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/mysql/subquery.ts",
+      "source": "type-tests/mysql/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/mysql/tables.ts",
+      "source": "type-tests/mysql/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/mysql/update.ts",
+      "source": "type-tests/mysql/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/mysql/update.ts",
+      "source": "type-tests/mysql/tables.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "users"
+      ]
+    },
+    {
+      "importer": "type-tests/mysql/with.ts",
+      "source": "type-tests/mysql/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/pg/count.ts",
+      "source": "type-tests/pg/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/pg/delete.ts",
+      "source": "type-tests/pg/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/pg/delete.ts",
+      "source": "type-tests/pg/tables.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "users"
+      ]
+    },
+    {
+      "importer": "type-tests/pg/generated-columns.ts",
+      "source": "type-tests/pg/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/pg/insert.ts",
+      "source": "type-tests/pg/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/pg/other.ts",
+      "source": "type-tests/pg/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/pg/other.ts",
+      "source": "type-tests/pg/tables.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "users"
+      ]
+    },
+    {
+      "importer": "type-tests/pg/select.ts",
+      "source": "type-tests/pg/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/pg/set-operators.ts",
+      "source": "type-tests/pg/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/pg/subquery.ts",
+      "source": "type-tests/pg/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/pg/tables.ts",
+      "source": "type-tests/pg/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/pg/update.ts",
+      "source": "type-tests/pg/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/pg/with.ts",
+      "source": "type-tests/pg/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/singlestore/count.ts",
+      "source": "type-tests/singlestore/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/singlestore/delete.ts",
+      "source": "type-tests/singlestore/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/singlestore/delete.ts",
+      "source": "type-tests/singlestore/tables.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "users"
+      ]
+    },
+    {
+      "importer": "type-tests/singlestore/insert.ts",
+      "source": "type-tests/singlestore/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/singlestore/insert.ts",
+      "source": "type-tests/singlestore/tables.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "users"
+      ]
+    },
+    {
+      "importer": "type-tests/singlestore/select.ts",
+      "source": "type-tests/singlestore/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/singlestore/set-operators.ts",
+      "source": "type-tests/singlestore/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/singlestore/subquery.ts",
+      "source": "type-tests/singlestore/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/singlestore/tables.ts",
+      "source": "type-tests/singlestore/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/singlestore/update.ts",
+      "source": "type-tests/singlestore/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/singlestore/update.ts",
+      "source": "type-tests/singlestore/tables.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "users"
+      ]
+    },
+    {
+      "importer": "type-tests/singlestore/with.ts",
+      "source": "type-tests/singlestore/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/sqlite/count.ts",
+      "source": "type-tests/sqlite/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/sqlite/delete.ts",
+      "source": "type-tests/sqlite/tables.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "users"
+      ]
+    },
+    {
+      "importer": "type-tests/sqlite/generated-columns.ts",
+      "source": "type-tests/sqlite/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/sqlite/other.ts",
+      "source": "type-tests/sqlite/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/sqlite/other.ts",
+      "source": "type-tests/sqlite/tables.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "users"
+      ]
+    },
+    {
+      "importer": "type-tests/sqlite/select.ts",
+      "source": "type-tests/sqlite/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/sqlite/set-operators.ts",
+      "source": "type-tests/sqlite/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/sqlite/subquery.ts",
+      "source": "type-tests/sqlite/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/sqlite/tables.ts",
+      "source": "type-tests/sqlite/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    },
+    {
+      "importer": "type-tests/sqlite/with.ts",
+      "source": "type-tests/sqlite/db.ts",
+      "symbolCount": 1,
+      "symbols": [
+        "db"
+      ]
+    }
+  ],
+  "coChangeEdges": [
+    {
+      "file1": "src/operations.ts",
+      "file2": "src/query-builders/select.types.ts",
+      "coChangeCount": 2,
+      "file1Commits": 2,
+      "file2Commits": 2,
+      "jaccard": 1,
+      "lastCoChangeTimestamp": 1761771130
+    },
+    {
+      "file1": "src/gel-core/dialect.ts",
+      "file2": "src/pg-core/dialect.ts",
+      "coChangeCount": 3,
+      "file1Commits": 3,
+      "file2Commits": 4,
+      "jaccard": 0.75,
+      "lastCoChangeTimestamp": 1764082667
+    },
+    {
+      "file1": "src/gel-core/dialect.ts",
+      "file2": "src/operations.ts",
+      "coChangeCount": 2,
+      "file1Commits": 3,
+      "file2Commits": 2,
+      "jaccard": 0.6666666666666666,
+      "lastCoChangeTimestamp": 1761771130
+    },
+    {
+      "file1": "src/gel-core/dialect.ts",
+      "file2": "src/query-builders/select.types.ts",
+      "coChangeCount": 2,
+      "file1Commits": 3,
+      "file2Commits": 2,
+      "jaccard": 0.6666666666666666,
+      "lastCoChangeTimestamp": 1761771130
+    },
+    {
+      "file1": "src/gel-core/dialect.ts",
+      "file2": "src/mysql-core/dialect.ts",
+      "coChangeCount": 3,
+      "file1Commits": 3,
+      "file2Commits": 5,
+      "jaccard": 0.6,
+      "lastCoChangeTimestamp": 1764082667
+    },
+    {
+      "file1": "src/gel-core/dialect.ts",
+      "file2": "src/singlestore-core/dialect.ts",
+      "coChangeCount": 3,
+      "file1Commits": 3,
+      "file2Commits": 5,
+      "jaccard": 0.6,
+      "lastCoChangeTimestamp": 1764082667
+    },
+    {
+      "file1": "src/gel-core/dialect.ts",
+      "file2": "src/sqlite-core/dialect.ts",
+      "coChangeCount": 3,
+      "file1Commits": 3,
+      "file2Commits": 5,
+      "jaccard": 0.6,
+      "lastCoChangeTimestamp": 1764082667
+    },
+    {
+      "file1": "src/mysql-core/dialect.ts",
+      "file2": "src/pg-core/dialect.ts",
+      "coChangeCount": 3,
+      "file1Commits": 5,
+      "file2Commits": 4,
+      "jaccard": 0.5,
+      "lastCoChangeTimestamp": 1764082667
+    },
+    {
+      "file1": "src/pg-core/dialect.ts",
+      "file2": "src/singlestore-core/dialect.ts",
+      "coChangeCount": 3,
+      "file1Commits": 4,
+      "file2Commits": 5,
+      "jaccard": 0.5,
+      "lastCoChangeTimestamp": 1764082667
+    },
+    {
+      "file1": "src/pg-core/dialect.ts",
+      "file2": "src/sqlite-core/dialect.ts",
+      "coChangeCount": 3,
+      "file1Commits": 4,
+      "file2Commits": 5,
+      "jaccard": 0.5,
+      "lastCoChangeTimestamp": 1764082667
+    },
+    {
+      "file1": "src/operations.ts",
+      "file2": "src/pg-core/dialect.ts",
+      "coChangeCount": 2,
+      "file1Commits": 2,
+      "file2Commits": 4,
+      "jaccard": 0.5,
+      "lastCoChangeTimestamp": 1761771130
+    },
+    {
+      "file1": "src/pg-core/dialect.ts",
+      "file2": "src/query-builders/select.types.ts",
+      "coChangeCount": 2,
+      "file1Commits": 4,
+      "file2Commits": 2,
+      "jaccard": 0.5,
+      "lastCoChangeTimestamp": 1761771130
+    },
+    {
+      "file1": "src/mysql-core/dialect.ts",
+      "file2": "src/singlestore-core/dialect.ts",
+      "coChangeCount": 3,
+      "file1Commits": 5,
+      "file2Commits": 5,
+      "jaccard": 0.42857142857142855,
+      "lastCoChangeTimestamp": 1764082667
+    },
+    {
+      "file1": "src/mysql-core/dialect.ts",
+      "file2": "src/sqlite-core/dialect.ts",
+      "coChangeCount": 3,
+      "file1Commits": 5,
+      "file2Commits": 5,
+      "jaccard": 0.42857142857142855,
+      "lastCoChangeTimestamp": 1764082667
+    },
+    {
+      "file1": "src/singlestore-core/dialect.ts",
+      "file2": "src/sqlite-core/dialect.ts",
+      "coChangeCount": 3,
+      "file1Commits": 5,
+      "file2Commits": 5,
+      "jaccard": 0.42857142857142855,
+      "lastCoChangeTimestamp": 1764082667
+    },
+    {
+      "file1": "src/mysql-core/dialect.ts",
+      "file2": "src/operations.ts",
+      "coChangeCount": 2,
+      "file1Commits": 5,
+      "file2Commits": 2,
+      "jaccard": 0.4,
+      "lastCoChangeTimestamp": 1761771130
+    },
+    {
+      "file1": "src/mysql-core/dialect.ts",
+      "file2": "src/query-builders/select.types.ts",
+      "coChangeCount": 2,
+      "file1Commits": 5,
+      "file2Commits": 2,
+      "jaccard": 0.4,
+      "lastCoChangeTimestamp": 1761771130
+    },
+    {
+      "file1": "src/operations.ts",
+      "file2": "src/singlestore-core/dialect.ts",
+      "coChangeCount": 2,
+      "file1Commits": 2,
+      "file2Commits": 5,
+      "jaccard": 0.4,
+      "lastCoChangeTimestamp": 1761771130
+    },
+    {
+      "file1": "src/operations.ts",
+      "file2": "src/sqlite-core/dialect.ts",
+      "coChangeCount": 2,
+      "file1Commits": 2,
+      "file2Commits": 5,
+      "jaccard": 0.4,
+      "lastCoChangeTimestamp": 1761771130
+    },
+    {
+      "file1": "src/query-builders/select.types.ts",
+      "file2": "src/singlestore-core/dialect.ts",
+      "coChangeCount": 2,
+      "file1Commits": 2,
+      "file2Commits": 5,
+      "jaccard": 0.4,
+      "lastCoChangeTimestamp": 1761771130
+    },
+    {
+      "file1": "src/query-builders/select.types.ts",
+      "file2": "src/sqlite-core/dialect.ts",
+      "coChangeCount": 2,
+      "file1Commits": 2,
+      "file2Commits": 5,
+      "jaccard": 0.4,
+      "lastCoChangeTimestamp": 1761771130
+    }
+  ],
+  "callGraph": [
+    {
+      "from": "mapColumnsInSQLToAlias",
+      "to": "is",
+      "fromFile": "src/alias.ts",
+      "toFile": "src/entity.ts"
+    },
+    {
+      "from": "gelTableWithSchema",
+      "to": "getGelColumnBuilders",
+      "fromFile": "src/gel-core/table.ts",
+      "toFile": "src/gel-core/columns/all.ts"
+    },
+    {
+      "from": "drizzle",
+      "to": "construct",
+      "fromFile": "src/libsql/driver.ts",
+      "toFile": "src/libsql/driver-core.ts"
+    },
+    {
+      "from": "drizzle",
+      "to": "construct",
+      "fromFile": "src/libsql/http/index.ts",
+      "toFile": "src/libsql/driver-core.ts"
+    },
+    {
+      "from": "drizzle",
+      "to": "construct",
+      "fromFile": "src/libsql/node/index.ts",
+      "toFile": "src/libsql/driver-core.ts"
+    },
+    {
+      "from": "drizzle",
+      "to": "construct",
+      "fromFile": "src/libsql/sqlite3/index.ts",
+      "toFile": "src/libsql/driver-core.ts"
+    },
+    {
+      "from": "drizzle",
+      "to": "construct",
+      "fromFile": "src/libsql/wasm/index.ts",
+      "toFile": "src/libsql/driver-core.ts"
+    },
+    {
+      "from": "drizzle",
+      "to": "construct",
+      "fromFile": "src/libsql/web/index.ts",
+      "toFile": "src/libsql/driver-core.ts"
+    },
+    {
+      "from": "drizzle",
+      "to": "construct",
+      "fromFile": "src/libsql/ws/index.ts",
+      "toFile": "src/libsql/driver-core.ts"
+    },
+    {
+      "from": "mysqlTableWithSchema",
+      "to": "getMySqlColumnBuilders",
+      "fromFile": "src/mysql-core/table.ts",
+      "toFile": "src/mysql-core/columns/all.ts"
+    },
+    {
+      "from": "pgTableWithSchema",
+      "to": "getPgColumnBuilders",
+      "fromFile": "src/pg-core/table.ts",
+      "toFile": "src/pg-core/columns/all.ts"
+    },
+    {
+      "from": "extractTablesRelationalConfig",
+      "to": "is",
+      "fromFile": "src/relations.ts",
+      "toFile": "src/entity.ts"
+    },
+    {
+      "from": "normalizeRelation",
+      "to": "is",
+      "fromFile": "src/relations.ts",
+      "toFile": "src/entity.ts"
+    },
+    {
+      "from": "mapRelationalRow",
+      "to": "is",
+      "fromFile": "src/relations.ts",
+      "toFile": "src/entity.ts"
+    },
+    {
+      "from": "singlestoreTableWithSchema",
+      "to": "getSingleStoreColumnBuilders",
+      "fromFile": "src/singlestore-core/table.ts",
+      "toFile": "src/singlestore-core/columns/all.ts"
+    },
+    {
+      "from": "bindIfParam",
+      "to": "isDriverValueEncoder",
+      "fromFile": "src/sql/expressions/conditions.ts",
+      "toFile": "src/sql/sql.ts"
+    },
+    {
+      "from": "bindIfParam",
+      "to": "isSQLWrapper",
+      "fromFile": "src/sql/expressions/conditions.ts",
+      "toFile": "src/sql/sql.ts"
+    },
+    {
+      "from": "mapResultRow",
+      "to": "is",
+      "fromFile": "src/utils.ts",
+      "toFile": "src/entity.ts"
+    },
+    {
+      "from": "mapResultRow",
+      "to": "getTableName",
+      "fromFile": "src/utils.ts",
+      "toFile": "src/table.ts"
+    },
+    {
+      "from": "orderSelectedFields",
+      "to": "is",
+      "fromFile": "src/utils.ts",
+      "toFile": "src/entity.ts"
+    },
+    {
+      "from": "mapUpdateSet",
+      "to": "is",
+      "fromFile": "src/utils.ts",
+      "toFile": "src/entity.ts"
+    },
+    {
+      "from": "getTableLikeName",
+      "to": "is",
+      "fromFile": "src/utils.ts",
+      "toFile": "src/entity.ts"
+    }
+  ],
+  "workflowRules": [
+    {
+      "trigger": "After modifying schema.prisma",
+      "action": "Run `pnpm generate-for-tests:pg` then `pnpm migrate:old`",
+      "source": "Prisma detected + generate-for-tests:pg/migrate:old",
+      "impact": "high"
+    },
+    {
+      "trigger": "For running build/test/lint tasks",
+      "action": "Use `turbo run <task>`, not `pnpm run <script>` — Turbo caches and parallelizes",
+      "source": "Turbo detected in build tool config",
+      "impact": "high"
+    },
+    {
+      "trigger": "After modifying source files",
+      "action": "Run `pnpm test` to verify changes",
+      "source": "Test framework detected",
+      "impact": "high"
+    },
+    {
+      "trigger": "When modifying `src/serializer/pgSchema.ts`",
+      "action": "Also check: `src/serializer/pgSerializer.ts` (15 symbols), `src/snapshotsDiffer.ts` (11 symbols), `src/cli/commands/pgUp.ts` (10 symbols), and 3 more",
+      "source": "Import chain analysis — 6 files have high coupling to this module",
+      "impact": "high"
+    },
+    {
+      "trigger": "When modifying `src/serializer/mysqlSchema.ts`",
+      "action": "Also check: `src/serializer/mysqlSerializer.ts` (10 symbols), `src/introspect-mysql.ts` (8 symbols), `src/cli/commands/mysqlUp.ts` (6 symbols)",
+      "source": "Import chain analysis — 3 files have high coupling to this module",
+      "impact": "high"
+    },
+    {
+      "trigger": "When modifying `src/serializer/sqliteSchema.ts`",
+      "action": "Also check: `src/serializer/sqliteSerializer.ts` (10 symbols), `src/introspect-sqlite.ts` (7 symbols), `src/jsonStatements.ts` (5 symbols)",
+      "source": "Import chain analysis — 3 files have high coupling to this module",
+      "impact": "high"
+    },
+    {
+      "trigger": "When modifying `src/utils.ts`",
+      "action": "Also check: `src/cli/connections.ts` (7 symbols), `src/relations.ts` (5 symbols), `src/column.types.ts` (5 symbols)",
+      "source": "Import chain analysis — 3 files have high coupling to this module",
+      "impact": "high"
+    },
+    {
+      "trigger": "When modifying any of: `tests/gel/gel.test.ts`, `tests/mysql/mysql-common.ts`, `tests/pg/pg-common.ts`, `tests/singlestore/singlestore-common.ts`, `tests/sqlite/sqlite-common.ts`",
+      "action": "Check all files in this co-change cluster — they frequently change together",
+      "source": "Git co-change analysis — 5 files form a co-change cluster",
+      "impact": "high"
+    },
+    {
+      "trigger": "When modifying any of: `src/api.ts`, `src/cli/connections.ts`, `src/serializer/studio.ts`",
+      "action": "Check all files in this co-change cluster — they frequently change together",
+      "source": "Git co-change analysis — 3 files form a co-change cluster",
+      "impact": "high"
+    }
+  ],
+  "commits": [
+    {
+      "repo": "drizzle",
+      "commitSha": "74b85ae25903",
+      "commitMessage": "Fixed `bun-sql:postgresql` date, timestamp mappers not accounting for `Date` instances in driver response, updated chang",
+      "testFiles": [
+        "integration-tests/tests/bun/bun-sql.test.ts"
+      ],
+      "sourceFiles": [
+        "src/pg-core/columns/date.ts",
+        "src/pg-core/columns/timestamp.ts"
+      ],
+      "expectedRootCause": "src/pg-core/columns/date.ts"
+    },
+    {
+      "repo": "drizzle",
+      "commitSha": "348e49632fc0",
+      "commitMessage": "Fixed SQLite onConflict clauses being overwritten instead of stacked, added related tests, removed unused import",
+      "testFiles": [
+        "integration-tests/tests/sqlite/better-sqlite.test.ts"
+      ],
+      "sourceFiles": [
+        "src/sqlite-core/db.ts",
+        "src/sqlite-core/dialect.ts",
+        "src/sqlite-core/query-builders/insert.ts"
+      ],
+      "expectedRootCause": "src/sqlite-core/db.ts"
+    },
+    {
+      "repo": "drizzle",
+      "commitSha": "b71f896594b6",
+      "commitMessage": "Fix integration tests by removing RQB support for now",
+      "testFiles": [
+        "integration-tests/tests/relational/singlestore.test.ts",
+        "integration-tests/tests/replicas/singlestore.test.ts"
+      ],
+      "sourceFiles": [
+        "src/singlestore-core/db.ts",
+        "src/singlestore-core/dialect.ts"
+      ],
+      "expectedRootCause": "src/singlestore-core/db.ts"
+    },
+    {
+      "repo": "drizzle",
+      "commitSha": "59979c36bddf",
+      "commitMessage": "Fixes for kit singlestore",
+      "testFiles": [
+        "drizzle-kit/tests/push/singlestore.test.ts"
+      ],
+      "sourceFiles": [
+        "src/singlestore-core/columns/decimal.ts"
+      ],
+      "expectedRootCause": "src/singlestore-core/columns/decimal.ts"
+    },
+    {
+      "repo": "drizzle",
+      "commitSha": "87b2c2c011ea",
+      "commitMessage": "Fixed lack of schema name on columns in sql (#3531)",
+      "testFiles": [
+        "tests/casing/mysql-to-camel.test.ts",
+        "tests/casing/mysql-to-snake.test.ts",
+        "tests/casing/pg-to-camel.test.ts",
+        "tests/casing/pg-to-snake.test.ts"
+      ],
+      "sourceFiles": [
+        "src/sql/sql.ts"
+      ],
+      "expectedRootCause": "src/sql/sql.ts"
+    },
+    {
+      "repo": "drizzle",
+      "commitSha": "e62c333a0493",
+      "commitMessage": "Fix lint and tests for crudPolicy",
+      "testFiles": [
+        "integration-tests/tests/pg/rls/rls.definition.test.ts"
+      ],
+      "sourceFiles": [
+        "src/neon/rls.ts"
+      ],
+      "expectedRootCause": "src/neon/rls.ts"
+    },
+    {
+      "repo": "drizzle",
+      "commitSha": "9a8395aecfe4",
+      "commitMessage": "Fix altering policies",
+      "testFiles": [
+        "drizzle-kit/tests/rls/pg-policy.test.ts"
+      ],
+      "sourceFiles": [
+        "src/version.ts"
+      ],
+      "expectedRootCause": "src/version.ts"
+    },
+    {
+      "repo": "drizzle",
+      "commitSha": "a1e0ae9b5643",
+      "commitMessage": "Fixed isConfig not detecting function-type drivers in `.client` (#3178)",
+      "testFiles": [
+        "integration-tests/tests/utils/is-config.test.ts"
+      ],
+      "sourceFiles": [
+        "src/utils.ts"
+      ],
+      "expectedRootCause": "src/utils.ts"
+    }
+  ]
+}
