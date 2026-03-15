@@ -15,7 +15,7 @@ function makeCoChange(file1: string, file2: string, jaccard: number, coChangeCou
 }
 
 function makeImportEdge(importer: string, source: string, symbolCount = 1): FileImportEdge {
-  return { importer, source, symbolCount, symbols: ["sym1"] };
+  return { importer, source, symbolCount, symbols: ["sym1"], confidence: 0.95, resolution: "relative" };
 }
 
 describe("detectImplicitCoupling", () => {

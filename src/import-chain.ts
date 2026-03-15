@@ -36,12 +36,14 @@ export function computeImportChain(
   for (const [importerFile, imports] of symbolGraph.importGraph) {
     // Group imported symbols by resolved source file
     const symbolsBySource = new Map<string, Set<string>>();
+    const resolutionBySource = new Map<string, string>();
     const fromDir = dirname(resolve(packageDir, importerFile));
 
     for (const imp of imports) {
       if (imp.importedNames.length === 0) continue; // Skip bare imports
 
       let sourceFile: string | undefined;
+      let resolutionType = "relative";
       if (imp.moduleSpecifier.startsWith(".")) {
         // Relative imports: resolution depends on fromDir
         const cacheKey = `${imp.moduleSpecifier}\0${fromDir}`;
@@ -50,6 +52,7 @@ export function computeImportChain(
           sourceFile = resolveModuleSpecifier(imp.moduleSpecifier, fromDir, packageDir, warnings);
           relativeCache.set(cacheKey, sourceFile);
         }
+        resolutionType = "relative";
       } else if (workspaceEntries.length > 0) {
         // Workspace aliases: resolution is dir-independent
         sourceFile = aliasCache.get(imp.moduleSpecifier);
@@ -57,26 +60,34 @@ export function computeImportChain(
           sourceFile = resolveWorkspaceAlias(imp.moduleSpecifier, workspaceEntries, packageDir);
           aliasCache.set(imp.moduleSpecifier, sourceFile);
         }
+        resolutionType = "workspace-alias";
       }
       if (!sourceFile) continue;
       if (sourceFile === importerFile) continue; // Skip self-imports
 
       const symbols = symbolsBySource.get(sourceFile) ?? new Set();
       for (const name of imp.importedNames) {
-        // Skip namespace imports (e.g., "* as foo")
         if (!name.startsWith("*")) symbols.add(name);
       }
       symbolsBySource.set(sourceFile, symbols);
+
+      // Track best resolution type per source file
+      if (!resolutionBySource.has(sourceFile) || resolutionType === "relative") {
+        resolutionBySource.set(sourceFile, resolutionType);
+      }
     }
 
     // Keep only high-coupling pairs
     for (const [sourceFile, symbols] of symbolsBySource) {
       if (symbols.size >= minSymbols) {
+        const resolution = resolutionBySource.get(sourceFile) ?? "relative";
         edges.push({
           importer: importerFile,
           source: sourceFile,
           symbolCount: symbols.size,
           symbols: [...symbols],
+          confidence: resolution === "relative" ? 0.95 : 0.85,
+          resolution,
         });
       }
     }

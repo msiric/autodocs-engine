@@ -753,11 +753,15 @@ function buildCallGraph(parsedFiles: ParsedFile[], _packageDir: string, _warning
       if (seen.has(key)) continue;
       seen.add(key);
 
+      // Same-file calls have highest confidence; cross-file via export map is slightly lower
+      const isSameFile = pf.relativePath === toFile;
       edges.push({
         from: ref.callerName,
         to: ref.calleeName,
         fromFile: pf.relativePath,
         toFile,
+        confidence: isSameFile ? 0.95 : 0.85,
+        resolution: isSameFile ? "same-file" : "export-map",
       });
     }
   }

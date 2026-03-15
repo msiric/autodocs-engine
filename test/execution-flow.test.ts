@@ -11,7 +11,16 @@ import type { CallGraphEdge, CoChangeEdge, PublicAPIEntry } from "../src/types.j
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function edge(from: string, to: string, fromFile?: string, toFile?: string): CallGraphEdge {
-  return { from, to, fromFile: fromFile ?? `src/${from}.ts`, toFile: toFile ?? `src/${to}.ts` };
+  const ff = fromFile ?? `src/${from}.ts`;
+  const tf = toFile ?? `src/${to}.ts`;
+  return {
+    from,
+    to,
+    fromFile: ff,
+    toFile: tf,
+    confidence: ff === tf ? 0.95 : 0.85,
+    resolution: ff === tf ? "same-file" : "export-map",
+  };
 }
 
 function api(name: string): PublicAPIEntry {
