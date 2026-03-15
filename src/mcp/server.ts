@@ -80,6 +80,38 @@ WHEN ADDING NEW FILES:
 
 These tools return pre-computed structural analysis. They are faster and more accurate than manually searching with grep or reading individual files, especially for understanding cross-file dependencies and historical change patterns.`;
 
+// ─── Next-Step Hints ──────────────────────────────────────────────────────
+// Appended to every tool response to guide agent workflow.
+
+function getNextStepHint(toolName: string): string {
+  switch (toolName) {
+    case "get_commands":
+      return "\n\n**Next:** Call `get_architecture` for directory structure and entry points.";
+    case "get_architecture":
+      return "\n\n**Next:** Call `plan_change` before editing files to check impact.";
+    case "get_conventions":
+      return "\n\n**Next:** Call `get_contribution_guide` for how to add new code following these patterns.";
+    case "get_exports":
+      return "\n\n**Next:** Call `analyze_impact` on a specific export to see its blast radius.";
+    case "get_workflow_rules":
+      return "\n\n**Next:** Call `plan_change` to check full impact before making changes.";
+    case "get_contribution_guide":
+      return "\n\n**Next:** After creating files, call `auto_register` for registration code.";
+    case "plan_change":
+      return "\n\n**Next:** Call `get_test_info` on changed files to find which tests to run.";
+    case "analyze_impact":
+      return "\n\n**Next:** Call `plan_change` with these files to see co-change partners and registration needs.";
+    case "diagnose":
+      return "\n\n**Next:** Call `plan_change` on the top suspect to understand full blast radius before fixing.";
+    case "list_packages":
+      return "\n\n**Next:** Call `get_architecture` with a specific package to explore it.";
+    case "auto_register":
+      return "\n\n**Next:** Call `review_changes` to verify pattern compliance.";
+    default:
+      return "";
+  }
+}
+
 /**
  * Create an autodocs-engine MCP server with all tools registered.
  * Call server.connect(transport) then cache.warm() after.
@@ -165,6 +197,13 @@ export function createAutodocsServer(
         estOutputTokens,
         error: isError,
       });
+
+      // Append next-step hint to guide agent workflow
+      const hint = getNextStepHint(toolName);
+      if (hint && !isError && result.content.length > 0) {
+        const hintTarget = result.content[result.content.length - 1];
+        if (hintTarget.type === "text") hintTarget.text += hint;
+      }
 
       // Append freshness metadata to every tool response
       if (!isError && result.content.length > 0) {

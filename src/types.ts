@@ -162,6 +162,8 @@ export interface CallGraphEdge {
   to: string;
   fromFile: string;
   toFile: string;
+  confidence: number; // 0-1: 0.95 same-file, 0.85 cross-file via export map
+  resolution: string; // "same-file" | "export-map"
 }
 
 // ─── Execution Flows ─────────────────────────────────────────────────────────
@@ -183,6 +185,8 @@ export interface FileImportEdge {
   source: string;
   symbolCount: number;
   symbols: string[];
+  confidence: number; // 0-1: 0.95 relative, 0.85 workspace-alias
+  resolution: string; // "relative" | "workspace-alias"
 }
 
 // ─── Implicit Coupling (co-change with no import relationship) ───────────────
