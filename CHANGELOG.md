@@ -2,14 +2,26 @@
 
 ## 0.10.2 (2026-03-16)
 
-### New Feature
+### New Features
 
-- **`search` MCP tool** — Find symbols, files, and conventions by name or concept. Searches across public API, internal call graph functions, file paths, conventions, and workflow rules — returning results enriched with call graph context (callers/callees) and co-change partners. Closes the discovery gap: 59% of symbols (internal functions) and 100% of file paths were previously invisible to MCP tool queries.
+- **`search` MCP tool** — Find symbols, files, and conventions by name or concept. Searches across public API, internal call graph functions, file paths, conventions, and workflow rules with call graph enrichment. Closes the discovery gap: 59% of symbols and 100% of file paths were previously invisible to MCP tool queries.
+- **`rename` MCP tool** — Find all references to a symbol for safe renaming. Returns definition location, import sites, re-exports, and call sites with a rename checklist. Preview-only (read-only analysis principle).
+- **`get_module_doc` MCP tool** — Structured per-directory documentation: files with exports, dependencies, dependents, internal call graph, execution flows, co-change partners, cluster membership, and contribution patterns. Deterministic (no LLM required).
+- **MCP Resources (5)** — `autodocs://conventions`, `autodocs://processes`, `autodocs://clusters`, `autodocs://packages`, `autodocs://schema`. Static data accessible without tool calls, reducing token overhead.
+- **MCP Prompts (2)** — `analyze-impact` (guided blast radius workflow) and `onboard` (guided codebase understanding workflow).
+- **Multi-repo support** — Single MCP server serves multiple repositories. `autodocs-engine serve /repo1 /repo2`. All tools accept optional `repo` parameter. Cache registry with per-repo git invalidation.
+
+### Improvements
+
+- **`analyze_impact` enriched** — Co-change scope now includes implicit coupling (files that co-change without import relationship), co-change cluster membership, and git history metadata (commits analyzed, history span).
+- **Hook augmentation expanded** — PreToolUse hooks now search 5 data sources (was 2): public API, call graph, file paths, conventions, and workflow rules.
+- **Co-change clusters persisted** — Computed once in pipeline via `detectClusters()`, stored on `PackageAnalysis`, read by tools and resources. No longer recomputed per tool call.
+- **Disk snapshot expanded** — Cache snapshot now includes conventions, implicit coupling, co-change clusters, and workflow rules for hook consumption.
 
 ### Stats
 
-- 14 MCP tools (was 13)
-- 722 tests (was 713)
+- 16 MCP tools + 5 resources + 2 prompts (was 13 tools)
+- 770 tests (was 713)
 
 ## 0.10.1 (2026-03-15)
 

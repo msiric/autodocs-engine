@@ -28,7 +28,7 @@ npx autodocs-engine setup-hooks
 npx autodocs-engine init
 ```
 
-## MCP Tools (14)
+## MCP Tools (16)
 
 | Tool | What It Returns |
 |------|----------------|
@@ -38,16 +38,43 @@ npx autodocs-engine init
 | `get_workflow_rules` | File coupling and co-change patterns |
 | `get_contribution_guide` | How to add code, with inline examples and registration steps |
 | `get_exports` | Public API with resolved TypeScript types (parameter types, return types) |
-| `analyze_impact` | Blast radius: importers, callers, co-change partners |
+| `analyze_impact` | Blast radius: importers, callers, co-change partners, implicit coupling, co-change clusters, git history metadata |
 | `plan_change` | Full change plan: dependents, co-changes, implicit coupling, execution flows, registration/barrel updates, tests. **With optional `symbols` parameter: narrows dependents to files importing specific symbols.** |
 | `get_test_info` | Test file path + exact per-file run command |
 | `auto_register` | Exact code insertions for registration + barrel updates |
 | `review_changes` | Pattern compliance: suffix, imports, registration, barrel, tests |
 | `diagnose` | Root cause analysis with confidence level (high/medium/low), import path traces, and 7 scoring signals |
 | `search` | Find symbols, files, and conventions by name or concept — searches public API, internal functions, file paths, and conventions with call graph enrichment |
+| `rename` | Find all references to a symbol for safe renaming — definition, imports, re-exports, call sites with checklist |
+| `get_module_doc` | Structured per-directory documentation: files, exports, dependencies, dependents, call graph, flows, co-change partners, contribution patterns |
 | `list_packages` | Monorepo package inventory |
 
 Every tool response includes **next-step hints** guiding the agent to the logical next action.
+
+### MCP Resources (5)
+
+| Resource | URI | Content |
+|----------|-----|---------|
+| Conventions | `autodocs://conventions` | DO/DON'T rules from all detectors |
+| Processes | `autodocs://processes` | Execution flows with confidence scores |
+| Clusters | `autodocs://clusters` | Co-change file groups (cliques) |
+| Packages | `autodocs://packages` | Package inventory with types and entry points |
+| Schema | `autodocs://schema` | Analysis data model reference |
+
+### MCP Prompts (2)
+
+| Prompt | Description |
+|--------|-------------|
+| `analyze-impact` | Guided workflow: identify changed files → plan_change → check clusters → summarize blast radius |
+| `onboard` | Guided workflow: commands → architecture → conventions → schema overview |
+
+### Multi-Repo Support
+
+Serve multiple repositories from a single MCP server:
+```bash
+claude mcp add autodocs -- npx autodocs-engine serve /path/to/repo1 /path/to/repo2
+```
+All tools accept an optional `repo` parameter. Single-repo usage is unchanged.
 
 ## What Makes It Different
 
@@ -161,8 +188,8 @@ Options:
 
 ## Stats
 
-- 722 tests across 53 files
-- 14 MCP tools with next-step hints
+- 770 tests across 53 files
+- 16 MCP tools + 5 resources + 2 prompts
 - 13 convention detectors
 - 95-commit diagnose validation corpus (10 repos)
 - 10 execution flows detected on medium codebases
