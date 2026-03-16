@@ -156,6 +156,7 @@ function makeAnalysis(overrides: Partial<PackageAnalysis> = {}): StructuredAnaly
           historySpanDays: 30,
         },
         implicitCoupling: [{ file1: "src/formatter.ts", file2: "src/config.ts", jaccard: 0.32, coChangeCount: 4 }],
+        coChangeClusters: [["src/formatter.ts", "src/pipeline.ts", "src/types.ts"]],
         configAnalysis: {
           typescript: { strict: true, target: "ES2022", module: "esnext", moduleResolution: "bundler" },
         },

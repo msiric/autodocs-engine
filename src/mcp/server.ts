@@ -515,6 +515,148 @@ DO NOT CALL:
     async (args) => withTelemetry("search", () => cache.get().then((a) => tools.handleSearch(a, args)), args),
   );
 
+  // ─── MCP Resources ────────────────────────────────────────────────
+  // Static data exposed as resources — cheaper than tool calls for context.
+
+  server.resource("conventions", "autodocs://conventions", { mimeType: "text/markdown" }, async () => {
+    const a = await cache.get();
+    const pkg = a.packages[0];
+    if (!pkg)
+      return {
+        contents: [{ uri: "autodocs://conventions", mimeType: "text/markdown", text: "No analysis available." }],
+      };
+    const lines = ["# Conventions", ""];
+    for (const c of pkg.conventions) {
+      lines.push(`- **${c.name}** (${c.category}): ${c.description}`);
+    }
+    for (const ap of pkg.antiPatterns) {
+      lines.push(`- **DON'T:** ${ap.rule} — ${ap.reason}`);
+    }
+    return { contents: [{ uri: "autodocs://conventions", mimeType: "text/markdown", text: lines.join("\n") }] };
+  });
+
+  server.resource("processes", "autodocs://processes", { mimeType: "text/markdown" }, async () => {
+    const a = await cache.get();
+    const pkg = a.packages[0];
+    const flows = pkg?.executionFlows ?? [];
+    const lines = ["# Execution Flows", ""];
+    if (flows.length === 0) {
+      lines.push("No execution flows detected (call graph may be too sparse).");
+    } else {
+      for (const f of flows) {
+        const conf = f.confidence > 0 ? ` (confidence: ${Math.round(f.confidence * 100)}%)` : "";
+        lines.push(`- ${f.label}${conf}`);
+      }
+    }
+    return { contents: [{ uri: "autodocs://processes", mimeType: "text/markdown", text: lines.join("\n") }] };
+  });
+
+  server.resource("clusters", "autodocs://clusters", { mimeType: "text/markdown" }, async () => {
+    const a = await cache.get();
+    const pkg = a.packages[0];
+    const clusters = pkg?.coChangeClusters ?? [];
+    const lines = [
+      "# Co-change Clusters",
+      "",
+      "Groups of files that frequently change together (all pairs co-change).",
+      "",
+    ];
+    if (clusters.length === 0) {
+      lines.push("No clusters detected (requires git history with 3+ files co-changing as a clique).");
+    } else {
+      for (let i = 0; i < clusters.length; i++) {
+        lines.push(`### Cluster ${i + 1} (${clusters[i].length} files)`);
+        for (const f of clusters[i]) lines.push(`- \`${f}\``);
+        lines.push("");
+      }
+    }
+    return { contents: [{ uri: "autodocs://clusters", mimeType: "text/markdown", text: lines.join("\n") }] };
+  });
+
+  server.resource("packages", "autodocs://packages", { mimeType: "text/markdown" }, async () => {
+    const a = await cache.get();
+    const lines = ["# Packages", ""];
+    for (const pkg of a.packages) {
+      lines.push(
+        `- **${pkg.name}** (${pkg.relativePath}) — ${pkg.architecture.packageType}, ${pkg.files.total} files, entry: ${pkg.architecture.entryPoint}`,
+      );
+    }
+    return { contents: [{ uri: "autodocs://packages", mimeType: "text/markdown", text: lines.join("\n") }] };
+  });
+
+  server.resource("schema", "autodocs://schema", { mimeType: "text/markdown" }, async () => ({
+    contents: [
+      {
+        uri: "autodocs://schema",
+        mimeType: "text/markdown",
+        text: [
+          "# autodocs-engine Analysis Schema",
+          "",
+          "Each analyzed package contains:",
+          "- **publicAPI**: Exported symbols with kind, source file, import count, resolved types",
+          "- **callGraph**: Cross-file function call edges with confidence",
+          "- **importChain**: File-to-file import edges with symbol lists",
+          "- **gitHistory.coChangeEdges**: File pairs that frequently change together (Jaccard similarity)",
+          "- **implicitCoupling**: Co-change pairs with NO import relationship",
+          "- **coChangeClusters**: Groups of 3+ files that ALL co-change (cliques)",
+          "- **executionFlows**: Entry-to-terminal execution paths through call graph",
+          "- **conventions**: Detected coding patterns from 13 AST-based detectors",
+          "- **contributionPatterns**: How to add new code (file patterns, registration, common imports)",
+          "- **commands**: Build, test, lint, start commands with exact flags",
+          "",
+          "Use `search` to find symbols by concept. Use `plan_change` before modifying files.",
+          "Use `diagnose` when tests fail. Use `analyze_impact` for blast radius.",
+        ].join("\n"),
+      },
+    ],
+  }));
+
+  // ─── MCP Prompts ──────────────────────────────────────────────────
+  // Guided workflows composing tools + resources.
+
+  server.prompt("analyze-impact", "Analyze blast radius of current changes before committing", async () => ({
+    messages: [
+      {
+        role: "user" as const,
+        content: {
+          type: "text" as const,
+          text: [
+            "Analyze the impact of my current code changes. Follow these steps:",
+            "",
+            "1. Run `git diff --name-only` to identify changed files",
+            "2. Call the `plan_change` tool with those files to see dependents, co-change partners, and registration needs",
+            "3. Check the `autodocs://clusters` resource to see if any changed files belong to co-change clusters",
+            "4. Summarize: what's the blast radius? What other files might need updating? What tests should I run?",
+          ].join("\n"),
+        },
+      },
+    ],
+  }));
+
+  server.prompt(
+    "onboard",
+    "Understand this codebase — commands, architecture, conventions, and key patterns",
+    async () => ({
+      messages: [
+        {
+          role: "user" as const,
+          content: {
+            type: "text" as const,
+            text: [
+              "Help me understand this codebase. Follow these steps:",
+              "",
+              "1. Call `get_commands` for build, test, and lint commands",
+              "2. Call `get_architecture` for directory structure, entry points, and execution flows",
+              "3. Call `get_conventions` for the project's DO and DON'T rules",
+              "4. Read the `autodocs://schema` resource to understand what analysis data is available",
+              "5. Summarize the key things I need to know to start contributing",
+            ].join("\n"),
+          },
+        },
+      ],
+    }),
+  );
+
   return { server, cache, session };
 }
 
