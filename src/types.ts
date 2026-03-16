@@ -84,6 +84,7 @@ export interface PackageAnalysis {
   importChain?: FileImportEdge[];
   gitHistory?: GitHistoryAnalysis;
   implicitCoupling?: ImplicitCouplingEdge[];
+  coChangeClusters?: string[][]; // Groups of 3+ files that all co-change together (cliques)
   executionFlows?: ExecutionFlow[];
   patternFingerprints?: PatternFingerprint[];
   examples?: UsageExample[]; // W5-C1: Usage examples extracted from test files

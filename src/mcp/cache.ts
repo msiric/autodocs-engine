@@ -145,6 +145,7 @@ export class AnalysisCache {
           gitHistory: pkg.gitHistory ? { coChangeEdges: pkg.gitHistory.coChangeEdges } : undefined,
           executionFlows: pkg.executionFlows,
           implicitCoupling: pkg.implicitCoupling,
+          coChangeClusters: pkg.coChangeClusters,
           conventions: pkg.conventions?.map((c) => ({
             name: c.name,
             description: c.description,

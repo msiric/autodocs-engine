@@ -17,7 +17,7 @@ import { extractExamples } from "./example-extractor.js";
 import { computeExecutionFlows, enrichFlowConfidence } from "./execution-flow.js";
 import { detectExistingDocs } from "./existing-docs.js";
 import { discoverFiles } from "./file-discovery.js";
-import { generateCoChangeRules, mineGitHistory } from "./git-history.js";
+import { detectClusters, generateCoChangeRules, mineGitHistory } from "./git-history.js";
 import { classifyImpacts } from "./impact-classifier.js";
 import { detectImplicitCoupling } from "./implicit-coupling.js";
 import { computeImportChain, generateImportChainRules } from "./import-chain.js";
@@ -74,6 +74,15 @@ export async function runPipeline(config: ResolvedConfig): Promise<StructuredAna
           analysis.implicitCoupling = detectImplicitCoupling(pkgGitHistory.coChangeEdges, analysis.importChain);
           if (analysis.implicitCoupling.length > 0) {
             vlog(verbose, `  Implicit coupling: ${analysis.implicitCoupling.length} pairs with no import relationship`);
+          }
+        }
+
+        // Compute co-change clusters (groups of 3+ files that all co-change together)
+        if (pkgGitHistory.coChangeEdges.length > 0) {
+          const clusters = detectClusters(pkgGitHistory.coChangeEdges);
+          if (clusters.length > 0) {
+            analysis.coChangeClusters = clusters;
+            vlog(verbose, `  Co-change clusters: ${clusters.length} clusters`);
           }
         }
       }

@@ -96,6 +96,37 @@ describe("MCP server integration", () => {
     expect(toolNames.length).toBe(14);
   });
 
+  it("lists MCP resources", async () => {
+    const resp = await sendRequest("resources/list");
+    const names = resp.result.resources.map((r: any) => r.name).sort();
+    expect(names).toContain("conventions");
+    expect(names).toContain("processes");
+    expect(names).toContain("clusters");
+    expect(names).toContain("packages");
+    expect(names).toContain("schema");
+    expect(names.length).toBe(5);
+  });
+
+  it("reads a resource without error", async () => {
+    const resp = await sendRequest("resources/read", { uri: "autodocs://schema" });
+    expect(resp.result.contents).toBeDefined();
+    expect(resp.result.contents[0].text).toContain("Analysis Schema");
+  });
+
+  it("lists MCP prompts", async () => {
+    const resp = await sendRequest("prompts/list");
+    const names = resp.result.prompts.map((p: any) => p.name).sort();
+    expect(names).toContain("analyze-impact");
+    expect(names).toContain("onboard");
+    expect(names.length).toBe(2);
+  });
+
+  it("gets a prompt without error", async () => {
+    const resp = await sendRequest("prompts/get", { name: "onboard" });
+    expect(resp.result.messages).toBeDefined();
+    expect(resp.result.messages[0].content.text).toContain("get_commands");
+  });
+
   // ─── Every Tool Returns Non-Error ───────────────────────────────────────
 
   it("get_commands returns without error", async () => {

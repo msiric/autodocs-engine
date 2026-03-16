@@ -4,7 +4,6 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import ts from "typescript";
-import { detectClusters } from "../git-history.js";
 import type { StructuredAnalysis } from "../types.js";
 import * as Q from "./queries.js";
 
@@ -229,21 +228,17 @@ export function handleAnalyzeImpact(
     }
 
     // Co-change cluster membership
-    const coChangeEdges = pkg.gitHistory?.coChangeEdges ?? [];
-    if (coChangeEdges.length > 0) {
-      const clusters = detectClusters(coChangeEdges);
-      const fileClusters = clusters.filter((c) => c.includes(args.filePath!));
-      if (fileClusters.length > 0) {
-        lines.push("### Co-change Cluster");
-        for (const cluster of fileClusters) {
-          const others = cluster.filter((f) => f !== args.filePath);
-          lines.push(`This file belongs to a ${cluster.length}-file cluster that frequently changes together:`);
-          for (const f of others) {
-            lines.push(`- \`${f}\``);
-          }
+    const fileClusters = (pkg.coChangeClusters ?? []).filter((c) => c.includes(args.filePath!));
+    if (fileClusters.length > 0) {
+      lines.push("### Co-change Cluster");
+      for (const cluster of fileClusters) {
+        const others = cluster.filter((f) => f !== args.filePath);
+        lines.push(`This file belongs to a ${cluster.length}-file cluster that frequently changes together:`);
+        for (const f of others) {
+          lines.push(`- \`${f}\``);
         }
-        lines.push("");
       }
+      lines.push("");
     }
 
     // Git history metadata (analysis quality signal)
