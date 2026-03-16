@@ -735,6 +735,17 @@ export function findReferences(analysis: StructuredAnalysis, symbolName: string,
 
   const refs: RenameReference[] = [];
 
+  // Pre-index: which exported names exist per file? (avoids O(n) filter per edge)
+  const exportsByFile = new Map<string, Set<string>>();
+  for (const e of pkg.publicAPI) {
+    let s = exportsByFile.get(e.sourceFile);
+    if (!s) {
+      s = new Set();
+      exportsByFile.set(e.sourceFile, s);
+    }
+    s.add(e.name);
+  }
+
   // Definition site
   if (sourceFile) {
     refs.push({ file: sourceFile, kind: "definition", context: `defines ${symbolKind} ${symbolName}` });
@@ -746,20 +757,22 @@ export function findReferences(analysis: StructuredAnalysis, symbolName: string,
     if (edge.importer === sourceFile) continue; // Skip self-import
     refs.push({
       file: edge.importer,
-      kind: edge.importer === sourceFile ? "definition" : "import",
+      kind: "import",
       context: `imports { ${symbolName} } from '${edge.source}'`,
     });
   }
 
   // Re-export references (barrel files re-exporting this symbol)
+  const refsByFile = new Map<string, RenameReference>();
+  for (const r of refs) refsByFile.set(`${r.file}:${r.kind}`, r);
+
   for (const edge of pkg.importChain ?? []) {
     if (!edge.symbols.includes(symbolName)) continue;
     if (edge.source !== sourceFile) continue;
     // Check if this importer also exports the symbol (re-export chain)
-    const importerExports = pkg.publicAPI.filter((e) => e.sourceFile === edge.importer);
-    if (importerExports.some((e) => e.name === symbolName)) {
+    if (exportsByFile.get(edge.importer)?.has(symbolName)) {
       // Already counted as import — upgrade to re-export
-      const existing = refs.find((r) => r.file === edge.importer && r.kind === "import");
+      const existing = refsByFile.get(`${edge.importer}:import`);
       if (existing) {
         existing.kind = "re-export";
         existing.context = `re-exports { ${symbolName} } from '${edge.source}'`;
@@ -768,10 +781,11 @@ export function findReferences(analysis: StructuredAnalysis, symbolName: string,
   }
 
   // Call graph references
+  const referencedFiles = new Set(refs.map((r) => r.file));
   for (const edge of pkg.callGraph ?? []) {
     if (edge.to === symbolName && edge.fromFile !== sourceFile) {
-      // Avoid duplicating files already listed as importers
-      if (!refs.some((r) => r.file === edge.fromFile)) {
+      if (!referencedFiles.has(edge.fromFile)) {
+        referencedFiles.add(edge.fromFile);
         refs.push({ file: edge.fromFile, kind: "call", context: `${edge.from}() calls ${symbolName}()` });
       }
     }
@@ -1398,6 +1412,33 @@ export function buildSuspectList(
   const recentCount = recentChanges.filter((c) => c.hoursAgo < 48).length;
   const w = computeWeights(recentCount, coChangeEdges.length);
 
+  // Pre-index for O(1) lookups in scoring loop (avoids linear scans per candidate)
+  const workflowFiles = new Set<string>();
+  for (const r of workflowRules) {
+    // Extract file paths from trigger/action text (they contain backtick-quoted paths)
+    for (const text of [r.trigger, r.action]) {
+      const matches = text.match(/`([^`]+)`/g);
+      if (matches) for (const m of matches) workflowFiles.add(m.slice(1, -1));
+    }
+  }
+
+  const callGraphByFile = new Map<string, Set<string>>();
+  for (const e of callGraph) {
+    let s = callGraphByFile.get(e.fromFile);
+    if (!s) {
+      s = new Set();
+      callGraphByFile.set(e.fromFile, s);
+    }
+    s.add(e.toFile);
+
+    s = callGraphByFile.get(e.toFile);
+    if (!s) {
+      s = new Set();
+      callGraphByFile.set(e.toFile, s);
+    }
+    s.add(e.fromFile);
+  }
+
   // 4. Score each candidate
   const suspects: Suspect[] = [];
 
@@ -1417,7 +1458,7 @@ export function buildSuspectList(
       recency: change ? recencyScore(change.hoursAgo) : 0,
       coupling: sigmoid(rawCoupling, 0.2, 5),
       dependency: Math.max(upScore * upstreamBoost, downScore) * selectivityFactor,
-      workflow: workflowRules.some((r) => r.trigger.includes(file) || r.action.includes(file)) ? 1.0 : 0,
+      workflow: workflowFiles.has(file) ? 1.0 : 0,
       testMapping: testToSourceScore(testFile ?? null, file, importByImporter),
       directoryLocality: directoryLocalityScore(testFile ?? null, file),
     };
@@ -1432,11 +1473,8 @@ export function buildSuspectList(
       w.directoryLocality * signals.directoryLocality;
 
     // Call graph bonus: 1.5x if call edge exists, but NOT for the error site itself
-    const callGraphBonus =
-      !errorSet.has(file) &&
-      callGraph.some(
-        (e) => (e.fromFile === file && errorSet.has(e.toFile)) || (e.toFile === file && errorSet.has(e.fromFile)),
-      );
+    const neighbors = callGraphByFile.get(file);
+    const callGraphBonus = !errorSet.has(file) && neighbors != null && [...errorSet].some((ef) => neighbors.has(ef));
     if (callGraphBonus) score *= 1.5;
 
     // Build human-readable reason

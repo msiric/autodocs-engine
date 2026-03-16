@@ -160,6 +160,16 @@ function augment(snapshot, pattern) {
   const callGraph = pkg.callGraph || [];
   const sections = [];
 
+  // Pre-build call graph indexes (single pass, O(1) lookups per symbol)
+  const callersOf = new Map();
+  const calleesOf = new Map();
+  for (const e of callGraph) {
+    if (!callersOf.has(e.to)) callersOf.set(e.to, []);
+    callersOf.get(e.to).push(e.from);
+    if (!calleesOf.has(e.from)) calleesOf.set(e.from, []);
+    calleesOf.get(e.from).push(e.to);
+  }
+
   // ── Pass 1: Public API symbols ──
   const apiMatches = (pkg.publicAPI || []).filter((e) => e.name.toLowerCase().includes(q));
   const matchedNames = new Set(apiMatches.map((e) => e.name));
@@ -178,10 +188,10 @@ function augment(snapshot, pattern) {
   for (const exp of apiMatches.slice(0, 3)) {
     const lines = [`**${exp.name}** (${exp.kind}) — \`${exp.sourceFile}\``];
 
-    const callers = callGraph.filter((e) => e.to === exp.name).map((e) => e.from).slice(0, 3);
+    const callers = (callersOf.get(exp.name) || []).slice(0, 3);
     if (callers.length > 0) lines.push(`  Called by: ${callers.join(", ")}`);
 
-    const callees = callGraph.filter((e) => e.from === exp.name).map((e) => e.to).slice(0, 3);
+    const callees = (calleesOf.get(exp.name) || []).slice(0, 3);
     if (callees.length > 0) lines.push(`  Calls: ${callees.join(", ")}`);
 
     const coChanges = (pkg.gitHistory?.coChangeEdges || [])

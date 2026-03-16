@@ -172,9 +172,11 @@ export function createAutodocsServer(
     for (const [path, cache] of caches) {
       if (basename(path) === repo || basename(path).toLowerCase() === repo.toLowerCase()) return cache;
     }
-    // Suffix match
-    for (const [path, cache] of caches) {
-      if (path.endsWith(repo)) return cache;
+    // Suffix match (only for path-like values containing /)
+    if (repo.includes("/")) {
+      for (const [path, cache] of caches) {
+        if (path.endsWith(repo)) return cache;
+      }
     }
     throw new ToolError("REPO_NOT_FOUND", `Repo '${repo}' not found.`, [
       `Available: ${[...caches.keys()].map((p) => basename(p)).join(", ")}`,
@@ -206,7 +208,10 @@ export function createAutodocsServer(
 
     return safeToolHandler(fn).then((result) => {
       const latencyMs = Math.round(performance.now() - start);
-      const usedCache = caches.size === 1 ? caches.values().next().value! : resolveCache((args as any)?.repo);
+      const usedCache =
+        caches.size === 1
+          ? caches.values().next().value!
+          : resolveCache((args as Record<string, unknown> | undefined)?.repo as string | undefined);
       const cacheStatus = usedCache.lastWasCacheHit ? "hit" : "miss";
       const isError = Boolean(result.isError);
 
