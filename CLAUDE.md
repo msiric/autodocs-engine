@@ -18,7 +18,7 @@ Standard `npm` scripts — see `package.json` for details.
 
 ## Conventions
 
-- **DO**: Tests use Vitest (53 test files, 713 tests)
+- **DO**: Tests use Vitest (53 test files, 770 tests)
 - **DO**: Use kebab-case for filenames (99% consistency)
 - **DO**: Import Node builtins with `node:` protocol (e.g., `node:fs`, `node:path`)
 - **DO**: Use typed error subclasses (ToolError, FileNotFoundError, LLMError)
@@ -30,7 +30,7 @@ Standard `npm` scripts — see `package.json` for details.
 - `src/benchmark/` — Feature: benchmark framework (A/B testing, PR-based, scoring)
 - `src/detectors/` — Feature: 13 convention detectors (error-handling, async-patterns, state-management, api-patterns, + 9 more)
 - `src/llm/` — Feature: LLM adapter, serializer, templates
-- `src/mcp/` — Feature: MCP server (13 tools), queries, cache, hooks
+- `src/mcp/` — Feature: MCP server (16 tools + 5 resources + 2 prompts), queries, cache, hooks
 - `src/templates/` — Feature: AGENTS.md, CLAUDE.md, cursorrules templates
 - `hooks/` — Claude Code PreToolUse/PostToolUse hook scripts
 - `test/fixtures/diagnose-corpus/` — 95 bug-fix commits across 10 repos for diagnose validation
@@ -39,7 +39,7 @@ Standard `npm` scripts — see `package.json` for details.
 
 ## Architecture
 
-18-stage pipeline → StructuredAnalysis → MCP tools (13) or AGENTS.md
+18-stage pipeline → StructuredAnalysis → MCP tools (16) + resources (5) + prompts (2) or AGENTS.md
 
 Key modules:
 - `src/pipeline.ts` — 18-stage orchestrator
@@ -47,5 +47,6 @@ Key modules:
 - `src/implicit-coupling.ts` — Co-change × import graph cross-referencing
 - `src/type-resolver.ts` + `src/type-enricher.ts` — Opt-in TypeScript type resolution
 - `src/mcp/queries.ts` — Data access layer (all MCP tools query through this)
-- `src/mcp/tools.ts` — 13 tool handlers with next-step hints
+- `src/mcp/tools.ts` — 16 tool handlers with next-step hints
+- `src/mcp/server.ts` — Tool/resource/prompt registration, multi-repo cache registry
 - `src/git-history.ts` — Co-change mining with Jaccard similarity
