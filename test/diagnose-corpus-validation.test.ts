@@ -249,13 +249,19 @@ describe("plan_change corpus validation", () => {
         const inputFile = commit.sourceFiles[0];
         const expectedOthers = commit.sourceFiles.filter((f) => f !== inputFile);
 
-        // Collect what plan_change would predict: importers + co-change partners
+        // Collect what plan_change would predict:
+        // - Downstream: files that import from the input (dependents)
+        // - Upstream: files the input imports from (dependencies)
+        // - Co-change: files that historically change with the input
+        // - Implicit coupling: co-change with no import relationship
         const importers = Q.getImportersForFile(analysis, inputFile);
         const coChanges = Q.getCoChangesForFile(analysis, inputFile);
         const implicit = Q.getImplicitCouplingForFile(analysis, inputFile);
+        const pkg = analysis.packages[0];
+        const upstream = (pkg.importChain ?? []).filter((e) => e.importer === inputFile).map((e) => e.source);
         const predicted = new Set([
           ...importers.map((e) => e.importer),
-          ...importers.map((e) => e.source),
+          ...upstream,
           ...coChanges.map((e) => (e.file1 === inputFile ? e.file2 : e.file1)),
           ...implicit.map((e) => (e.file1 === inputFile ? e.file2 : e.file1)),
         ]);
@@ -285,7 +291,7 @@ describe("plan_change corpus validation", () => {
     }
 
     expect(tested).toBeGreaterThanOrEqual(10);
-    expect(avgRecall).toBeGreaterThanOrEqual(20);
+    expect(avgRecall).toBeGreaterThanOrEqual(50);
   });
 });
 
@@ -312,12 +318,14 @@ describe("analyze_impact corpus validation", () => {
         const inputFile = commit.sourceFiles[0];
         const expectedOthers = allFiles.filter((f) => f !== inputFile);
 
-        // Collect what analyze_impact would report
+        // Collect what analyze_impact would report (downstream + upstream + co-change)
         const importers = Q.getImportersForFile(analysis, inputFile);
         const coChanges = Q.getCoChangesForFile(analysis, inputFile);
+        const pkg = analysis.packages[0];
+        const upstream = (pkg.importChain ?? []).filter((e) => e.importer === inputFile).map((e) => e.source);
         const predicted = new Set([
           ...importers.map((e) => e.importer),
-          ...importers.map((e) => e.source),
+          ...upstream,
           ...coChanges.map((e) => (e.file1 === inputFile ? e.file2 : e.file1)),
         ]);
 
@@ -346,7 +354,7 @@ describe("analyze_impact corpus validation", () => {
     }
 
     expect(tested).toBeGreaterThanOrEqual(10);
-    expect(avgRecall).toBeGreaterThanOrEqual(15);
+    expect(avgRecall).toBeGreaterThanOrEqual(30);
   });
 });
 
