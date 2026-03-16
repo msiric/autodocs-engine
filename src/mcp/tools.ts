@@ -153,10 +153,12 @@ export function handleAnalyzeImpact(
     return { content: [{ type: "text", text: lines.join("\n") }] };
   }
 
+  // Compute file-level data once (used for both blast radius summary and detail sections)
+  const importers = args.filePath ? Q.getImportersForFile(analysis, args.filePath, args.packagePath) : [];
+  const coChanges = args.filePath ? Q.getCoChangesForFile(analysis, args.filePath, args.packagePath) : [];
+
   // Blast radius summary (one-line orientation before details)
   if (args.filePath) {
-    const importers = Q.getImportersForFile(analysis, args.filePath, args.packagePath);
-    const coChanges = Q.getCoChangesForFile(analysis, args.filePath, args.packagePath);
     const total = importers.length + coChanges.length;
     const radius = total <= 5 ? "Small" : total <= 15 ? "Medium" : "Large";
     lines.push(
@@ -168,7 +170,6 @@ export function handleAnalyzeImpact(
 
   // Importers section
   if (args.filePath && (scope === "all" || scope === "imports")) {
-    const importers = Q.getImportersForFile(analysis, args.filePath, args.packagePath);
     const shown = importers.slice(0, limit);
     lines.push(`### Importers (${importers.length} files${importers.length > limit ? `, showing top ${limit}` : ""})`);
     if (shown.length === 0) {
@@ -199,7 +200,6 @@ export function handleAnalyzeImpact(
   // Co-change section
   if (args.filePath && (scope === "all" || scope === "cochanges")) {
     const pkg = Q.resolvePackage(analysis, args.packagePath);
-    const coChanges = Q.getCoChangesForFile(analysis, args.filePath, args.packagePath);
     const shown = coChanges.slice(0, limit);
     lines.push(
       `### Co-change Partners (${coChanges.length} files${coChanges.length > limit ? `, showing top ${limit}` : ""})`,
