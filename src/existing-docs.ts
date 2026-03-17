@@ -203,17 +203,17 @@ function extractFirstParagraph(markdown: string): string | undefined {
 
 // ─── Part B: Merge Mode ─────────────────────────────────────────────────────
 
-const AUTODOCS_START = "<!-- synaps:start -->";
-const AUTODOCS_END = "<!-- synaps:end -->";
+const SYNAPS_START = "<!-- synaps:start -->";
+const SYNAPS_END = "<!-- synaps:end -->";
 
 /**
  * Wrap engine output in delimiters for first-time generation.
  */
 export function wrapWithDelimiters(content: string): string {
   return [
-    AUTODOCS_START,
+    SYNAPS_START,
     content,
-    AUTODOCS_END,
+    SYNAPS_END,
     "",
     "## Team Knowledge",
     "_Add your context here — this section is preserved across regenerations._",
@@ -235,19 +235,19 @@ export function mergeWithExisting(
   newEngineContent: string,
   _warnings: Warning[] = [],
 ): string {
-  const startIdx = existingContent.indexOf(AUTODOCS_START);
-  const endIdx = existingContent.indexOf(AUTODOCS_END);
+  const startIdx = existingContent.indexOf(SYNAPS_START);
+  const endIdx = existingContent.indexOf(SYNAPS_END);
 
   if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
     // Has delimiters — replace the section between them
     const before = existingContent.slice(0, startIdx);
-    const after = existingContent.slice(endIdx + AUTODOCS_END.length);
+    const after = existingContent.slice(endIdx + SYNAPS_END.length);
 
-    return `${before + AUTODOCS_START}\n${newEngineContent}\n${AUTODOCS_END}${after}`;
+    return `${before + SYNAPS_START}\n${newEngineContent}\n${SYNAPS_END}${after}`;
   }
 
   // No delimiters — append with separator
-  return [existingContent.trimEnd(), "", "---", "", AUTODOCS_START, newEngineContent, AUTODOCS_END].join("\n");
+  return [existingContent.trimEnd(), "", "---", "", SYNAPS_START, newEngineContent, SYNAPS_END].join("\n");
 }
 
 /**

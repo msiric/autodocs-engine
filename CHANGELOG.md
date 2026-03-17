@@ -7,7 +7,7 @@
 - **`search` MCP tool** — Find symbols, files, and conventions by name or concept. Searches across public API, internal call graph functions, file paths, conventions, and workflow rules with call graph enrichment. Closes the discovery gap: 59% of symbols and 100% of file paths were previously invisible to MCP tool queries.
 - **`rename` MCP tool** — Find all references to a symbol for safe renaming. Returns definition location, import sites, re-exports, and call sites with a rename checklist. Preview-only (read-only analysis principle).
 - **`get_module_doc` MCP tool** — Structured per-directory documentation: files with exports, dependencies, dependents, internal call graph, execution flows, co-change partners, cluster membership, and contribution patterns. Deterministic (no LLM required).
-- **MCP Resources (5)** — `autodocs://conventions`, `autodocs://processes`, `autodocs://clusters`, `autodocs://packages`, `autodocs://schema`. Static data accessible without tool calls, reducing token overhead.
+- **MCP Resources (5)** — `synaps://conventions`, `synaps://processes`, `synaps://clusters`, `synaps://packages`, `synaps://schema`. Static data accessible without tool calls, reducing token overhead.
 - **MCP Prompts (2)** — `analyze-impact` (guided blast radius workflow) and `onboard` (guided codebase understanding workflow).
 - **Multi-repo support** — Single MCP server serves multiple repositories. `synaps serve /repo1 /repo2`. All tools accept optional `repo` parameter. Cache registry with per-repo git invalidation.
 
@@ -106,7 +106,7 @@
 ### Improvements
 
 - **`init` defaults to minimal** — `npx synaps init` now produces focused AGENTS.md (~300 tokens, no API key). Use `--full` for comprehensive output. Research-backed: focused files improve AI performance by 4% and reduce runtime by 29%.
-- **Session telemetry** — Opt-in per-call JSONL logging (`--telemetry` or `AUTODOCS_TELEMETRY=1`). Session summary on stderr at shutdown. Writes to `~/.autodocs/telemetry/`.
+- **Session telemetry** — Opt-in per-call JSONL logging (`--telemetry` or `SYNAPS_TELEMETRY=1`). Session summary on stderr at shutdown. Writes to `~/.synaps/telemetry/`.
 - **MCP integration tests** — Real ESM server process over JSON-RPC stdio, verifying all 13 tools work in production.
 - **Diagnose hardening** — Broader error parsing (any relative path, not just `src/`), empirical validation (83% hit rate on real bug-fix commits), adaptive co-change thresholds for young repos.
 - **Security hardening** — `execSync` → `execFileSync` with argument arrays, `safeReadFile` with path boundary validation, 100KB cap on `parseErrorText` input.
@@ -213,7 +213,7 @@ Together these create a closed self-correction loop: the AI creates code → rev
 - Non-git fallback: 15-second TTL-based re-analysis
 - Singleton promise: prevents concurrent duplicate analyses
 - Typed errors with codes + recovery hints
-- Per-tool-call telemetry logging (opt-in via --verbose or AUTODOCS_DEBUG=1)
+- Per-tool-call telemetry logging (opt-in via --verbose or SYNAPS_DEBUG=1)
 - Monorepo support: list_packages tool + packagePath parameter on all tools
 
 ### Benchmark Details

@@ -158,6 +158,7 @@ synaps init [--full]                 Generate AGENTS.md
 synaps serve [path] [options]        Start MCP server
 synaps setup-hooks                   Install Claude Code hooks
 synaps check                         Staleness detection for CI
+synaps visualize [path]              Interactive codebase topology graph
 synaps analyze [paths...] [options]  Analyze specific packages
 
 Options:
@@ -190,7 +191,7 @@ Options:
 
 ## Stats
 
-- 770 tests across 53 files
+- 848 tests across 56 files
 - 16 MCP tools + 5 resources + 2 prompts
 - 13 convention detectors
 - 95-commit diagnose validation corpus (10 repos)
@@ -216,7 +217,7 @@ const agentsMd = generateMinimalAgentsMd(analysis);
 git clone https://github.com/msiric/synaps.git
 cd synaps
 npm install
-npm test          # 713 tests
+npm test          # 848 tests
 npm run typecheck # Zero errors
 npm run build
 ```

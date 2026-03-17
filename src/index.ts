@@ -2,12 +2,12 @@
 // Two entry points: analyze() and format()
 
 import { resolve } from "node:path";
+import { formatDeterministic as formatDeterministicImpl, formatWithLLM } from "./llm/adapter.js";
 import {
-  formatDeterministic as formatDeterministicImpl,
   formatHierarchical,
   formatHierarchicalDeterministic as formatHierarchicalDeterministicImpl,
-  formatWithLLM,
-} from "./llm-adapter.js";
+  type HierarchicalOutput,
+} from "./llm/hierarchical.js";
 import { runPipeline } from "./pipeline.js";
 import type { ResolvedConfig, StructuredAnalysis } from "./types.js";
 import { discoverWorkspacePackages, readWorkspaceGlobs } from "./workspace-resolver.js";
@@ -18,7 +18,7 @@ export { generateMinimalAgentsMd } from "./deterministic-formatter.js";
 export { diffAnalyses } from "./diff-analyzer.js";
 
 export { mergeWithExisting, readExistingAgentsMd, wrapWithDelimiters } from "./existing-docs.js";
-export type { HierarchicalOutput } from "./llm-adapter.js";
+export type { HierarchicalOutput } from "./llm/hierarchical.js";
 export { validateOutput } from "./output-validator.js";
 export { fingerprintTopExports } from "./pattern-fingerprinter.js";
 // Re-export all public types
@@ -143,7 +143,7 @@ export async function formatDeterministic(
 export async function formatAsHierarchy(
   analysis: StructuredAnalysis,
   config: Pick<ResolvedConfig, "output" | "llm">,
-): Promise<import("./llm-adapter.js").HierarchicalOutput> {
+): Promise<HierarchicalOutput> {
   return formatHierarchical(analysis, config);
 }
 
@@ -154,6 +154,6 @@ export async function formatAsHierarchy(
 export async function formatHierarchicalDeterministic(
   analysis: StructuredAnalysis,
   config: Pick<ResolvedConfig, "output" | "llm">,
-): Promise<import("./llm-adapter.js").HierarchicalOutput> {
+): Promise<HierarchicalOutput> {
   return formatHierarchicalDeterministicImpl(analysis, config);
 }

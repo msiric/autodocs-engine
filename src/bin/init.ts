@@ -45,7 +45,7 @@ export async function runInit(options: { full?: boolean } = {}): Promise<void> {
     llm: apiKey
       ? {
           provider: "anthropic",
-          model: process.env.AUTODOCS_LLM_MODEL ?? "claude-sonnet-4-20250514",
+          model: process.env.SYNAPS_LLM_MODEL ?? "claude-sonnet-4-20250514",
           maxOutputTokens: 4096,
           apiKey,
         }
@@ -81,7 +81,7 @@ export async function runInit(options: { full?: boolean } = {}): Promise<void> {
     output: { format: "agents.md" as const, dir: "." },
     llm: {
       provider: "anthropic" as const,
-      model: process.env.AUTODOCS_LLM_MODEL ?? "claude-sonnet-4-20250514",
+      model: process.env.SYNAPS_LLM_MODEL ?? "claude-sonnet-4-20250514",
       maxOutputTokens: 4096,
       apiKey,
     },

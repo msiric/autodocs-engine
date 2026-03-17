@@ -54,14 +54,14 @@ describe("W5-A: Cleanup — noisy detectors removed", () => {
 // ─── Workstream B: Refactoring ──────────────────────────────────────────────
 
 describe("W5-B1: LLM adapter split", () => {
-  it("barrel re-exports formatWithLLM", async () => {
-    const barrel = await import("../src/llm-adapter.js");
-    expect(typeof barrel.formatWithLLM).toBe("function");
+  it("adapter exports formatWithLLM", async () => {
+    const adapter = await import("../src/llm/adapter.js");
+    expect(typeof adapter.formatWithLLM).toBe("function");
   });
 
-  it("barrel re-exports formatHierarchical", async () => {
-    const barrel = await import("../src/llm-adapter.js");
-    expect(typeof barrel.formatHierarchical).toBe("function");
+  it("hierarchical exports formatHierarchical", async () => {
+    const hierarchical = await import("../src/llm/hierarchical.js");
+    expect(typeof hierarchical.formatHierarchical).toBe("function");
   });
 
   it("individual modules export their functions", async () => {

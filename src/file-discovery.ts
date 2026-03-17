@@ -1,7 +1,7 @@
 // src/file-discovery.ts — Module 1: File Discovery
 // Errata applied: E-14 (gitignore via git ls-files), E-15 (picomatch), E-16 (symlink boundary)
 
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { readdirSync, realpathSync, statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import picomatch from "picomatch";
@@ -34,7 +34,7 @@ export function discoverFiles(packageDir: string, excludePatterns: string[], war
 function tryGitLsFiles(packageDir: string, _warnings: Warning[]): string[] | null {
   try {
     // Check if git is available and this is a git repo
-    const output = execSync("git ls-files --cached --others --exclude-standard", {
+    const output = execFileSync("git", ["ls-files", "--cached", "--others", "--exclude-standard"], {
       cwd: packageDir,
       encoding: "utf-8",
       timeout: 5000,

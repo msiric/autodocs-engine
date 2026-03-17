@@ -55,7 +55,7 @@ export async function runBenchmark(args: BenchmarkArgs): Promise<void> {
 
   const llmConfig: ResolvedConfig["llm"] = {
     provider: "anthropic",
-    model: args.model ?? process.env.AUTODOCS_LLM_MODEL ?? "claude-sonnet-4-20250514",
+    model: args.model ?? process.env.SYNAPS_LLM_MODEL ?? "claude-sonnet-4-20250514",
     apiKey: apiKey ?? "",
     maxOutputTokens: 4096,
   };
@@ -128,7 +128,7 @@ async function runPRBenchmarkCLI(repoPath: string, args: BenchmarkArgs): Promise
 
   const llmConfig: ResolvedConfig["llm"] = {
     provider: "anthropic",
-    model: args.model ?? process.env.AUTODOCS_LLM_MODEL ?? "claude-sonnet-4-20250514",
+    model: args.model ?? process.env.SYNAPS_LLM_MODEL ?? "claude-sonnet-4-20250514",
     apiKey: apiKey ?? "",
     maxOutputTokens: 4096,
   };

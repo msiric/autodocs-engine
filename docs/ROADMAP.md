@@ -1,10 +1,10 @@
 # Roadmap
 
-## Current State (v0.10.2, 2026-03-16)
+## Current State (v0.10.7, 2026-03-17)
 
-**730 tests. 14 MCP tools. 13 convention detectors. Zero type errors.**
+**848 tests. 16 MCP tools. 13 convention detectors. Zero type errors.**
 
-- **MCP server** — 14 tools with search, blast radius, co-change analysis, execution flows, diagnose, and next-step hints
+- **MCP server** — 16 tools with search, blast radius, co-change analysis, execution flows, diagnose, and next-step hints
 - **Flagship tools**: `plan_change` (import graph + co-change + implicit coupling + registration checklist), `diagnose` (7-signal root cause analysis, 83% R@3 on unit-test repos), `search` (cross-data-source symbol/file/convention discovery)
 - **PreToolUse/PostToolUse hooks** — Automatic search augmentation across 5 data sources when agents use Grep/Glob/Bash
 - **CJS support** — CommonJS call graph edges (Fastify: 0→25 edges, 0→5 flows)
@@ -53,14 +53,14 @@ The 6-model brainstorm was unanimous: ship and get real users. The engine has be
 
 ### 2. Validate (Next, once users exist)
 
-- [ ] Analyze telemetry — which tools get called? Infrastructure exists (`--telemetry` flag, JSONL logging to `~/.autodocs/telemetry/`)
+- [ ] Analyze telemetry — which tools get called? Infrastructure exists (`--telemetry` flag, JSONL logging to `~/.synaps/telemetry/`)
 - [ ] Measure retention — do users keep it in their workflow?
 - [ ] Identify unused tools (candidates for removal or merging)
 - [ ] Collect qualitative feedback — what's useful, what's missing, what's confusing?
 
 ### 3. Harden (Parallel with user feedback)
 
-- [ ] **Test coverage** 730→1,000+ — Focus: query functions (`getCoChangesForFile`, `getImplicitCouplingForFile` have zero direct tests), hook edge cases, execution flow edge cases, new detectors
+- [ ] **Test coverage** 848→1,000+ — Focus: query functions (`getCoChangesForFile`, `getImplicitCouplingForFile` have zero direct tests), hook edge cases, execution flow edge cases, new detectors
 - [ ] **Diagnose accuracy** 47% R@3 → 60%+ — Expand 95-commit corpus to 200+, add callback/registration detection in scoring
 - [ ] **Convention enforcement in CI** — `synaps check --conventions` command. Detects convention drift (new files violating established patterns). Every brainstorm model identified convention detection as the strongest technical moat.
 
