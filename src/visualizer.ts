@@ -165,14 +165,35 @@ const sim=d3.forceSimulation(G.nodes)
   .force('x',d3.forceX(d=>dirCenters[d.dir].x).strength(0.15))
   .force('y',d3.forceY(d=>dirCenters[d.dir].y).strength(0.15));
 
-// Directory labels (background text showing directory name)
-const dirLabels=svg.append('g').selectAll('text').data(dirs).join('text')
+// Directory group hulls — rounded boundaries around each directory's files
+const hullLayer=svg.append('g');
+const hullPad=NC>80?12:NC>40?18:28;
+const hulls=hullLayer.selectAll('path').data(dirs).join('path')
+  .attr('fill',d=>dirColor[d]).attr('fill-opacity',0.04)
+  .attr('stroke',d=>dirColor[d]).attr('stroke-opacity',0.12)
+  .attr('stroke-width',1).attr('stroke-linejoin','round');
+
+// Directory name labels — anchored to hull centroid
+const dirLabels=hullLayer.selectAll('text').data(dirs).join('text')
   .attr('text-anchor','middle')
   .attr('fill',d=>dirColor[d])
-  .attr('opacity',0.12)
-  .attr('font-size',NC>80?'16px':NC>40?'22px':'28px')
-  .attr('font-weight','800')
+  .attr('opacity',0.3)
+  .attr('font-size',NC>80?'9px':NC>40?'10px':'11px')
+  .attr('font-weight','600')
+  .attr('paint-order','stroke').attr('stroke','#0a0a0f').attr('stroke-width',3)
   .text(d=>{const p=d.split('/');return p.at(-1)||d});
+
+function computeHullPath(points,pad){
+  if(points.length<1)return'';
+  if(points.length===1)return'M'+(points[0][0]-pad)+','+(points[0][1]-pad)+' a'+pad+','+pad+' 0 1,0 '+(pad*2)+',0 a'+pad+','+pad+' 0 1,0 '+(-pad*2)+',0';
+  if(points.length===2){const[a,b]=points;const dx=b[0]-a[0],dy=b[1]-a[1],len=Math.sqrt(dx*dx+dy*dy)||1;const nx=-dy/len*pad,ny=dx/len*pad;return'M'+(a[0]+nx)+','+(a[1]+ny)+'L'+(b[0]+nx)+','+(b[1]+ny)+'A'+pad+','+pad+' 0 0,1 '+(b[0]-nx)+','+(b[1]-ny)+'L'+(a[0]-nx)+','+(a[1]-ny)+'A'+pad+','+pad+' 0 0,1 '+(a[0]+nx)+','+(a[1]+ny)+'Z'}
+  const hull=d3.polygonHull(points);
+  if(!hull)return'';
+  // Expand hull outward by pad
+  const cx=d3.mean(hull,p=>p[0]),cy=d3.mean(hull,p=>p[1]);
+  const expanded=hull.map(p=>{const dx=p[0]-cx,dy=p[1]-cy,len=Math.sqrt(dx*dx+dy*dy)||1;return[p[0]+dx/len*pad,p[1]+dy/len*pad]});
+  return'M'+expanded.map(p=>p[0]+','+p[1]).join('L')+'Z';
+}
 
 // Edges
 const link=svg.append('g').selectAll('line').data(G.edges).join('line')
@@ -216,9 +237,13 @@ sim.on('tick',()=>{
   G.nodes.forEach(d=>{d.x=Math.max(pad,Math.min(W-pad,d.x));d.y=Math.max(pad,Math.min(H-pad,d.y))});
   link.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
   node.attr('transform',d=>\`translate(\${d.x},\${d.y})\`);
-  // Keep directory labels at cluster centroid
+  // Update hull boundaries and labels per directory
+  hulls.attr('d',d=>{
+    const pts=G.nodes.filter(n=>n.dir===d).map(n=>[n.x,n.y]);
+    return computeHullPath(pts,hullPad);
+  });
   dirLabels.attr('x',d=>{const fs=G.nodes.filter(n=>n.dir===d);return fs.length?d3.mean(fs,n=>n.x):0})
-    .attr('y',d=>{const fs=G.nodes.filter(n=>n.dir===d);return fs.length?d3.mean(fs,n=>n.y)+6:0});
+    .attr('y',d=>{const fs=G.nodes.filter(n=>n.dir===d);return fs.length?d3.mean(fs,n=>n.y)-((NC>80?12:NC>40?18:28)+4):0});
 });
 
 function selectFile(d){
