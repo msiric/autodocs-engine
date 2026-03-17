@@ -717,6 +717,10 @@ function scanStatement(
     if (scanned.has(stmt.name.text)) return;
     scanned.add(stmt.name.text);
     if (stmt.body) findCallsInBody(stmt.body, stmt.name.text, importedNameToModule, callRefs);
+  } else if (ts.isClassDeclaration(stmt) && stmt.name && exportedNames.has(stmt.name.text)) {
+    if (scanned.has(stmt.name.text)) return;
+    scanned.add(stmt.name.text);
+    scanClassMethods(stmt, importedNameToModule, callRefs);
   } else if (ts.isVariableStatement(stmt)) {
     for (const decl of stmt.declarationList.declarations) {
       if (!ts.isIdentifier(decl.name) || !exportedNames.has(decl.name.text)) continue;
@@ -775,4 +779,68 @@ function findCallsInBody(
   }
 
   walk(body);
+}
+
+/**
+ * Scan an exported class declaration for this.method() calls between methods.
+ * Captures intra-class call edges using "ClassName.method" naming convention.
+ */
+function scanClassMethods(
+  classDecl: ts.ClassDeclaration,
+  importedNameToModule: Map<string, string>,
+  callRefs: CallReference[],
+): void {
+  const className = classDecl.name?.text;
+  if (!className) return;
+
+  // Collect all method names in this class (MethodDeclaration + arrow PropertyDeclaration)
+  const methodNames = new Set<string>();
+  const methodBodies: { name: string; body: ts.Node }[] = [];
+
+  for (const member of classDecl.members) {
+    if (ts.isMethodDeclaration(member) && member.name && ts.isIdentifier(member.name) && member.body) {
+      methodNames.add(member.name.text);
+      methodBodies.push({ name: member.name.text, body: member.body });
+    } else if (ts.isPropertyDeclaration(member) && member.name && ts.isIdentifier(member.name) && member.initializer) {
+      if (ts.isArrowFunction(member.initializer) || ts.isFunctionExpression(member.initializer)) {
+        methodNames.add(member.name.text);
+        methodBodies.push({ name: member.name.text, body: member.initializer.body });
+      }
+    }
+  }
+
+  // Walk each method body for this.X() calls + imported symbol calls
+  for (const { name, body } of methodBodies) {
+    const callerName = `${className}.${name}`;
+
+    // Track imported symbol calls within class methods (same as standalone functions)
+    findCallsInBody(body, callerName, importedNameToModule, callRefs);
+
+    // Track this.method() calls within the same class
+    const seen = new Set<string>();
+    function walkThis(node: ts.Node): void {
+      if (
+        ts.isCallExpression(node) &&
+        ts.isPropertyAccessExpression(node.expression) &&
+        node.expression.expression.kind === ts.SyntaxKind.ThisKeyword &&
+        ts.isIdentifier(node.expression.name)
+      ) {
+        const methodName = node.expression.name.text;
+        if (methodNames.has(methodName) && methodName !== name) {
+          const key = `${callerName}->${className}.${methodName}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            callRefs.push({
+              callerName,
+              calleeName: `${className}.${methodName}`,
+              calleeModule: ".",
+              isInternal: true,
+            });
+          }
+        }
+      }
+      ts.forEachChild(node, walkThis);
+    }
+    walkThis(body);
+  }
 }

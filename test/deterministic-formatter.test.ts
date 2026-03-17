@@ -417,6 +417,231 @@ describe("deterministic-formatter", () => {
     });
   });
 
+  // ─── formatTeamKnowledge ──────────────────────────────────────────────────
+
+  describe("formatTeamKnowledge (via generateDeterministicAgentsMd)", () => {
+    it("asks about directories with 5+ files not covered by contribution patterns", () => {
+      const result = generateDeterministicAgentsMd(
+        makeMinimalAnalysis({
+          architecture: {
+            entryPoint: "index.ts",
+            directories: [{ path: "src/widgets", purpose: "Feature: UI widgets", fileCount: 8, exports: [] }],
+            packageType: "library",
+            hasJSX: false,
+          },
+          contributionPatterns: [], // not covered
+        }),
+      );
+      expect(result.teamKnowledge).toContain("src/widgets/");
+      expect(result.teamKnowledge).toContain("adding a new one");
+    });
+
+    it("skips directory question when covered by contribution patterns", () => {
+      const result = generateDeterministicAgentsMd(
+        makeMinimalAnalysis({
+          architecture: {
+            entryPoint: "index.ts",
+            directories: [{ path: "src/hooks", purpose: "React hooks", fileCount: 8, exports: [] }],
+            packageType: "library",
+            hasJSX: false,
+          },
+          contributionPatterns: [
+            {
+              type: "hook",
+              directory: "src/hooks",
+              filePattern: "use-*.ts",
+              exampleFile: "src/hooks/use-auth.ts",
+              steps: ["Create hook"],
+            },
+          ],
+        }),
+      );
+      expect(result.teamKnowledge).not.toContain("src/hooks/");
+    });
+
+    it("asks about call graph complexity when >10 edges", () => {
+      const edges = Array.from({ length: 12 }, (_, i) => ({
+        from: `fn${i}`,
+        to: `fn${i + 1}`,
+        fromFile: `src/a${i}.ts`,
+        toFile: `src/b${i}.ts`,
+      }));
+      const result = generateDeterministicAgentsMd(makeMinimalAnalysis({ callGraph: edges }));
+      expect(result.teamKnowledge).toContain("12 cross-file call relationships");
+    });
+
+    it("asks about CLI conventions for cli package type", () => {
+      const result = generateDeterministicAgentsMd(
+        makeMinimalAnalysis({
+          architecture: {
+            entryPoint: "index.ts",
+            directories: [],
+            packageType: "cli",
+            hasJSX: false,
+          },
+        }),
+      );
+      expect(result.teamKnowledge).toContain("CLI-specific");
+    });
+
+    it("asks about contribution workflow when no CONTRIBUTING.md", () => {
+      const result = generateDeterministicAgentsMd(
+        makeMinimalAnalysis({
+          existingDocs: { hasReadme: true, hasAgentsMd: false, hasContributing: false },
+        }),
+      );
+      expect(result.teamKnowledge).toContain("contribution workflow");
+    });
+
+    it("asks about env vars when detected", () => {
+      const result = generateDeterministicAgentsMd(
+        makeMinimalAnalysis({
+          configAnalysis: { envVars: ["API_KEY", "DATABASE_URL"] },
+        }),
+      );
+      expect(result.teamKnowledge).toContain("2 environment variables");
+    });
+
+    it("asks about testing philosophy when test conventions exist", () => {
+      const result = generateDeterministicAgentsMd(
+        makeMinimalAnalysis({
+          conventions: [
+            {
+              category: "testing",
+              name: "vitest",
+              description: "Uses Vitest",
+              confidence: { matched: 10, total: 10, percentage: 100, description: "10 of 10" },
+              examples: [],
+              impact: "high",
+            },
+          ],
+        }),
+      );
+      expect(result.teamKnowledge).toContain("testing philosophy");
+    });
+
+    it("shows placeholder when no questions generated", () => {
+      const result = generateDeterministicAgentsMd(
+        makeMinimalAnalysis({
+          architecture: { entryPoint: "index.ts", directories: [], packageType: "library", hasJSX: false },
+          callGraph: [],
+          conventions: [],
+          contributionPatterns: [],
+          configAnalysis: {},
+          existingDocs: { hasReadme: true, hasAgentsMd: false, hasContributing: true },
+          commands: { packageManager: "npm", other: [] },
+        }),
+      );
+      expect(result.teamKnowledge).toContain("Add project-specific context");
+    });
+  });
+
+  // ─── formatChangeImpact ────────────────────────────────────────────────────
+
+  describe("formatChangeImpact (via generateDeterministicAgentsMd)", () => {
+    it("returns empty when call graph is too sparse", () => {
+      const result = generateDeterministicAgentsMd(makeMinimalAnalysis({ callGraph: [] }));
+      expect(result.changeImpact).toBe("");
+    });
+
+    it("renders high-impact table when function has many callers", () => {
+      // Need 10+ edges for computeImpactRadius, plus a function called by 2+ others
+      const edges = [
+        // "core" is called by 3 different callers
+        { from: "callerA", to: "core", fromFile: "src/a.ts", toFile: "src/core.ts" },
+        { from: "callerB", to: "core", fromFile: "src/b.ts", toFile: "src/core.ts" },
+        { from: "callerC", to: "core", fromFile: "src/c.ts", toFile: "src/core.ts" },
+        // filler edges to reach MIN_EDGES=10
+        ...Array.from({ length: 8 }, (_, i) => ({
+          from: `fill${i}`,
+          to: `fill${i + 1}`,
+          fromFile: `src/f${i}.ts`,
+          toFile: `src/f${i + 1}.ts`,
+        })),
+      ];
+      const result = generateDeterministicAgentsMd(makeMinimalAnalysis({ callGraph: edges }));
+      expect(result.changeImpact).toContain("High-impact functions");
+      expect(result.changeImpact).toContain("`core`");
+    });
+
+    it("renders complex-functions table when function calls many others", () => {
+      // One orchestrator calling 5+ different functions
+      const edges = [
+        { from: "orchestrate", to: "step1", fromFile: "src/orch.ts", toFile: "src/s1.ts" },
+        { from: "orchestrate", to: "step2", fromFile: "src/orch.ts", toFile: "src/s2.ts" },
+        { from: "orchestrate", to: "step3", fromFile: "src/orch.ts", toFile: "src/s3.ts" },
+        { from: "orchestrate", to: "step4", fromFile: "src/orch.ts", toFile: "src/s4.ts" },
+        { from: "orchestrate", to: "step5", fromFile: "src/orch.ts", toFile: "src/s5.ts" },
+        // filler edges to reach MIN_EDGES=10
+        ...Array.from({ length: 6 }, (_, i) => ({
+          from: `pad${i}`,
+          to: `pad${i + 1}`,
+          fromFile: `src/p${i}.ts`,
+          toFile: `src/p${i + 1}.ts`,
+        })),
+      ];
+      const result = generateDeterministicAgentsMd(makeMinimalAnalysis({ callGraph: edges }));
+      expect(result.changeImpact).toContain("Complex functions");
+      expect(result.changeImpact).toContain("`orchestrate`");
+    });
+  });
+
+  // ─── formatSupportedFrameworks ─────────────────────────────────────────────
+
+  describe("formatSupportedFrameworks (via generateDeterministicAgentsMd)", () => {
+    it("renders supported frameworks for meta-tool package", () => {
+      const result = generateDeterministicAgentsMd(
+        makeMinimalAnalysis({
+          isMetaTool: true,
+          metaToolInfo: {
+            supportedFamilies: ["react", "vue", "angular"],
+            coreFamilies: ["react"],
+          },
+        }),
+      );
+      expect(result.supportedFrameworks).toContain("## Supported Frameworks");
+      expect(result.supportedFrameworks).toContain("vue");
+      expect(result.supportedFrameworks).toContain("angular");
+    });
+
+    it("excludes core families from supported list", () => {
+      const result = generateDeterministicAgentsMd(
+        makeMinimalAnalysis({
+          isMetaTool: true,
+          metaToolInfo: {
+            supportedFamilies: ["react", "vue"],
+            coreFamilies: ["react"],
+          },
+        }),
+      );
+      // The supported list after filtering core should only contain "vue"
+      const frameworkLines = result.supportedFrameworks
+        .split("\n")
+        .filter((l) => !l.startsWith("#") && !l.startsWith("_") && l.trim());
+      const joinedLine = frameworkLines.join(" ");
+      expect(joinedLine).toContain("vue");
+      expect(joinedLine).not.toMatch(/\breact\b/);
+    });
+
+    it("returns empty for non-meta-tool package", () => {
+      const result = generateDeterministicAgentsMd(makeMinimalAnalysis());
+      expect(result.supportedFrameworks).toBe("");
+    });
+
+    it("returns empty when all supported families are core", () => {
+      const result = generateDeterministicAgentsMd(
+        makeMinimalAnalysis({
+          isMetaTool: true,
+          metaToolInfo: {
+            supportedFamilies: ["react"],
+            coreFamilies: ["react"],
+          },
+        }),
+      );
+      expect(result.supportedFrameworks).toBe("");
+    });
+  });
+
   describe("generatePackageDeterministicAgentsMd()", () => {
     it("generates single-package output for hierarchical mode", () => {
       const analysis = makeMinimalAnalysis();

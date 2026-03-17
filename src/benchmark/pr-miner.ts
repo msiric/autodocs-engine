@@ -2,7 +2,7 @@
 // Uses actual developer commits as ground truth for benchmark tasks.
 // Reads all files at commit time (not HEAD) to avoid time-travel leakage.
 
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { basename, dirname, extname, resolve } from "node:path";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -152,14 +152,19 @@ interface RawCommit {
  * Uses `git log --diff-filter=A --name-only` to efficiently find additions.
  */
 function findAddFileCommits(gitRoot: string, opts: Required<MinerOptions>): RawCommit[] {
-  const raw = gitExec(
-    gitRoot,
-    `git log --no-merges --diff-filter=A --name-only ` +
-      `--format="COMMIT:%H|%s|%aI" ` +
-      `--since="${opts.sinceDays} days ago" ` +
-      `-n ${opts.maxCommits} ` +
-      `-- "*.ts" "*.tsx"`,
-  );
+  const raw = gitExec(gitRoot, [
+    "log",
+    "--no-merges",
+    "--diff-filter=A",
+    "--name-only",
+    "--format=COMMIT:%H|%s|%aI",
+    `--since=${opts.sinceDays} days ago`,
+    "-n",
+    String(opts.maxCommits),
+    "--",
+    "*.ts",
+    "*.tsx",
+  ]);
   if (!raw) return [];
 
   const commits: RawCommit[] = [];
@@ -184,7 +189,7 @@ function findAddFileCommits(gitRoot: string, opts: Required<MinerOptions>): RawC
 
   // Get total files changed per commit (including non-additions)
   for (const commit of commits) {
-    const stat = gitExec(gitRoot, `git diff-tree --no-commit-id --name-only -r ${commit.sha}`);
+    const stat = gitExec(gitRoot, ["diff-tree", "--no-commit-id", "--name-only", "-r", commit.sha]);
     commit.totalFilesChanged = stat ? stat.split("\n").filter((l) => l.trim()).length : commit.addedFiles.length;
   }
 
@@ -196,7 +201,7 @@ function findAddFileCommits(gitRoot: string, opts: Required<MinerOptions>): RawC
  * Returns null if the file doesn't exist at that commit.
  */
 export function readFileAtCommit(gitRoot: string, sha: string, filePath: string): string | null {
-  return gitExec(gitRoot, `git show ${sha}:${filePath}`);
+  return gitExec(gitRoot, ["show", `${sha}:${filePath}`]);
 }
 
 /**
@@ -206,7 +211,7 @@ export function readFileAtCommit(gitRoot: string, sha: string, filePath: string)
 export function listDirAtCommit(gitRoot: string, sha: string, dirPath: string): string[] {
   // Ensure dirPath ends with / for git ls-tree
   const dir = dirPath.endsWith("/") ? dirPath : `${dirPath}/`;
-  const raw = gitExec(gitRoot, `git ls-tree --name-only ${sha} ${dir}`);
+  const raw = gitExec(gitRoot, ["ls-tree", "--name-only", sha, dir]);
   if (!raw) return [];
   return raw
     .split("\n")
@@ -370,9 +375,9 @@ function getPackageRoot(dir: string): string {
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-function gitExec(cwd: string, command: string): string | null {
+function gitExec(cwd: string, args: string[]): string | null {
   try {
-    return execSync(command, {
+    return execFileSync("git", args, {
       cwd,
       encoding: "utf-8",
       timeout: 15_000,
@@ -385,7 +390,7 @@ function gitExec(cwd: string, command: string): string | null {
 }
 
 function getGitRoot(dir: string): string | null {
-  return gitExec(dir, "git rev-parse --show-toplevel");
+  return gitExec(dir, ["rev-parse", "--show-toplevel"]);
 }
 
 function truncate(content: string, maxLines: number): string {

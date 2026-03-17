@@ -182,6 +182,99 @@ describe("call-graph", () => {
   });
 });
 
+// ─── Class Method Call Graph ─────────────────────────────────────────────────
+
+describe("class-method-call-graph", () => {
+  it("extracts this.method() call references from exported class", () => {
+    const warnings: Warning[] = [];
+    const pf = parseFile(
+      resolve(FIXTURES, "callgraph-pkg/src/service.ts"),
+      resolve(FIXTURES, "callgraph-pkg"),
+      warnings,
+    );
+
+    expect(pf.callReferences.length).toBeGreaterThanOrEqual(4);
+
+    // fetch calls this.sanitize, this.validate, this.query
+    const sanitizeCall = pf.callReferences.find(
+      (cr) => cr.callerName === "UserService.fetch" && cr.calleeName === "UserService.sanitize",
+    );
+    expect(sanitizeCall).toBeDefined();
+    expect(sanitizeCall!.calleeModule).toBe(".");
+    expect(sanitizeCall!.isInternal).toBe(true);
+
+    const validateThisCall = pf.callReferences.find(
+      (cr) => cr.callerName === "UserService.fetch" && cr.calleeName === "UserService.checkInput",
+    );
+    expect(validateThisCall).toBeDefined();
+
+    const queryCall = pf.callReferences.find(
+      (cr) => cr.callerName === "UserService.fetch" && cr.calleeName === "UserService.query",
+    );
+    expect(queryCall).toBeDefined();
+  });
+
+  it("tracks arrow function class fields as methods", () => {
+    const warnings: Warning[] = [];
+    const pf = parseFile(
+      resolve(FIXTURES, "callgraph-pkg/src/service.ts"),
+      resolve(FIXTURES, "callgraph-pkg"),
+      warnings,
+    );
+
+    // query (arrow field) calls this.formatResult
+    const formatCall = pf.callReferences.find(
+      (cr) => cr.callerName === "UserService.query" && cr.calleeName === "UserService.formatResult",
+    );
+    expect(formatCall).toBeDefined();
+  });
+
+  it("tracks imported symbol calls within class methods", () => {
+    const warnings: Warning[] = [];
+    const pf = parseFile(
+      resolve(FIXTURES, "callgraph-pkg/src/service.ts"),
+      resolve(FIXTURES, "callgraph-pkg"),
+      warnings,
+    );
+
+    // checkInput method calls imported validateInput()
+    const importedCall = pf.callReferences.find(
+      (cr) => cr.callerName === "UserService.checkInput" && cr.calleeName === "validateInput",
+    );
+    expect(importedCall).toBeDefined();
+    expect(importedCall!.calleeModule).toBe("./validator.js");
+  });
+
+  it("produces same-file call graph edges for this.method() calls", () => {
+    const warnings: Warning[] = [];
+    const pkgDir = resolve(FIXTURES, "callgraph-pkg");
+    const files = discoverFiles(pkgDir, [], warnings);
+    const parsed = files.map((f) => parseFile(f, pkgDir, warnings));
+    const graph = buildSymbolGraph(parsed, pkgDir, warnings);
+
+    // Same-file this.method() edges
+    const thisEdge = graph.callGraph.find((e) => e.from === "UserService.fetch" && e.to === "UserService.sanitize");
+    expect(thisEdge).toBeDefined();
+    expect(thisEdge!.resolution).toBe("this-method");
+    expect(thisEdge!.confidence).toBe(0.95);
+    expect(thisEdge!.fromFile).toBe(thisEdge!.toFile); // same file
+  });
+
+  it("produces cross-file edges from class methods to imported symbols", () => {
+    const warnings: Warning[] = [];
+    const pkgDir = resolve(FIXTURES, "callgraph-pkg");
+    const files = discoverFiles(pkgDir, [], warnings);
+    const parsed = files.map((f) => parseFile(f, pkgDir, warnings));
+    const graph = buildSymbolGraph(parsed, pkgDir, warnings);
+
+    // Cross-file: UserService.checkInput → validateInput (resolved via export map)
+    const crossEdge = graph.callGraph.find((e) => e.from === "UserService.checkInput" && e.to === "validateInput");
+    expect(crossEdge).toBeDefined();
+    expect(crossEdge!.fromFile).toBe("src/service.ts");
+    expect(crossEdge!.fromFile).not.toBe(crossEdge!.toFile); // cross-file
+  });
+});
+
 // ─── Improvement 4: Existing Docs Detection & Merge ─────────────────────────
 
 describe("existing-docs", () => {

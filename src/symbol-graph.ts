@@ -745,6 +745,22 @@ function buildCallGraph(parsedFiles: ParsedFile[], _packageDir: string, _warning
     for (const ref of pf.callReferences) {
       if (!ref.isInternal) continue; // Only track internal calls
 
+      // Same-class this.method() calls: calleeModule "." means same-file class method
+      if (ref.calleeModule === ".") {
+        const key = `${ref.callerName}:${pf.relativePath}->${ref.calleeName}:${pf.relativePath}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        edges.push({
+          from: ref.callerName,
+          to: ref.calleeName,
+          fromFile: pf.relativePath,
+          toFile: pf.relativePath,
+          confidence: 0.95,
+          resolution: "this-method",
+        });
+        continue;
+      }
+
       // Resolve the callee to a file
       const toFile = exportNameToFile.get(ref.calleeName);
       if (!toFile || toFile === pf.relativePath) continue; // Skip self-references
