@@ -19,7 +19,7 @@ Gives AI coding agents deep understanding of your codebase — not just what fil
 
 ```bash
 # MCP server for Claude Code
-claude mcp add autodocs -- npx synaps serve
+claude mcp add synaps -- npx synaps serve
 
 # Install Claude Code hooks (automatic search augmentation)
 npx synaps setup-hooks
@@ -55,11 +55,11 @@ Every tool response includes **next-step hints** guiding the agent to the logica
 
 | Resource | URI | Content |
 |----------|-----|---------|
-| Conventions | `autodocs://conventions` | DO/DON'T rules from all detectors |
-| Processes | `autodocs://processes` | Execution flows with confidence scores |
-| Clusters | `autodocs://clusters` | Co-change file groups (cliques) |
-| Packages | `autodocs://packages` | Package inventory with types and entry points |
-| Schema | `autodocs://schema` | Analysis data model reference |
+| Conventions | `synaps://conventions` | DO/DON'T rules from all detectors |
+| Processes | `synaps://processes` | Execution flows with confidence scores |
+| Clusters | `synaps://clusters` | Co-change file groups (cliques) |
+| Packages | `synaps://packages` | Package inventory with types and entry points |
+| Schema | `synaps://schema` | Analysis data model reference |
 
 ### MCP Prompts (2)
 
@@ -72,7 +72,7 @@ Every tool response includes **next-step hints** guiding the agent to the logica
 
 Serve multiple repositories from a single MCP server:
 ```bash
-claude mcp add autodocs -- npx synaps serve /path/to/repo1 /path/to/repo2
+claude mcp add synaps -- npx synaps serve /path/to/repo1 /path/to/repo2
 ```
 All tools accept an optional `repo` parameter. Single-repo usage is unchanged.
 
@@ -127,7 +127,7 @@ Installs PreToolUse + PostToolUse hooks:
 
 ```bash
 # Add MCP server
-claude mcp add autodocs -- npx synaps serve
+claude mcp add synaps -- npx synaps serve
 
 # Install hooks for automatic search augmentation
 npx synaps setup-hooks
@@ -135,7 +135,7 @@ npx synaps setup-hooks
 
 With `--type-checking` for resolved TypeScript types:
 ```bash
-claude mcp add autodocs -- npx synaps serve --type-checking
+claude mcp add synaps -- npx synaps serve --type-checking
 ```
 
 ## AGENTS.md Generation
