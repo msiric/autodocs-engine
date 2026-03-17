@@ -15,6 +15,8 @@ Gives AI coding agents deep understanding of your codebase — not just what fil
 - **"What caused this test failure?"** → Ranked suspect files with confidence assessment, validated on 95 real bug-fix commits across 10 repos.
 - **"What patterns should I follow?"** → 13 convention detectors covering error handling, async patterns, state management, API patterns, hooks, testing, and more.
 
+https://github.com/user-attachments/assets/78c216ca-367d-4441-94af-de15ba12fd65
+
 ## Quick Start
 
 ```bash
