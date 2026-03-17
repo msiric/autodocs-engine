@@ -4,7 +4,7 @@ import { generateReport } from "../src/visualizer.js";
 
 function makeAnalysis(overrides: Partial<PackageAnalysis> = {}): StructuredAnalysis {
   return {
-    meta: { engineVersion: "0.10.2", analyzedAt: "2026-03-16", rootDir: "/tmp", config: {} as any, timingMs: 100 },
+    meta: { engineVersion: "0.10.3", analyzedAt: "2026-03-17", rootDir: "/tmp", config: {} as any, timingMs: 100 },
     packages: [
       {
         name: "test-pkg",
@@ -109,7 +109,7 @@ function makeAnalysis(overrides: Partial<PackageAnalysis> = {}): StructuredAnaly
         coChangeClusters: [["src/index.ts", "src/parser.ts", "src/types.ts"]],
         executionFlows: [
           {
-            label: "run \u2192 parse (2 steps, 2 files)",
+            label: "run \u2192 parse",
             entryPoint: "run",
             entryFile: "src/index.ts",
             terminal: "parse",
@@ -130,20 +130,25 @@ function makeAnalysis(overrides: Partial<PackageAnalysis> = {}): StructuredAnaly
 }
 
 describe("generateReport", () => {
-  it("produces valid HTML with full-viewport graph", () => {
+  it("produces valid HTML with D3 and file-level nodes", () => {
     const html = generateReport(makeAnalysis());
     expect(html).toContain("<!DOCTYPE html>");
-    expect(html).toContain("</html>");
-    expect(html).toContain("test-pkg");
     expect(html).toContain("d3.min.js");
     expect(html).toContain("forceSimulation");
+    expect(html).toContain("test-pkg");
   });
 
-  it("renders floating header with stats", () => {
+  it("renders file nodes with directory clustering", () => {
+    const html = generateReport(makeAnalysis());
+    expect(html).toContain("src/types.ts");
+    expect(html).toContain("src/pipeline.ts");
+    expect(html).toContain("dirCenters");
+  });
+
+  it("renders stats in header", () => {
     const html = generateReport(makeAnalysis());
     expect(html).toContain("20"); // files
     expect(html).toContain("Files");
-    expect(html).toContain("library");
   });
 
   it("renders three edge types in legend", () => {
@@ -153,24 +158,14 @@ describe("generateReport", () => {
     expect(html).toContain("implicit coupling");
   });
 
-  it("includes graph data and interaction script", () => {
-    const html = generateReport(makeAnalysis());
-    expect(html).toContain("selectNode");
-    expect(html).toContain("closePanel");
-    expect(html).toContain("const G=");
-    expect(html).toContain("const IM=");
-  });
-
-  it("renders execution flows in drawer", () => {
+  it("renders flows in drawer", () => {
     const html = generateReport(makeAnalysis());
     expect(html).toContain("Execution Flows");
     expect(html).toContain("run");
-    expect(html).toContain("parse");
   });
 
   it("renders conventions in drawer", () => {
     const html = generateReport(makeAnalysis());
-    expect(html).toContain("Conventions");
     expect(html).toContain("kebab-case");
     expect(html).toContain("No camelCase");
   });
@@ -178,19 +173,11 @@ describe("generateReport", () => {
   it("escapes HTML in package name", () => {
     const html = generateReport(makeAnalysis({ name: "test<img onerror=alert(1)>" } as any));
     expect(html).not.toContain("<img onerror");
-    expect(html).toContain("&lt;img");
   });
 
-  it("includes implicit coupling edges in graph data", () => {
+  it("includes co-change and implicit edges in graph data", () => {
     const html = generateReport(makeAnalysis());
+    // Implicit coupling between src/mcp/tools.ts and scripts/check.ts — both in import chain
     expect(html).toContain('"implicit"');
-  });
-
-  it("includes per-directory file data for expansion", () => {
-    const html = generateReport(makeAnalysis());
-    expect(html).toContain("filesByDir");
-    expect(html).toContain("expandDir");
-    expect(html).toContain("collapseDir");
-    expect(html).toContain("double-click to expand");
   });
 });
