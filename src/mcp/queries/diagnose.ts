@@ -450,11 +450,18 @@ export function buildSuspectList(
 
   const allCandidates = new Set([...upstreamSymbols.keys(), ...downstreamSymbols.keys(), ...candidateCoupling.keys()]);
 
-  // Directory locality candidate discovery: when the test file is disconnected from source
-  // (either imports the entry point or has very few candidates from import graph),
+  // Directory locality candidate discovery: when the test file routes through a barrel
+  // (imports entry point, or its direct imports are all barrels/helpers — not specific source),
   // scan all known files for directory-name matches with the test file.
   // This adds candidates that the import graph can't reach.
-  const testDisconnected = testFile && (testImportsEntryPoint || allCandidates.size < 5);
+  const testDirectImports = importByImporter.get(testFile ?? "") ?? [];
+  const testImportsOnlyBarrels =
+    testFile != null &&
+    testDirectImports.length > 0 &&
+    testDirectImports.every(
+      (e) => e.source.endsWith("/index.ts") || e.source.includes("/helpers/") || e.source.includes("/test/"),
+    );
+  const testDisconnected = testFile && (testImportsEntryPoint || testImportsOnlyBarrels || allCandidates.size < 5);
   if (testDisconnected && testFile) {
     const allKnownFiles = new Set<string>();
     for (const edge of chain) {
@@ -535,7 +542,9 @@ export function buildSuspectList(
     const downScore = Math.min((downstreamSymbols.get(file) ?? 0) / 10, 1);
     const upstreamBoost = recentChanges.length === 0 ? 1.3 : 1.0;
     // When test imports entry point, import graph is unselective — reduce dependency weight
+    // and boost directory locality (the only discriminating signal in this scenario)
     const selectivityFactor = testImportsEntryPoint ? 0.5 : 1.0;
+    const localityBoost = testImportsEntryPoint ? 3.0 : 1.0;
     const signals = {
       missingCoChange: missingCoChange.get(file) ?? 0,
       recency: change ? recencyScore(change.hoursAgo) : 0,
@@ -543,7 +552,7 @@ export function buildSuspectList(
       dependency: Math.max(upScore * upstreamBoost, downScore) * selectivityFactor,
       workflow: workflowFiles.has(file) ? 1.0 : 0,
       testMapping: testToSourceScore(testFile ?? null, file, importByImporter),
-      directoryLocality: directoryLocalityScore(testFile ?? null, file),
+      directoryLocality: directoryLocalityScore(testFile ?? null, file) * localityBoost,
     };
 
     let score =

@@ -135,7 +135,8 @@ describe("directory locality in diagnose", () => {
 
     const astroSuspect = suspects.find((s) => s.file === "src/plugins/astro/index.ts");
     expect(astroSuspect).toBeDefined();
-    expect(astroSuspect!.signals.directoryLocality).toBe(1);
+    // 3x locality boost when test imports entry point (integration test pattern)
+    expect(astroSuspect!.signals.directoryLocality).toBe(3);
   });
 
   it("does not match generic directory names", () => {

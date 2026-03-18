@@ -61,7 +61,7 @@ The 6-model brainstorm was unanimous: ship and get real users. The engine has be
 ### 3. Harden (Parallel with user feedback)
 
 - [ ] **Test coverage** 906→1,000+ — Focus: hook edge cases, execution flow edge cases, new detectors
-- [ ] **Diagnose accuracy** P@1 39%, R@3 46% → P@1 50%+ — Call graph as first-class candidate discovery signal, content-based similarity for disconnected tests
+- [ ] **Diagnose accuracy** P@1 40%, R@3 51%, MRR 0.448 → P@1 50%+ — Test content analysis for disconnected tests (zod, drizzle), utility file penalties
 - [ ] **Convention enforcement in CI** — `synaps check --conventions` command. Detects convention drift (new files violating established patterns). Every brainstorm model identified convention detection as the strongest technical moat.
 
 ### 4. Expand (Driven by user feedback)
